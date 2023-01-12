@@ -1,0 +1,20 @@
+CREATE TABLE record (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    reference TEXT NOT NULL UNIQUE
+);
+
+selectPaginated:
+SELECT * FROM record LIMIT :limit, :offset;
+
+
+insertRecord:
+INSERT INTO record(name, reference)
+VALUES (:name, :reference);
+
+
+updateRecord:
+UPDATE record
+SET
+    name = :name
+WHERE id = :id;

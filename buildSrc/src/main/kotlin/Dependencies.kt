@@ -8,6 +8,7 @@ object Versions {
     const val androidTargetSdkVersion = 33
 
 
+    const val kotlinXDatetime = "0.4.0"
     const val sqlDelight = "1.5.4"
     const val koinCore = "3.3.2"
     const val koinAndroid = "3.3.2"
@@ -30,12 +31,15 @@ object Dependencies {
         const val sqliteDriver = "com.squareup.sqldelight:sqlite-driver:${Versions.sqlDelight}"
     }
 
-
     object Koin {
         const val core = "io.insert-koin:koin-core:${Versions.koinCore}"
         const val test = "io.insert-koin:koin-test:${Versions.koinCore}"
         const val testJUnit4 = "io.insert-koin:koin-test-junit4:${Versions.koinCore}"
         const val android = "io.insert-koin:koin-android:${Versions.koinAndroid}"
         const val compose = "io.insert-koin:koin-androidx-compose:${Versions.koinAndroidCompose}"
+    }
+
+    object KotlinX {
+        const val datetime = "org.jetbrains.kotlinx:kotlinx-datetime:${Versions.kotlinXDatetime}"
     }
 }

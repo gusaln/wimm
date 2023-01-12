@@ -10,16 +10,18 @@ import java.io.File
 
 actual class DatabaseFactory {
     actual fun create(): Database {
-        var dbExisted: Boolean
-        with(File("wimm.db")) {
-            dbExisted = exists()
-        }
-
         val driver = JdbcSqliteDriver("jdbc:sqlite:wimm.db")
 
-        if (!dbExisted) {
-            Database.Schema.create(driver)
+        with(File("wimm.db")) {
+            if (!exists()) {
+                Database.Schema.create(driver)
+
+                return Database(driver).also {
+                    it.accountQueries.insertAccount("Savings", "USD", 0.0)
+                }
+            }
         }
+
 
         return Database(driver)
     }

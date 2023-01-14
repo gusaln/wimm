@@ -2,7 +2,7 @@
     id INTEGER PRIMARY KEY,
     account_id INTEGER NOT NULL,
     record_id INTEGER NOT NULL,
-    name TEXT,
+    description TEXT NOT NULL,
     amount_currency TEXT NOT NULL,
     amount_value REAL NOT NULL DEFAULT 0,
     incurred_at TEXT NOT NULL,
@@ -23,8 +23,8 @@ selectPaginated:
 SELECT * FROM entry LIMIT :limit, :offset;
 
 insertEntry {
-    INSERT INTO entry(name, account_id, record_id, name, amount_currency, amount_value, incurred_at, recorded_at)
-    VALUES (:name, :account_id, :record_id, :name, :amount_currency, :amount_value, :incurred_at, :recorded_at);
+    INSERT INTO entry(description, account_id, record_id, description, amount_currency, amount_value, incurred_at, recorded_at)
+    VALUES (:description, :account_id, :record_id, :description, :amount_currency, :amount_value, :incurred_at, :recorded_at);
 
     UPDATE account
     SET balance_value = balance_value + :amount_value
@@ -35,7 +35,7 @@ insertEntry {
 updateEntry {
     UPDATE entry
     SET
-        name = :name,
+        description = :description,
         account_id = :account_id,
         record_id = :record_id,
         amount_currency = :amount_currency,

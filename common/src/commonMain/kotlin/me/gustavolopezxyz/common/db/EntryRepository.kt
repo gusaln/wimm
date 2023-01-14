@@ -28,18 +28,18 @@ class EntryRepository : KoinComponent {
     }
 
     fun create(
-        name: String,
+        description: String,
         amount: Money,
         account: Account,
         record: Record,
         incurredAt: Instant,
         recordedAt: Instant = incurredAt,
     ) {
-        return create(name, amount, account.id, record.id, incurredAt, recordedAt)
+        return create(description, amount, account.id, record.id, incurredAt, recordedAt)
     }
 
     fun create(
-        name: String,
+        description: String,
         amount: Money,
         accountId: Long,
         recordId: Long,
@@ -47,7 +47,7 @@ class EntryRepository : KoinComponent {
         recordedAt: Instant = incurredAt,
     ) {
         return entryQueries.insertEntry(
-            name,
+            description,
             accountId,
             recordId,
             amount.currency.code,

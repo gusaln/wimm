@@ -53,7 +53,7 @@ fun CreateAccountForm(onAccountCreate: (name: String, initialBalance: Money) -> 
         TextField(
             modifier = Modifier.fillMaxWidth(),
             value = initialBalance,
-            onValueChange = { initialBalance = it },
+            onValueChange = { initialBalance = it.toDoubleOrNull()?.toString() ?: it },
             label = { Text("Initial balance") },
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Decimal)
         )

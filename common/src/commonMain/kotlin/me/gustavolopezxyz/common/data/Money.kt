@@ -38,5 +38,9 @@ data class Money(val currency: Currency, val value: Double) {
     operator fun minus(other: Number): Money = minus(other.toDouble())
 
     operator fun minus(other: Double): Money = this.copy(currency = this.currency, value = this.value - other)
+
+    fun isNegative(): Boolean = this.value < 0
+
+    fun isPositive(): Boolean = this.value > 0
 }
 

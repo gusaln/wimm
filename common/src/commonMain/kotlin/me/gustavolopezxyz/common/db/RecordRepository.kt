@@ -18,11 +18,11 @@ class RecordRepository : KoinComponent {
         return queries.selectPaginated(limit, offset).executeAsList()
     }
 
-    fun create(name: String) {
-        return queries.insertRecord(name, getRandomString(36))
+    fun create(description: String) {
+        return queries.insertRecord(description, getRandomString(36))
     }
 
-    fun update(record: Record, name: String) {
-        return queries.updateRecord(name, record.id)
+    fun update(record: Record, description: String) {
+        return queries.updateRecord(description, record.id)
     }
 }

@@ -18,7 +18,7 @@ import org.koin.java.KoinJavaComponent
 
 @Preview
 @Composable
-fun AccountsView() {
+fun AccountsScreen(navController: NavController) {
     val accountRepository: AccountRepository by KoinJavaComponent.inject(AccountRepository::class.java)
 
     val accountsFlow = accountRepository.allAsFlow().mapToList()

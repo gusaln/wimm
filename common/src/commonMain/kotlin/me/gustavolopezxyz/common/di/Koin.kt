@@ -5,8 +5,9 @@
 package me.gustavolopezxyz.common.di
 
 import me.gustavolopezxyz.common.db.AccountRepository
+import me.gustavolopezxyz.common.db.EntryRepository
+import me.gustavolopezxyz.common.db.RecordRepository
 import org.koin.core.context.startKoin
-import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
 
@@ -19,5 +20,7 @@ fun initKoin(appDeclaration: KoinAppDeclaration = {}) {
 }
 
 fun commonModule() = module {
-    singleOf(::AccountRepository)
+    single { AccountRepository() }
+    single { EntryRepository() }
+    single { RecordRepository() }
 }

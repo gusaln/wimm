@@ -1,6 +1,6 @@
 CREATE TABLE record (
     id INTEGER PRIMARY KEY,
-    name TEXT NOT NULL,
+    description TEXT NOT NULL,
     reference TEXT NOT NULL UNIQUE
 );
 
@@ -9,12 +9,12 @@ SELECT * FROM record LIMIT :limit, :offset;
 
 
 insertRecord:
-INSERT INTO record(name, reference)
-VALUES (:name, :reference);
+INSERT INTO record(description, reference)
+VALUES (:description, :reference);
 
 
 updateRecord:
 UPDATE record
 SET
-    name = :name
+    description = :description
 WHERE id = :id;

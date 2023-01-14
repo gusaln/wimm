@@ -13,11 +13,17 @@ object Versions {
     const val koinCore = "3.3.2"
     const val koinAndroid = "3.3.2"
     const val koinAndroidCompose = "3.4.1"
+    const val navigation = "2.5.3"
 }
 
 object Dependencies {
+
     object Gradle {
         const val sqlDelight = "com.squareup.sqldelight:gradle-plugin:${Versions.sqlDelight}"
+    }
+
+    object Navigation {
+        const val core = "androidx.navigation:navigation-compose:${Versions.navigation}"
     }
 
     object SqlDelight {

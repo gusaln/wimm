@@ -24,6 +24,7 @@ kotlin {
                 api(Dependencies.Koin.core)
                 api(Dependencies.Koin.test)
 
+                implementation(Dependencies.Navigation.core)
                 implementation(Dependencies.SqlDelight.runtime)
                 implementation(Dependencies.SqlDelight.coroutineExtensions)
                 implementation(Dependencies.KotlinX.datetime)

@@ -1,12 +1,14 @@
- CREATE TABLE entry (
+import kotlinx.datetime.Instant;
+
+CREATE TABLE entry (
     id INTEGER PRIMARY KEY,
     account_id INTEGER NOT NULL,
     record_id INTEGER NOT NULL,
     description TEXT NOT NULL,
     amount_currency TEXT NOT NULL,
     amount_value REAL NOT NULL DEFAULT 0,
-    incurred_at TEXT NOT NULL,
-    recorded_at TEXT NOT NULL,
+    incurred_at INTEGER AS Instant NOT NULL,
+    recorded_at INTEGER AS Instant NOT NULL,
 
     FOREIGN KEY (account_id)
         REFERENCES account (id)
@@ -20,7 +22,7 @@
 
 
 selectPaginated:
-SELECT * FROM entry LIMIT :limit, :offset;
+SELECT * FROM entry LIMIT :offset, :limit;
 
 insertEntry {
     INSERT INTO entry(description, account_id, record_id, description, amount_currency, amount_value, incurred_at, recorded_at)

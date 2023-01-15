@@ -6,8 +6,11 @@ package me.gustavolopezxyz.common
 
 object Constants {
     object Size {
-        const val SMALL = 8
-        const val MEDIUM = 16
-        const val LARGE = 24
+        const val Small = 8
+        const val Medium = 16
+        const val Large = 24
+        const val ExtraLarge = 32
+
+        const val Field = 12
     }
 }

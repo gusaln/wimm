@@ -24,7 +24,7 @@ fun AccountsListCard(account: Account) {
     Card(modifier = Modifier.widthIn(200.dp, 350.dp), elevation = 4.dp) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(Constants.Size.SMALL.dp)
+            verticalArrangement = Arrangement.spacedBy(Constants.Size.Small.dp)
         ) {
             Row {
                 Text(account.name, style = MaterialTheme.typography.h5)
@@ -43,7 +43,7 @@ fun AccountsListCard(account: Account) {
 @Composable
 fun AccountsList(accounts: List<Account>) {
     Column(
-        modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(Constants.Size.MEDIUM.dp)
+        modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(Constants.Size.Medium.dp)
     ) {
         accounts.forEach {
             AccountsListCard(it)

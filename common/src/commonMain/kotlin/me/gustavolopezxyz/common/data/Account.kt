@@ -4,7 +4,6 @@
 
 package me.gustavolopezxyz.common.data
 
-import kotlinx.datetime.Instant
 import me.gustavolopezxyz.db.Account
 import me.gustavolopezxyz.db.Entry
 
@@ -15,5 +14,3 @@ fun Account.getCurrency() = currencyOf(this.balance_currency)
 
 fun Entry.getAmount() = Money(this.amount_currency, this.amount_value)
 fun Entry.getCurrency() = currencyOf(this.amount_currency)
-fun Entry.getRecordedAt() = Instant.parse(this.recorded_at)
-fun Entry.getIncurredAt() = Instant.parse(this.incurred_at)

@@ -9,15 +9,16 @@ import kotlinx.datetime.*
 fun currentTz() = TimeZone.currentSystemDefault()
 fun currentYear() = Clock.System.now().toLocalDateTime(currentTz()).year
 
-fun LocalTime.toSimpleFormat(): String = "$hour:$minute"
+fun LocalTime.toSimpleFormat(): String = "${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}"
 
 fun LocalDate.toSimpleFormat(): String {
     val dt = this
 
     return buildString {
         append(dt.dayOfMonth)
-        append(" of ")
+        append(' ')
         append(dt.month.name.take(3))
+        append('.')
 
         if (dt.year != currentYear()) {
             append(' ')

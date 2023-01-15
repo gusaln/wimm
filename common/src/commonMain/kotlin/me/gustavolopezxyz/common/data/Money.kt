@@ -4,8 +4,10 @@
 
 package me.gustavolopezxyz.common.data
 
-import me.gustavolopezxyz.common.ext.currency
+import androidx.compose.runtime.Immutable
+import me.gustavolopezxyz.common.ext.toCurrency
 
+@Immutable
 data class Currency constructor(val code: String) {
     override fun toString(): String {
         return code
@@ -20,8 +22,9 @@ fun currencyOf(code: String): Currency {
     return currencyRepository.getOrPut(c) { Currency(c) }
 }
 
+@Immutable
 data class Money(val currency: Currency, val value: Double) {
-    constructor(currencyCode: String, value: Double) : this(currencyCode.currency(), value)
+    constructor(currencyCode: String, value: Double) : this(currencyCode.toCurrency(), value)
 
     operator fun plus(other: Money): Money {
         return plus(other.value)
@@ -39,8 +42,10 @@ data class Money(val currency: Currency, val value: Double) {
 
     operator fun minus(other: Double): Money = this.copy(currency = this.currency, value = this.value - other)
 
-    fun isNegative(): Boolean = this.value < 0
+    operator fun compareTo(other: Money): Int = compareTo(other.value)
 
-    fun isPositive(): Boolean = this.value > 0
+    operator fun compareTo(other: Number): Int = compareTo(other.toDouble())
+
+    operator fun compareTo(other: Double): Int = this.value.compareTo(other)
 }
 

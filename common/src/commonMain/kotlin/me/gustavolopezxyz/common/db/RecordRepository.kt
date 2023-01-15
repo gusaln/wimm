@@ -18,8 +18,20 @@ class RecordRepository : KoinComponent {
         return queries.selectPaginated(limit, offset).executeAsList()
     }
 
-    fun create(description: String) {
-        return queries.insertRecord(description, getRandomString(36))
+    fun findById(id: Long): Record? {
+        return queries.selectById(id).executeAsOneOrNull()
+    }
+
+    fun findByReference(reference: String): Record? {
+        return queries.selectByReference(reference).executeAsOneOrNull()
+    }
+
+    fun create(description: String): String {
+        val reference = getRandomString(36)
+
+        queries.insertRecord(description, reference)
+
+        return reference
     }
 
     fun update(record: Record, description: String) {

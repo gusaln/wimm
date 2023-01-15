@@ -8,8 +8,8 @@ import me.gustavolopezxyz.common.data.Currency
 import me.gustavolopezxyz.common.data.Money
 import me.gustavolopezxyz.common.data.currencyOf
 
-fun String.currency() = currencyOf(this)
+fun String.toCurrency() = currencyOf(this)
 
-fun Number.money(currency: Currency) = Money(currency, this.toDouble())
+fun Number.toMoney(currency: Currency) = Money(currency, this.toDouble())
 
-fun Number.money(currencyCode: String): Money = this.money(currencyCode.currency())
+fun Number.toMoney(currencyCode: String): Money = this.toMoney(currencyCode.toCurrency())

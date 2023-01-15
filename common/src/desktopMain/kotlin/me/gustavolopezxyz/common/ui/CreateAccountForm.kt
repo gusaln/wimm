@@ -34,7 +34,7 @@ fun CreateAccountForm(onAccountCreate: (name: String, initialBalance: Money) -> 
     }
 
     Column(
-        verticalArrangement = Arrangement.spacedBy(Constants.Size.MEDIUM.dp)
+        verticalArrangement = Arrangement.spacedBy(Constants.Size.Field.dp)
     ) {
         Text("Create an Account", style = MaterialTheme.typography.h5)
 
@@ -60,7 +60,7 @@ fun CreateAccountForm(onAccountCreate: (name: String, initialBalance: Money) -> 
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(Constants.Size.MEDIUM.dp, Alignment.End)
+            horizontalArrangement = Arrangement.spacedBy(Constants.Size.Medium.dp, Alignment.End)
         ) {
             Button(onClick = ::handleCreateAccount) {
                 Text("Create")

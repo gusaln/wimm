@@ -12,6 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.squareup.sqldelight.runtime.coroutines.mapToList
+import kotlinx.coroutines.Dispatchers
 import me.gustavolopezxyz.common.Constants
 import me.gustavolopezxyz.common.db.AccountRepository
 import org.koin.java.KoinJavaComponent
@@ -21,13 +22,11 @@ import org.koin.java.KoinJavaComponent
 fun AccountsScreen(navController: NavController) {
     val accountRepository: AccountRepository by KoinJavaComponent.inject(AccountRepository::class.java)
 
-    val accountsFlow = accountRepository.allAsFlow().mapToList()
-
-    val accounts by accountsFlow.collectAsState(accountRepository.getAll())
+    val accounts by accountRepository.allAsFlow().mapToList().collectAsState(accountRepository.getAll(), Dispatchers.IO)
 
     Row(
-        modifier = Modifier.fillMaxWidth().padding(Constants.Size.LARGE.dp),
-        horizontalArrangement = Arrangement.spacedBy(Constants.Size.LARGE.dp)
+        modifier = Modifier.fillMaxWidth().padding(Constants.Size.Large.dp),
+        horizontalArrangement = Arrangement.spacedBy(Constants.Size.Large.dp)
     ) {
         Box(modifier = Modifier.weight(1f)) {
             CreateAccountForm { name, initialBalance ->

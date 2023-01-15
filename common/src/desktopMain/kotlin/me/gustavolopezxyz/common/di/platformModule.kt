@@ -4,6 +4,7 @@
 
 package me.gustavolopezxyz.common.di
 
+import androidx.compose.material.SnackbarHostState
 import me.gustavolopezxyz.common.db.DatabaseFactory
 import org.koin.core.module.Module
 import org.koin.dsl.module
@@ -11,5 +12,9 @@ import org.koin.dsl.module
 actual fun platformModule(): Module = module {
     single {
         DatabaseFactory().create()
+    }
+
+    single {
+        SnackbarHostState()
     }
 }

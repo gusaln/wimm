@@ -9,6 +9,8 @@ import androidx.compose.runtime.Composable
 enum class Screen {
     Dashboard,
 
+    CreateEntries,
+
     Accounts
 }
 
@@ -20,6 +22,10 @@ fun AppNavigationHost(
     NavigationHost(navController) {
         composable(Screen.Dashboard.name) {
             DashboardScreen(navController)
+        }
+
+        composable(Screen.CreateEntries.name) {
+            CreateEntriesScreen(navController)
         }
 
         composable(Screen.Accounts.name) {

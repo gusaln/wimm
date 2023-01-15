@@ -7,11 +7,15 @@ CREATE TABLE record (
 selectPaginated:
 SELECT * FROM record LIMIT :limit, :offset;
 
+selectById:
+SELECT * FROM record WHERE id = :id;
+
+selectByReference:
+SELECT * FROM record WHERE reference = :reference;
 
 insertRecord:
 INSERT INTO record(description, reference)
 VALUES (:description, :reference);
-
 
 updateRecord:
 UPDATE record

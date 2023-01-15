@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
@@ -23,7 +24,7 @@ import kotlinx.datetime.Instant
 import me.gustavolopezxyz.common.Constants
 import me.gustavolopezxyz.common.data.Money
 import me.gustavolopezxyz.common.data.getCurrency
-import me.gustavolopezxyz.common.ext.money
+import me.gustavolopezxyz.common.ext.toMoney
 import me.gustavolopezxyz.common.ext.toSimpleFormat
 import me.gustavolopezxyz.db.Account
 
@@ -41,9 +42,13 @@ fun EntriesListCard(entry: ListEntryDto) {
     Card(modifier = Modifier.fillMaxWidth(), elevation = 2.dp) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(Constants.Size.SMALL.dp)
+            verticalArrangement = Arrangement.spacedBy(Constants.Size.Small.dp)
         ) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 // Details
                 Column {
                     Text(
@@ -66,40 +71,47 @@ fun EntriesListCard(entry: ListEntryDto) {
                     )
 
                     Text(
-                        entry.incurred_at.toSimpleFormat(),
-                        fontSize = MaterialTheme.typography.caption.fontSize
+                        entry.incurred_at.toSimpleFormat(), fontSize = MaterialTheme.typography.caption.fontSize
                     )
                 }
 
                 // Amount
-                Column {
-                    Text(
-                        entry.amount.value.toString(),
-                        modifier = Modifier.align(Alignment.End),
-                        color = if (entry.amount.isNegative()) {
-                            Color.Red
-                        } else {
-                            Color.Unspecified
-                        },
-                        fontSize = MaterialTheme.typography.body1.fontSize,
-                    )
+                Row {
+                    val amountColor = if (entry.amount < 0) {
+                        Color.Red
+                    } else {
+                        Color.Unspecified
+                    }
 
-                    Text(
-                        entry.amount.currency.toString(),
-                        modifier = Modifier.align(Alignment.End),
-                        color = Color.Gray,
-                    )
+                    Text(buildAnnotatedString {
+                        withStyle(
+                            SpanStyle(
+                                fontSize = MaterialTheme.typography.h6.fontSize, color = amountColor
+                            )
+                        ) { append("%.2f".format(entry.amount.value)) }
+
+                        withStyle(
+                            SpanStyle(
+                                color = Color.Gray,
+                                fontSize = MaterialTheme.typography.caption.fontSize,
+                                baselineShift = BaselineShift.Subscript
+                            )
+                        ) {
+                            append(
+                                entry.amount.currency.toString()
+                            )
+                        }
+                    })
                 }
             }
         }
     }
 }
 
-
 @Composable
-fun EntriesList(entries: List<ListEntryDto>, onPageUpdate: (Int) -> Unit, onLimitUpdate: (Int) -> Unit) {
+fun EntriesList(entries: List<ListEntryDto>) {
     Column(
-        modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(Constants.Size.MEDIUM.dp)
+        modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(Constants.Size.Medium.dp)
     ) {
         entries.forEach {
             EntriesListCard(it)
@@ -115,8 +127,11 @@ fun EntriesListPreview() {
     val ac1 = Account(1, "Savings", "USD", 100.0, 0.0)
     val ac2 = Account(2, "Checking", "VES", 50.0, 0.0)
 
-    EntriesList(listOf(
-        ListEntryDto(1, "Cash", ac1, 100.0.money(ac1.getCurrency()), now, now),
-        ListEntryDto(2, "Bonus", ac2, (-100.0).money(ac2.getCurrency()), now, now),
-    ), {}, {})
+    EntriesList(
+        listOf(
+            ListEntryDto(1, "Cash", ac1, 100.0.toMoney(ac1.getCurrency()), now, now),
+            ListEntryDto(2, "Bonus", ac2, (100.0).toMoney(ac2.getCurrency()), now, now),
+            ListEntryDto(3, "Stuff", ac2, (-10.0).toMoney(ac2.getCurrency()), now, now),
+        )
+    )
 }

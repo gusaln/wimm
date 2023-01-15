@@ -7,8 +7,10 @@ package me.gustavolopezxyz.common.db
 import com.squareup.sqldelight.Query
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import kotlinx.coroutines.flow.Flow
-import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.toInstant
 import me.gustavolopezxyz.common.data.Money
+import me.gustavolopezxyz.common.ext.currentTz
 import me.gustavolopezxyz.db.Account
 import me.gustavolopezxyz.db.Database
 import me.gustavolopezxyz.db.Entry
@@ -20,11 +22,11 @@ class EntryRepository : KoinComponent {
     private val db: Database by inject()
     private val entryQueries = db.entryQueries
     fun get(offset: Long = 0, limit: Long = 15): List<Entry> {
-        return entryQueries.selectPaginated(limit, offset).executeAsList()
+        return entryQueries.selectPaginated(offset = offset, limit = limit).executeAsList()
     }
 
     fun asFlow(offset: Long = 0, limit: Long = 15): Flow<Query<Entry>> {
-        return entryQueries.selectPaginated(limit, offset).asFlow()
+        return entryQueries.selectPaginated(offset = offset, limit = limit).asFlow()
     }
 
     fun create(
@@ -32,8 +34,8 @@ class EntryRepository : KoinComponent {
         amount: Money,
         account: Account,
         record: Record,
-        incurredAt: Instant,
-        recordedAt: Instant = incurredAt,
+        incurredAt: LocalDateTime,
+        recordedAt: LocalDateTime = incurredAt,
     ) {
         return create(description, amount, account.id, record.id, incurredAt, recordedAt)
     }
@@ -43,8 +45,8 @@ class EntryRepository : KoinComponent {
         amount: Money,
         accountId: Long,
         recordId: Long,
-        incurredAt: Instant,
-        recordedAt: Instant = incurredAt,
+        incurredAt: LocalDateTime,
+        recordedAt: LocalDateTime = incurredAt,
     ) {
         return entryQueries.insertEntry(
             description,
@@ -52,8 +54,8 @@ class EntryRepository : KoinComponent {
             recordId,
             amount.currency.code,
             amount.value,
-            incurredAt.toString(),
-            recordedAt.toString(),
+            incurredAt.toInstant(currentTz()),
+            recordedAt.toInstant(currentTz()),
         )
     }
 }

@@ -9,5 +9,3 @@ import me.gustavolopezxyz.db.Database
 expect class DatabaseFactory {
     fun create(): Database
 }
-
-

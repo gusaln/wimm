@@ -14,22 +14,20 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toLocalDateTime
 import me.gustavolopezxyz.common.Constants
+import me.gustavolopezxyz.common.data.currencyOf
+import me.gustavolopezxyz.common.data.getCurrency
 import me.gustavolopezxyz.common.ext.currentTz
 import me.gustavolopezxyz.db.Account
-import org.koin.java.KoinJavaComponent.inject
 
 data class NewEntryDto(
     val description: String = "",
@@ -39,94 +37,7 @@ data class NewEntryDto(
     val recorded_at: LocalDate = incurred_at
 )
 
-data class NewTransactionDto(
-    val description: String = "",
-    val entries: List<NewEntryDto> = listOf(),
-)
-
-
 fun emptyNewEntryDto() = NewEntryDto(incurred_at = Clock.System.now().toLocalDateTime(currentTz()).date)
-
-@OptIn(DelicateCoroutinesApi::class)
-@Preview
-@Composable
-fun RecordTransactionForm(accounts: List<Account>, onTransactionCreate: (NewTransactionDto) -> Unit) {
-    var description by remember { mutableStateOf("") }
-    val entries = remember { mutableStateListOf<NewEntryDto>() }
-
-    var singleEntryMode by remember { mutableStateOf(true) }
-    val actionsColors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.secondary)
-    val snackbarHost by remember { inject<SnackbarHostState>(SnackbarHostState::class.java) }
-
-    fun handleCreate() {
-        if (entries.size < 1) {
-            GlobalScope.launch {
-                snackbarHost.showSnackbar("You need to add at least one entry")
-            }
-        } else if (entries.size == 1) {
-            onTransactionCreate(
-                NewTransactionDto(entries[0].description, entries = entries)
-            )
-        } else {
-            onTransactionCreate(
-                NewTransactionDto(description, entries = entries)
-            )
-        }
-    }
-
-    fun handleCreateWithSingle(entry: NewEntryDto) {
-        entries.add(entry)
-        handleCreate()
-    }
-
-    fun handleReset() {
-        entries.removeAll { true }
-        description = ""
-    }
-
-    fun handleChangeToSingleMode() {
-        handleReset()
-        singleEntryMode = true
-    }
-
-    Column(
-        verticalArrangement = Arrangement.spacedBy(Constants.Size.Medium.dp)
-    ) {
-        if (singleEntryMode) {
-            AddEntryForm(accounts, onAddEntry = ::handleCreateWithSingle, actionText = "Create") {
-                Button(
-                    onClick = { singleEntryMode = false }, colors = actionsColors
-                ) { Text("Change to multi-part transaction") }
-            }
-        } else {
-            Text("Create a Multi-part transaction", style = MaterialTheme.typography.h5)
-            OutlinedTextField(modifier = Modifier.fillMaxWidth(),
-                value = description,
-                onValueChange = { description = it },
-                label = { Text("Description") },
-                placeholder = { Text("Awesome savings account") })
-
-            Spacer(modifier = Modifier.fillMaxWidth())
-
-            AddEntryForm(accounts, onAddEntry = { entries.add(it) }) {
-                Button(onClick = ::handleChangeToSingleMode, colors = actionsColors) {
-                    Text("Reset to single-entry transaction")
-                }
-            }
-
-            Spacer(modifier = Modifier.fillMaxWidth())
-
-            NewEntriesList(entries)
-
-            Spacer(modifier = Modifier.fillMaxWidth())
-
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)) {
-                Button(onClick = ::handleCreate) { Text("Create") }
-                Button(onClick = ::handleReset) { Text("Reset") }
-            }
-        }
-    }
-}
 
 @Composable
 fun AddEntryForm(
@@ -228,21 +139,7 @@ val rowPadding = PaddingValues(12.dp, 8.dp)
 val rowCellPadding = PaddingValues(4.dp, 0.dp)
 
 @Composable
-fun NewEntriesListCard(entry: NewEntryDto) {
-    val amount = entry.amount
-    val isNegative = (amount) < 0
-
-    val debit = if (isNegative) {
-        ""
-    } else {
-        amount.toString()
-    }
-    val credit = if (isNegative) {
-        amount.toString()
-    } else {
-        ""
-    }
-
+fun NewEntriesListItem(entry: NewEntryDto) {
     val accountName = when (val account = entry.account) {
         null -> ""
         else -> "on ${account.name}"
@@ -251,7 +148,6 @@ fun NewEntriesListCard(entry: NewEntryDto) {
     Row(
         modifier = Modifier.fillMaxWidth().padding(rowPadding)
     ) {
-
         Text(
             entry.description,
             modifier = Modifier.weight(5f).padding(rowCellPadding),
@@ -259,15 +155,18 @@ fun NewEntriesListCard(entry: NewEntryDto) {
             overflow = TextOverflow.Ellipsis
         )
 
-        Text(accountName, modifier = Modifier.weight(3f).padding(rowCellPadding), overflow = TextOverflow.Ellipsis)
-
-        Text(debit, modifier = Modifier.weight(1f).padding(rowCellPadding), textAlign = TextAlign.End)
-
         Text(
-            credit,
-            modifier = Modifier.weight(1f).padding(rowCellPadding),
-            color = Color.Red,
-            textAlign = TextAlign.Start
+            accountName,
+            modifier = Modifier.weight(3f).padding(rowCellPadding),
+            textAlign = TextAlign.End,
+            overflow = TextOverflow.Ellipsis
+        )
+
+        MoneyText(
+            entry.amount,
+            entry.account?.getCurrency() ?: currencyOf("USD"),
+            modifier = Modifier.weight(2f).padding(rowCellPadding),
+            commonStyle = TextStyle.Default.copy(textAlign = TextAlign.End)
         )
     }
 }
@@ -276,6 +175,7 @@ fun NewEntriesListCard(entry: NewEntryDto) {
 @Composable
 fun NewEntriesList(entries: List<NewEntryDto>) {
     val amounts = entries.map { it.amount }
+    val byCurrency = entries.associateBy { it.account?.getCurrency() ?: currencyOf("USD") }
 
     Column(
         modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(Constants.Size.Small.dp)
@@ -286,51 +186,40 @@ fun NewEntriesList(entries: List<NewEntryDto>) {
             Text("No entries in this transaction yet")
         }
 
-        entries.forEach {
-            NewEntriesListCard(it)
+        Column {
+            entries.forEach {
+                NewEntriesListItem(it)
+            }
         }
 
-        Row(modifier = Modifier.fillMaxWidth().padding(rowPadding)) {
-            Text(
-                "Subtotal",
-                modifier = Modifier.weight(8f).padding(rowCellPadding),
-                textAlign = TextAlign.End,
-                style = MaterialTheme.typography.body1
-            )
+        byCurrency.forEach {
+            Row(modifier = Modifier.fillMaxWidth().padding(rowPadding)) {
+                Text(
+                    "Total",
+                    modifier = Modifier.weight(8f).padding(rowCellPadding),
+                    textAlign = TextAlign.End,
+                    style = MaterialTheme.typography.body1
+                )
 
-            Text(amounts.filter { it > 0 }.reduceOrNull { acc, amount -> acc + amount }
-                ?.toString() ?: "",
-                modifier = Modifier.weight(1f).padding(rowCellPadding),
-                textAlign = TextAlign.End,
-                style = MaterialTheme.typography.body1)
-
-            Text(amounts.filter { it < 0 }.reduceOrNull { acc, amount -> acc + amount }
-                ?.toString() ?: "",
-                modifier = Modifier.weight(1f).padding(rowCellPadding),
-                color = Color.Red,
-                textAlign = TextAlign.Start,
-                style = MaterialTheme.typography.body1)
-        }
-
-        Row(modifier = Modifier.fillMaxWidth().padding(rowPadding)) {
-            Text(
-                "Total",
-                modifier = Modifier.weight(8f).padding(rowCellPadding),
-                textAlign = TextAlign.End,
-                style = MaterialTheme.typography.body1
-            )
-
-            Text(
-                amounts.reduceOrNull { acc, amount -> acc + amount }?.toString() ?: "",
-                modifier = Modifier.weight(1f).padding(rowCellPadding),
-                textAlign = TextAlign.End, style = MaterialTheme.typography.body1
-            )
-
-            Spacer(modifier = Modifier.weight(1f).padding(rowCellPadding))
+                MoneyText(amount = amounts.reduceOrNull { acc, amount -> acc + amount } ?: 0.0,
+                    currency = it.key,
+                    modifier = Modifier.weight(2f).padding(rowCellPadding),
+                    commonStyle = TextStyle.Default.copy(textAlign = TextAlign.End),
+                    valueStyle = MaterialTheme.typography.body1)
+            }
         }
     }
 }
 
+@Preview
+@Composable
+fun AddEntryFormPreview() {
+    Box(modifier = Modifier.padding(12.dp)) {
+        AddEntryForm(listOf(
+            Account(99, "Savings", "USD", 100.0, 0.0), Account(2, "Checking", "VES", 50.0, 0.0)
+        ), {})
+    }
+}
 
 @Preview
 @Composable
@@ -344,15 +233,4 @@ fun NewEntriesListPreview() {
             NewEntryDto("Beer", ac2, -10.0, LocalDate(2023, 1, 14)),
         )
     )
-}
-
-@Preview
-@Composable
-fun RecordTransactionFormPreview() {
-    Box(modifier = Modifier.padding(12.dp)) {
-        RecordTransactionForm(listOf(
-            Account(99, "Savings", "USD", 100.0, 0.0),
-            Account(2, "Checking", "VES", 50.0, 0.0)
-        ), {})
-    }
 }

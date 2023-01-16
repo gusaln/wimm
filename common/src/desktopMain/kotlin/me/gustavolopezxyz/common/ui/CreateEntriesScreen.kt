@@ -4,17 +4,18 @@
 
 package me.gustavolopezxyz.common.ui
 
-import androidx.compose.material.SnackbarHostState
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.datetime.atTime
+import me.gustavolopezxyz.common.Constants
 import me.gustavolopezxyz.common.data.getCurrency
 import me.gustavolopezxyz.common.db.AccountRepository
 import me.gustavolopezxyz.common.db.EntryRepository
@@ -34,28 +35,119 @@ fun CreateEntriesScreen(navController: NavController) {
 
     val accounts by accountRepository.allAsFlow().mapToList().collectAsState(listOf())
 
-    RegularLayout(menu = { Text("Emtpy real state") }) {
-        RecordTransactionForm(accounts) { newTransactionDto ->
-            db.transaction {
-                val reference = recordRepository.create(newTransactionDto.description)
-                val recordId = recordRepository.findByReference(reference)!!.id
 
-                newTransactionDto.entries.forEach {
-                    entriesRepository.create(
-                        it.description,
-                        it.amount.toMoney(it.account!!.getCurrency()),
-                        it.account.id,
-                        recordId,
-                        it.incurred_at.atTime(0, 0),
-                        it.recorded_at.atTime(0, 0)
-                    )
+    var description by remember { mutableStateOf("") }
+    val entries = remember { mutableStateListOf<NewEntryDto>() }
+
+    var singleEntryMode by remember { mutableStateOf(true) }
+    val snackbarHost by remember { inject<SnackbarHostState>(SnackbarHostState::class.java) }
+
+    fun createTransaction(description: String, entries: List<NewEntryDto>) {
+        db.transaction {
+            val reference = recordRepository.create(description)
+            val recordId = recordRepository.findByReference(reference)!!.id
+
+            entries.forEach {
+                entriesRepository.create(
+                    it.description,
+                    it.amount.toMoney(it.account!!.getCurrency()),
+                    it.account.id,
+                    recordId,
+                    it.incurred_at.atTime(0, 0),
+                    it.recorded_at.atTime(0, 0)
+                )
+            }
+
+            GlobalScope.launch {
+                snackbar.showSnackbar("Transaction recorded")
+            }
+
+            navController.navigate(Screen.Dashboard.name)
+        }
+    }
+
+    fun handleCreate() {
+        if (entries.size < 1) {
+            GlobalScope.launch {
+                snackbarHost.showSnackbar("You need to add at least one entry")
+            }
+        } else if (entries.size == 1) {
+            createTransaction(entries[0].description, entries = entries)
+        } else {
+            createTransaction(description, entries)
+        }
+    }
+
+    fun handleCreateWithSingle(entry: NewEntryDto) {
+        entries.add(entry)
+        handleCreate()
+    }
+
+    fun handleReset() {
+        entries.removeAll { true }
+        description = ""
+    }
+
+    fun handleChangeToSingleMode() {
+        handleReset()
+        singleEntryMode = true
+    }
+
+    val actionsColors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.secondary)
+
+    if (singleEntryMode) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(Constants.Size.Large.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Box(modifier = Modifier.fillMaxWidth(0.5f)) {
+                AddEntryForm(accounts, onAddEntry = ::handleCreateWithSingle, actionText = "Create") {
+                    Button(
+                        onClick = { singleEntryMode = false }, colors = actionsColors
+                    ) { Text("Change to multi-part transaction") }
                 }
-
-                GlobalScope.launch {
-                    snackbar.showSnackbar("Transaction recorded")
+            }
+        }
+    } else {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(Constants.Size.Large.dp),
+            horizontalArrangement = Arrangement.spacedBy(Constants.Size.Large.dp)
+        ) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(Constants.Size.Medium.dp)
+            ) {
+                AddEntryForm(accounts, onAddEntry = { entries.add(it) }) {
+                    Button(onClick = ::handleChangeToSingleMode, colors = actionsColors) {
+                        Text("Reset to single-entry transaction")
+                    }
                 }
+            }
 
-                navController.navigate(Screen.Dashboard.name)
+            Column(
+                modifier = Modifier.weight(2f),
+                verticalArrangement = Arrangement.spacedBy(Constants.Size.Medium.dp)
+            ) {
+                Text("Create a Multi-part transaction", style = MaterialTheme.typography.h5)
+                OutlinedTextField(modifier = Modifier.fillMaxWidth(),
+                    value = description,
+                    onValueChange = { description = it },
+                    label = { Text("Description") },
+                    placeholder = { Text("Awesome savings account") })
+
+                Spacer(modifier = Modifier.fillMaxWidth())
+
+                NewEntriesList(entries)
+
+                Spacer(modifier = Modifier.fillMaxWidth())
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
+                ) {
+                    Button(onClick = ::handleCreate) { Text("Create") }
+                    Button(onClick = ::handleReset) { Text("Reset") }
+                }
             }
         }
     }

@@ -6,14 +6,23 @@ package me.gustavolopezxyz.common.ui
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.BaselineShift
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toLocalDateTime
 import me.gustavolopezxyz.common.Constants
+import me.gustavolopezxyz.common.data.Currency
+import me.gustavolopezxyz.common.data.Money
 import me.gustavolopezxyz.common.ext.currentTz
 
 
@@ -41,8 +50,7 @@ fun OutlinedDateTextField(
         val year = parts[0].take(4).padStart(1, '0').toInt()
         val month = parts[1].take(2).padStart(1, '0').toInt().minMax(1, 12)
         val dayOfMonth = parts[2].take(2).padStart(1, '0').toInt().minMax(
-            min = 1,
-            max = when (month) {
+            min = 1, max = when (month) {
                 2 -> 27
                 4, 6, 9, 11 -> 30
                 else -> 31
@@ -75,6 +83,70 @@ fun RegularLayout(menu: @Composable() (() -> Unit)? = null, content: @Composable
             content()
         }
     }
+}
+
+@Composable
+fun MoneyText(
+    amount: Double,
+    currency: Currency,
+    modifier: Modifier = Modifier,
+    positiveColor: Color = Color.Unspecified,
+    negativeColor: Color = Color.Red,
+    commonStyle: TextStyle = TextStyle.Default,
+    valueStyle: TextStyle = TextStyle.Default,
+    currencyStyle: TextStyle = TextStyle(
+        color = Color.Gray,
+        fontSize = MaterialTheme.typography.caption.fontSize,
+        baselineShift = BaselineShift.Subscript
+    )
+) {
+    val amountColor = if (amount < 0) {
+        negativeColor
+    } else {
+        positiveColor
+    }
+
+    Text(buildAnnotatedString {
+        withStyle(
+            valueStyle.copy(color = amountColor).toSpanStyle()
+        ) { append("%.2f".format(amount)) }
+
+        withStyle(
+            currencyStyle.toSpanStyle()
+        ) {
+            append(
+                currency.toString()
+            )
+        }
+    }, modifier = modifier, style = commonStyle)
+}
+
+@Composable
+fun MoneyText(
+    amount: Money,
+    modifier: Modifier = Modifier,
+    positiveColor: Color = Color.Unspecified,
+    negativeColor: Color = Color.Red,
+    commonStyle: TextStyle = TextStyle.Default,
+    valueStyle: TextStyle = TextStyle(
+        fontSize = MaterialTheme.typography.h6.fontSize
+    ),
+    currencyStyle: TextStyle = TextStyle(
+        color = Color.Gray,
+        fontSize = MaterialTheme.typography.caption.fontSize,
+        baselineShift = BaselineShift.Subscript
+    )
+) {
+    MoneyText(
+        amount.value,
+        amount.currency,
+        modifier,
+        positiveColor,
+        negativeColor,
+        commonStyle,
+        valueStyle,
+        currencyStyle,
+    )
 }
 
 @Preview

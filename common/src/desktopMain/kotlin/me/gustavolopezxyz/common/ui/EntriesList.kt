@@ -15,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
@@ -76,33 +75,7 @@ fun EntriesListCard(entry: ListEntryDto) {
                 }
 
                 // Amount
-                Row {
-                    val amountColor = if (entry.amount < 0) {
-                        Color.Red
-                    } else {
-                        Color.Unspecified
-                    }
-
-                    Text(buildAnnotatedString {
-                        withStyle(
-                            SpanStyle(
-                                fontSize = MaterialTheme.typography.h6.fontSize, color = amountColor
-                            )
-                        ) { append("%.2f".format(entry.amount.value)) }
-
-                        withStyle(
-                            SpanStyle(
-                                color = Color.Gray,
-                                fontSize = MaterialTheme.typography.caption.fontSize,
-                                baselineShift = BaselineShift.Subscript
-                            )
-                        ) {
-                            append(
-                                entry.amount.currency.toString()
-                            )
-                        }
-                    })
-                }
+                MoneyText(entry.amount.value, entry.amount.currency)
             }
         }
     }

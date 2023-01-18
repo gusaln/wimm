@@ -8,9 +8,7 @@ buildscript {
     }
 
     dependencies {
-        with(Dependencies.Gradle) {
-            classpath(sqlDelight)
-        }
+        classpath(gradlePlugins.sqldelight.plugin)
     }
 }
 

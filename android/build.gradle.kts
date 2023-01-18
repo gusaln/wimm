@@ -12,9 +12,9 @@ repositories {
 }
 
 dependencies {
-    implementation("androidx.activity:activity-compose:1.5.0")
+    implementation(deps.android.activityCompose)
 
-    with(Dependencies.Koin) {
+    with(deps.koin) {
         implementation(core)
         implementation(android)
         implementation(compose)

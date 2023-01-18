@@ -21,38 +21,37 @@ kotlin {
                 api(compose.runtime)
                 api(compose.foundation)
                 api(compose.material)
-                api(Dependencies.Koin.core)
-                api(Dependencies.Koin.test)
+                api(deps.koin.core)
+                api(deps.koin.test)
 
-                implementation(Dependencies.Navigation.core)
-                implementation(Dependencies.SqlDelight.runtime)
-                implementation(Dependencies.SqlDelight.coroutineExtensions)
-                implementation(Dependencies.KotlinX.datetime)
+                implementation(deps.sqldelight.runtime)
+                implementation(deps.sqldelight.coroutineExtensions)
+                implementation(deps.kotlinx.datetime)
             }
         }
         val commonTest by getting {
             dependencies {
-                implementation(Dependencies.Koin.test)
+                implementation(deps.koin.test)
                 implementation(kotlin("test"))
             }
         }
         val androidMain by getting {
             dependencies {
-                api("androidx.appcompat:appcompat:1.5.1")
-                api("androidx.core:core-ktx:1.9.0")
-                implementation(Dependencies.SqlDelight.androidDriver)
+                api(deps.android.appcompat)
+                api(deps.android.coreKtx)
+                implementation(deps.sqldelight.androidDriver)
             }
         }
         val androidTest by getting {
             dependencies {
-                implementation("junit:junit:4.13.2")
-                implementation(Dependencies.SqlDelight.androidDriver)
+                implementation(deps.android.junit)
+                implementation(deps.sqldelight.androidDriver)
             }
         }
         val desktopMain by getting {
             dependencies {
                 api(compose.preview)
-                implementation(Dependencies.SqlDelight.sqliteDriver)
+                implementation(deps.sqldelight.sqliteDriver)
             }
         }
         val desktopTest by getting
@@ -64,7 +63,7 @@ android {
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
         minSdk = Versions.androidMinSdkVersion
-        targetSdkVersion(Versions.androidTargetSdkVersion)
+        targetSdk = Versions.androidTargetSdkVersion
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8

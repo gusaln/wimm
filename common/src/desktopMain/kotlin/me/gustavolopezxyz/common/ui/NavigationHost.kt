@@ -12,8 +12,7 @@ import androidx.compose.runtime.Composable
  * [taken from](https://github.com/itheamc/navigation-for-compose-for-desktop)
  */
 class NavigationHost(
-    val navController: NavController,
-    val contents: @Composable NavigationGraphBuilder.() -> Unit
+    val navController: NavController, val contents: @Composable NavigationGraphBuilder.() -> Unit
 ) {
 
     @Composable
@@ -37,10 +36,9 @@ class NavigationHost(
  */
 @Composable
 fun NavigationHost.NavigationGraphBuilder.composable(
-    route: String,
-    content: @Composable () -> Unit
+    route: String, content: @Composable () -> Unit
 ) {
-    if (navController.currentScreen.value == route) {
+    if (navController.currentScreen.value.route == route) {
         content()
     }
 }

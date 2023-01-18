@@ -6,12 +6,12 @@ package me.gustavolopezxyz.common.ui
 
 import androidx.compose.runtime.Composable
 
-enum class Screen {
-    Dashboard,
+sealed class Screen(val route: String) {
+    object Dashboard : Screen("dashboard")
 
-    CreateEntries,
+    object CreateEntries : Screen("create_entries")
 
-    Accounts
+    object Accounts : Screen("accounts")
 }
 
 
@@ -20,15 +20,15 @@ fun AppNavigationHost(
     navController: NavController
 ) {
     NavigationHost(navController) {
-        composable(Screen.Dashboard.name) {
+        composable(Screen.Dashboard.route) {
             DashboardScreen(navController)
         }
 
-        composable(Screen.CreateEntries.name) {
+        composable(Screen.CreateEntries.route) {
             CreateEntriesScreen(navController)
         }
 
-        composable(Screen.Accounts.name) {
+        composable(Screen.Accounts.route) {
             AccountsScreen(navController)
         }
 

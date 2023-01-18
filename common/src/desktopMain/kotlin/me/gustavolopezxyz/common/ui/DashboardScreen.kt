@@ -45,7 +45,7 @@ fun DashboardScreen(navController: NavController) {
     RegularLayout(menu = { Text("Empty real state") }) {
         Column(verticalArrangement = Arrangement.spacedBy(Constants.Size.Medium.dp)) {
             Row {
-                Button(onClick = { navController.navigate(Screen.CreateEntries.name) }) { Text("Create entry") }
+                Button(onClick = { navController.navigate(Screen.CreateEntries.route) }) { Text("Create entry") }
             }
 
             EntriesList(entries.value)

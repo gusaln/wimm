@@ -17,7 +17,7 @@ import org.koin.java.KoinJavaComponent.inject
 
 @Composable
 fun DesktopApp() {
-    val navController by rememberNavController(Screen.Dashboard.name)
+    val navController by rememberNavController(Screen.Dashboard.route)
     val scaffoldState =
         rememberScaffoldState(snackbarHostState = inject<SnackbarHostState>(SnackbarHostState::class.java).value)
 
@@ -37,14 +37,14 @@ fun DesktopApp() {
                     Text(
                         "Dashboard",
                         modifier = Modifier.padding(Constants.Size.Small.dp)
-                            .clickable { navController.navigate(Screen.Dashboard.name) },
+                            .clickable { navController.navigate(Screen.Dashboard.route) },
                         style = MaterialTheme.typography.h5
                     )
 
                     Text(
                         "Accounts",
                         modifier = Modifier.padding(Constants.Size.Small.dp)
-                            .clickable { navController.navigate(Screen.Accounts.name) },
+                            .clickable { navController.navigate(Screen.Accounts.route) },
                         style = MaterialTheme.typography.h5
                     )
                 }

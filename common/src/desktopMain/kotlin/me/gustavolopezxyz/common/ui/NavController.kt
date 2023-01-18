@@ -15,27 +15,32 @@ import androidx.compose.runtime.saveable.rememberSaveable
  * [taken from](https://github.com/itheamc/navigation-for-compose-for-desktop)
  */
 class NavController(
-    private val startDestination: String,
-    private var backStackScreens: MutableSet<String> = mutableSetOf()
+    private val startDestination: NavStackEntry,
+    private var backStackScreens: MutableSet<NavStackEntry> = mutableSetOf()
 ) {
+    constructor(startDestination: String) : this(NavStackEntry(startDestination))
+
     // Variable to store the state of the current screen
-    var currentScreen: MutableState<String> = mutableStateOf(startDestination)
+    var currentScreen: MutableState<NavStackEntry> = mutableStateOf(startDestination)
 
     // Function to handle the navigation between the screen
-    fun navigate(route: String) {
-        if (route != currentScreen.value) {
-            if (backStackScreens.contains(currentScreen.value) && currentScreen.value != startDestination) {
-                backStackScreens.remove(currentScreen.value)
-            }
-
-            if (route == startDestination) {
-                backStackScreens = mutableSetOf()
-            } else {
-                backStackScreens.add(currentScreen.value)
-            }
-
-            currentScreen.value = route
+    fun navigate(route: String, arguments: Map<String, String>? = null) {
+        val entry = NavStackEntry(route, arguments)
+        if (entry.toString() == currentScreen.value.toString()) {
+            return
         }
+
+        if (backStackScreens.contains(currentScreen.value) && currentScreen.value != startDestination) {
+            backStackScreens.remove(currentScreen.value)
+        }
+
+        if (entry.toString() == startDestination.toString()) {
+            backStackScreens = mutableSetOf()
+        } else {
+            backStackScreens.add(currentScreen.value)
+        }
+
+        currentScreen.value = entry
     }
 
     // Function to handle the back
@@ -43,6 +48,18 @@ class NavController(
         if (backStackScreens.isNotEmpty()) {
             currentScreen.value = backStackScreens.last()
             backStackScreens.remove(currentScreen.value)
+        }
+    }
+
+    data class NavStackEntry(val route: String, val arguments: Map<String, String>? = null) {
+        override fun toString(): String {
+            var s = route
+
+            arguments?.forEach {
+                s = s.replace("{${it.key}}", it.value)
+            }
+
+            return s
         }
     }
 }
@@ -57,8 +74,7 @@ class NavController(
  */
 @Composable
 fun rememberNavController(
-    startDestination: String,
-    backStackScreens: MutableSet<String> = mutableSetOf()
+    startDestination: String
 ): MutableState<NavController> = rememberSaveable {
-    mutableStateOf(NavController(startDestination, backStackScreens))
+    mutableStateOf(NavController(startDestination))
 }

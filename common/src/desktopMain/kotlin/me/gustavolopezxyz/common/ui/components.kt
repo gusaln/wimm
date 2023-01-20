@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.BaselineShift
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.Clock
@@ -66,6 +67,33 @@ fun OutlinedDateTextField(
 
     OutlinedTextField(
         dateString, ::handleChange, modifier = modifier, label = label, placeholder = placeholder, singleLine = true
+    )
+}
+
+@Composable
+fun OutlinedDoubleField(
+    value: Double,
+    onValueChange: (Double) -> Unit,
+    decimals: Int = 2,
+    modifier: Modifier = Modifier,
+    label: @Composable (() -> Unit)? = null,
+    placeholder: @Composable (() -> Unit)? = null,
+) {
+    fun handleChange(raw: String) {
+        val minorUnit = raw.filter { c -> c.isDigit() }.padStart(decimals + 2, '0')
+        val before = minorUnit.substring(0, minorUnit.length - decimals).padEnd(1, '0')
+        val after = minorUnit.substring(minorUnit.length - decimals).padEnd(decimals, '0')
+
+        onValueChange("$before.$after".toDouble())
+    }
+
+    OutlinedTextField(
+        "%.2f".format(value),
+        ::handleChange,
+        modifier = modifier,
+        label = label,
+        placeholder = placeholder,
+        singleLine = true
     )
 }
 
@@ -146,6 +174,34 @@ fun MoneyText(
         commonStyle,
         valueStyle,
         currencyStyle,
+    )
+}
+
+@Composable
+fun EntrySummaryText(
+    description: String,
+    accountName: String,
+    modifier: Modifier = Modifier,
+    descriptionStyle: TextStyle = MaterialTheme.typography.body1,
+    accountStyle: TextStyle = TextStyle(
+        color = Color.Gray, fontSize = MaterialTheme.typography.caption.fontSize
+    )
+) {
+    Text(
+        buildAnnotatedString {
+            withStyle(
+                descriptionStyle.toSpanStyle()
+            ) {
+                append(description)
+                append(' ')
+            }
+
+            withStyle(
+                accountStyle.toSpanStyle()
+            ) {
+                append("($accountName)")
+            }
+        }, modifier = modifier, overflow = TextOverflow.Ellipsis
     )
 }
 

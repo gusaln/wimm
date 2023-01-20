@@ -51,6 +51,8 @@ class NavController(
         }
     }
 
+    fun getArgument(name: String): String? = currentScreen.value.arguments?.get(name)
+
     data class NavStackEntry(val route: String, val arguments: Map<String, String>? = null) {
         override fun toString(): String {
             var s = route

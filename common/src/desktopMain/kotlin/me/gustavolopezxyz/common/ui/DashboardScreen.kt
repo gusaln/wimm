@@ -34,6 +34,7 @@ fun DashboardScreen(navController: NavController) {
             ListEntryDto(
                 entry.id,
                 entry.description,
+                entry.record_id,
                 accounts[entry.account_id]!!,
                 entry.getAmount(),
                 entry.incurred_at,
@@ -45,10 +46,18 @@ fun DashboardScreen(navController: NavController) {
     RegularLayout(menu = { Text("Empty real state") }) {
         Column(verticalArrangement = Arrangement.spacedBy(Constants.Size.Medium.dp)) {
             Row {
-                Button(onClick = { navController.navigate(Screen.CreateEntries.route) }) { Text("Create entry") }
+                Button(onClick = { navController.navigate(Screen.CreateTransaction.route) }) { Text("Create entry") }
             }
 
-            EntriesList(entries.value)
+            EntriesList(
+                entries = entries.value,
+                onEdit = {
+                    navController.navigate(
+                        Screen.EditTransaction.route,
+                        Screen.EditTransaction.withArguments(it.record_id)
+                    )
+                }
+            )
         }
     }
 }

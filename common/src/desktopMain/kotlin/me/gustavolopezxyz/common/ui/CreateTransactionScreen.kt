@@ -5,6 +5,8 @@
 package me.gustavolopezxyz.common.ui
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -16,6 +18,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.datetime.atTime
 import me.gustavolopezxyz.common.Constants
+import me.gustavolopezxyz.common.data.MissingAccount
 import me.gustavolopezxyz.common.data.getCurrency
 import me.gustavolopezxyz.common.db.AccountRepository
 import me.gustavolopezxyz.common.db.EntryRepository
@@ -26,7 +29,7 @@ import org.koin.java.KoinJavaComponent.inject
 
 @OptIn(DelicateCoroutinesApi::class)
 @Composable
-fun CreateEntriesScreen(navController: NavController) {
+fun CreateTransactionScreen(navController: NavController) {
     val db by remember { inject<Database>(Database::class.java) }
     val accountRepository by remember { inject<AccountRepository>(AccountRepository::class.java) }
     val recordRepository by remember { inject<RecordRepository>(RecordRepository::class.java) }
@@ -35,16 +38,23 @@ fun CreateEntriesScreen(navController: NavController) {
 
     val accounts by accountRepository.allAsFlow().mapToList().collectAsState(listOf())
 
-
     var description by remember { mutableStateOf("") }
     val entries = remember { mutableStateListOf<NewEntryDto>() }
+    var newEntryDto by remember { mutableStateOf(makeEmptyNewEntryDto()) }
 
     var singleEntryMode by remember { mutableStateOf(true) }
-    val snackbarHost by remember { inject<SnackbarHostState>(SnackbarHostState::class.java) }
 
     fun createTransaction(description: String, entries: List<NewEntryDto>) {
+        if (description.trim().isEmpty()) {
+            GlobalScope.launch {
+                snackbar.showSnackbar("You need a description")
+            }
+
+            return
+        }
+
         db.transaction {
-            val reference = recordRepository.create(description)
+            val reference = recordRepository.create(description.trim())
             val recordId = recordRepository.findByReference(reference)!!.id
 
             entries.forEach {
@@ -62,14 +72,14 @@ fun CreateEntriesScreen(navController: NavController) {
                 snackbar.showSnackbar("Transaction recorded")
             }
 
-            navController.navigate(Screen.Dashboard.name)
+            navController.navigateBack()
         }
     }
 
     fun handleCreate() {
         if (entries.size < 1) {
             GlobalScope.launch {
-                snackbarHost.showSnackbar("You need to add at least one entry")
+                snackbar.showSnackbar("You need to add at least one entry")
             }
         } else if (entries.size == 1) {
             createTransaction(entries[0].description, entries = entries)
@@ -88,23 +98,36 @@ fun CreateEntriesScreen(navController: NavController) {
         description = ""
     }
 
-    fun handleChangeToSingleMode() {
-        handleReset()
-        singleEntryMode = true
-    }
-
-    val actionsColors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.secondary)
+    val scroll = rememberScrollState()
+    val specialActionColors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.secondary)
 
     if (singleEntryMode) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(Constants.Size.Large.dp),
-            horizontalArrangement = Arrangement.Center
+        Column(
+            modifier = Modifier.fillMaxWidth().verticalScroll(scroll).padding(Constants.Size.Large.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(modifier = Modifier.fillMaxWidth(0.5f)) {
-                AddEntryForm(accounts, onAddEntry = ::handleCreateWithSingle, actionText = "Create") {
-                    Button(
-                        onClick = { singleEntryMode = false }, colors = actionsColors
-                    ) { Text("Change to multi-part transaction") }
+                AddEntryForm(
+                    value = newEntryDto,
+                    onValueChanged = { newEntryDto = it },
+                    accounts = accounts,
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
+                    ) {
+                        Button(
+                            onClick = { singleEntryMode = false }, colors = specialActionColors
+                        ) {
+                            Text("Change to multi-part transaction")
+                        }
+
+                        Spacer(modifier = Modifier)
+
+                        Button(onClick = { handleCreateWithSingle(newEntryDto) }) { Text("Create") }
+
+                        TextButton(onClick = { newEntryDto = makeEmptyNewEntryDto() }) { Text("Reset") }
+                    }
                 }
             }
         }
@@ -117,9 +140,29 @@ fun CreateEntriesScreen(navController: NavController) {
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(Constants.Size.Medium.dp)
             ) {
-                AddEntryForm(accounts, onAddEntry = { entries.add(it) }) {
-                    Button(onClick = ::handleChangeToSingleMode, colors = actionsColors) {
-                        Text("Reset to single-entry transaction")
+                AddEntryForm(
+                    value = newEntryDto,
+                    onValueChanged = { newEntryDto = it },
+                    accounts = accounts
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
+                    ) {
+                        Button(
+                            onClick = {
+                                handleReset()
+                                singleEntryMode = true
+                            }, colors = specialActionColors
+                        ) {
+                            Text("Reset to single-entry transaction")
+                        }
+
+                        Spacer(modifier = Modifier)
+
+                        Button(onClick = { handleCreateWithSingle(newEntryDto) }) { Text("Create") }
+
+                        TextButton(onClick = { newEntryDto = makeEmptyNewEntryDto() }) { Text("Reset") }
                     }
                 }
             }
@@ -137,7 +180,26 @@ fun CreateEntriesScreen(navController: NavController) {
 
                 Spacer(modifier = Modifier.fillMaxWidth())
 
-                NewEntriesList(entries)
+                NewEntriesList(
+                    entries = entries,
+                    onEdit = { entry ->
+                        entries.removeIf { entry.uid == it.uid }
+                        newEntryDto = entry
+                    },
+                    onDelete = { entry -> entries.removeIf { entry.uid == it.uid } }
+                ) {
+                    val totalsByCurrency by remember {
+                        derivedStateOf {
+                            entries
+                                .groupBy { (it.account ?: MissingAccount).getCurrency() }
+                                .mapValues { mapEntry ->
+                                    mapEntry.value.map { it.amount }.reduceOrNull { acc, amount -> acc + amount } ?: 0.0
+                                }
+                        }
+                    }
+
+                    TotalListItem(totalsByCurrency = totalsByCurrency)
+                }
 
                 Spacer(modifier = Modifier.fillMaxWidth())
 
@@ -146,7 +208,7 @@ fun CreateEntriesScreen(navController: NavController) {
                     horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
                 ) {
                     Button(onClick = ::handleCreate) { Text("Create") }
-                    Button(onClick = ::handleReset) { Text("Reset") }
+                    TextButton(onClick = ::handleReset) { Text("Reset") }
                 }
             }
         }

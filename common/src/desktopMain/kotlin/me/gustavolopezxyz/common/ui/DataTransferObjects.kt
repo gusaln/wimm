@@ -1,0 +1,63 @@
+package me.gustavolopezxyz.common.ui
+
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.toLocalDateTime
+import me.gustavolopezxyz.common.ext.currentTz
+import me.gustavolopezxyz.common.ext.getRandomString
+import me.gustavolopezxyz.db.Account
+import me.gustavolopezxyz.db.Entry
+
+data class NewEntryDto(
+    val uid: String = getRandomString(8),
+    val description: String = "",
+    val account: Account? = null,
+    val amount: Double = 0.0,
+    val incurred_at: LocalDate,
+    val recorded_at: LocalDate = incurred_at
+)
+
+fun makeEmptyNewEntryDto() = NewEntryDto(incurred_at = Clock.System.now().toLocalDateTime(currentTz()).date)
+
+
+data class EditEntryDto(
+    val id: Long,
+    val account: Account,
+    val description: String,
+    val amount: Double,
+    val incurred_at: LocalDate,
+    val recorded_at: LocalDate,
+    val edited: Boolean = false,
+    val to_delete: Boolean = false,
+) {
+    fun edit(
+        account: Account = this.account,
+        description: String = this.description,
+        amount: Double = this.amount,
+        incurred_at: LocalDate = this.incurred_at,
+        recorded_at: LocalDate = this.recorded_at,
+    ) = copy(
+        account = account,
+        description = description,
+        amount = amount,
+        incurred_at = incurred_at,
+        recorded_at = recorded_at,
+        edited = true,
+        to_delete = false,
+    )
+
+    fun delete() = copy(to_delete = true)
+
+    fun restore() = copy(to_delete = false)
+}
+
+fun makeEditEntryDtoFrom(entry: Entry, account: Account): EditEntryDto {
+    return EditEntryDto(
+        id = entry.id,
+        account = account,
+        description = entry.description,
+        amount = entry.amount_value,
+        incurred_at = entry.incurred_at.toLocalDateTime(currentTz()).date,
+        recorded_at = entry.recorded_at.toLocalDateTime(currentTz()).date,
+    )
+}

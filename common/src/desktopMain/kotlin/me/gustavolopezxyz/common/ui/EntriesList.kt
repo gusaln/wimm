@@ -5,6 +5,7 @@
 package me.gustavolopezxyz.common.ui
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
@@ -12,11 +13,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -30,6 +26,7 @@ import me.gustavolopezxyz.db.Account
 data class ListEntryDto(
     val id: Long,
     val description: String,
+    val record_id: Long,
     val account: Account,
     val amount: Money,
     val incurred_at: Instant,
@@ -37,8 +34,8 @@ data class ListEntryDto(
 )
 
 @Composable
-fun EntriesListCard(entry: ListEntryDto) {
-    Card(modifier = Modifier.fillMaxWidth(), elevation = 2.dp) {
+fun EntriesListCard(entry: ListEntryDto, onEdit: (ListEntryDto) -> Unit) {
+    Card(modifier = Modifier.fillMaxWidth().clickable { onEdit(entry) }, elevation = 2.dp) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(Constants.Size.Small.dp)
@@ -50,24 +47,7 @@ fun EntriesListCard(entry: ListEntryDto) {
             ) {
                 // Details
                 Column {
-                    Text(
-                        buildAnnotatedString {
-                            withStyle(
-                                MaterialTheme.typography.body1.toSpanStyle()
-                            ) {
-                                append(entry.description)
-                                append(' ')
-                            }
-
-                            withStyle(
-                                SpanStyle(
-                                    color = Color.Gray, fontSize = MaterialTheme.typography.caption.fontSize
-                                )
-                            ) {
-                                append("(${entry.account.name})")
-                            }
-                        }, overflow = TextOverflow.Ellipsis
-                    )
+                    EntrySummaryText(entry.description, entry.account.name)
 
                     Text(
                         entry.incurred_at.toSimpleFormat(), fontSize = MaterialTheme.typography.caption.fontSize
@@ -82,12 +62,12 @@ fun EntriesListCard(entry: ListEntryDto) {
 }
 
 @Composable
-fun EntriesList(entries: List<ListEntryDto>) {
+fun EntriesList(entries: List<ListEntryDto>, onEdit: (ListEntryDto) -> Unit) {
     Column(
         modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(Constants.Size.Medium.dp)
     ) {
         entries.forEach {
-            EntriesListCard(it)
+            EntriesListCard(it, onEdit)
         }
     }
 }
@@ -102,9 +82,9 @@ fun EntriesListPreview() {
 
     EntriesList(
         listOf(
-            ListEntryDto(1, "Cash", ac1, 100.0.toMoney(ac1.getCurrency()), now, now),
-            ListEntryDto(2, "Bonus", ac2, (100.0).toMoney(ac2.getCurrency()), now, now),
-            ListEntryDto(3, "Stuff", ac2, (-10.0).toMoney(ac2.getCurrency()), now, now),
+            ListEntryDto(1, "Cash", 1, ac1, 100.0.toMoney(ac1.getCurrency()), now, now),
+            ListEntryDto(2, "Bonus", 1, ac2, (100.0).toMoney(ac2.getCurrency()), now, now),
+            ListEntryDto(3, "Stuff", 1, ac2, (-10.0).toMoney(ac2.getCurrency()), now, now),
         )
-    )
+    ) {}
 }

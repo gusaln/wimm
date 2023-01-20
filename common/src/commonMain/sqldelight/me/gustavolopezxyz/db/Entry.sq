@@ -24,6 +24,9 @@ CREATE TABLE entry (
 selectPaginated:
 SELECT * FROM entry LIMIT :offset, :limit;
 
+selectFromRecord:
+SELECT * FROM entry WHERE record_id = :record_id;
+
 insertEntry {
     INSERT INTO entry(description, account_id, record_id, description, amount_currency, amount_value, incurred_at, recorded_at)
     VALUES (:description, :account_id, :record_id, :description, :amount_currency, :amount_value, :incurred_at, :recorded_at);
@@ -39,7 +42,6 @@ updateEntry {
     SET
         description = :description,
         account_id = :account_id,
-        record_id = :record_id,
         amount_currency = :amount_currency,
         amount_value = amount_value + :amount_delta,
         incurred_at = :incurred_at,
@@ -48,5 +50,13 @@ updateEntry {
 
     UPDATE account
     SET balance_value = balance_value + :amount_delta
+    WHERE id = :account_id;
+}
+
+deleteEntry {
+    DELETE FROM entry WHERE id = :id;
+
+    UPDATE account
+    SET balance_value = balance_value + :amount
     WHERE id = :account_id;
 }

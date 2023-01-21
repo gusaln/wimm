@@ -74,6 +74,9 @@ android {
 sqldelight {
     database("Database") {
         packageName = "me.gustavolopezxyz.db"
-//        sourceFolders = listOf("sqldelight")
+        schemaOutputDirectory = file("me.gustavolopezxyz.db")
+        migrationOutputDirectory = file("src/commonMain/sqldelight/databases")
+        deriveSchemaFromMigrations = true
+        verifyMigrations = true
     }
 }

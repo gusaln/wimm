@@ -7,15 +7,14 @@ package me.gustavolopezxyz.common.db
 import com.squareup.sqldelight.db.AfterVersion
 import com.squareup.sqldelight.db.migrateWithCallbacks
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
+import me.gustavolopezxyz.common.Config
 import me.gustavolopezxyz.db.Database
 import me.gustavolopezxyz.db.Entry
 import java.io.File
-import kotlin.io.path.Path
-import kotlin.io.path.absolute
 
-actual class DatabaseFactory {
+actual class DatabaseFactory(val config: Config) {
     actual fun create(): Database {
-        val dbFile = getDatabasePath()
+        val dbFile = this.config.dataFilePath
 
         val driver = JdbcSqliteDriver("jdbc:sqlite:$dbFile")
         val instantColumnAdapter = InstantColumnAdapter()
@@ -24,7 +23,7 @@ actual class DatabaseFactory {
             if (File(dbFile).exists()) {
                 return it
             }
-            
+
             Database.Schema.migrateWithCallbacks(
                 driver,
                 0,
@@ -34,45 +33,5 @@ actual class DatabaseFactory {
                 }
             )
         }
-    }
-
-    private fun getDatabasePath(): String {
-        val paths = listOfNotNull(
-            System.getenv("XDG_DATA_HOME").let {
-                if (it != null) {
-                    Path(it, "wimm", "data.db").absolute().toString()
-                } else {
-                    null
-                }
-
-            },
-            System.getenv("HOME").let {
-                if (it != null) {
-                    Path(it, ".wimm.db").absolute().toString()
-                } else {
-                    null
-                }
-            },
-            "wimm.db"
-        )
-
-
-        paths.forEach {
-            if (File(it).exists()) {
-                return it
-            }
-        }
-
-        paths.forEach {
-            if (isValidDatabasePath(it)) {
-                return it
-            }
-        }
-
-        return Path("wimm.db").toString()
-    }
-
-    private fun isValidDatabasePath(path: String): Boolean = with(File(path).parentFile) {
-        return canRead() && canWrite()
     }
 }

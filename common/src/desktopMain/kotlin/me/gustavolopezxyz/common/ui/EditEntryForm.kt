@@ -29,7 +29,7 @@ fun EditEntryForm(
     onCancel: () -> Unit,
 ) {
     val account by remember {
-        derivedStateOf { accounts.find { it.id == value.id } ?: UnknownAccount }
+        derivedStateOf { accounts.find { it.id == value.account_id } ?: UnknownAccount }
     }
 
     var isAccountsDropDownExpanded by remember { mutableStateOf(false) }
@@ -46,7 +46,7 @@ fun EditEntryForm(
                 expanded = isAccountsDropDownExpanded,
                 onExpandedChange = { isAccountsDropDownExpanded = it },
                 value = account,
-                onClick = { onValueChanged(value.edit(account = it)) },
+                onClick = { onValueChanged(value.changeAccount(it)) },
                 accounts = accounts
             ) {
                 Row {
@@ -111,7 +111,16 @@ fun EditEntryFormPreview() {
     val ac2 = Account(2, "Checking", "VES", 50.0, 0.0)
 
     Box(modifier = Modifier.padding(12.dp)) {
-        EditEntryForm(value = EditEntryDto(1, ac1, "Beers", 120.0, LocalDate(2023, 1, 13), LocalDate(2023, 1, 13)),
+        EditEntryForm(value = EditEntryDto(
+            1,
+            ac1.id,
+            ac1.name,
+            ac1.balance_currency,
+            "Beers",
+            120.0,
+            LocalDate(2023, 1, 13),
+            LocalDate(2023, 1, 13)
+        ),
             onValueChanged = {},
             accounts = listOf(ac1, ac2),
             onEditEntry = {},

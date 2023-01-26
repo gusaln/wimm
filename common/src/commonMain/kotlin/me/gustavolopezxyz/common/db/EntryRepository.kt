@@ -12,12 +12,11 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toInstant
 import me.gustavolopezxyz.common.data.Currency
 import me.gustavolopezxyz.common.data.Money
+import me.gustavolopezxyz.common.data.getAmount
 import me.gustavolopezxyz.common.ext.currentTz
-import me.gustavolopezxyz.common.ext.toCurrency
-import me.gustavolopezxyz.db.Account
 import me.gustavolopezxyz.db.Database
 import me.gustavolopezxyz.db.Entry
-import me.gustavolopezxyz.db.Record
+import me.gustavolopezxyz.db.SelectEntriesFromRecord
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -33,20 +32,18 @@ class EntryRepository : KoinComponent {
         return entryQueries.selectPaginated(offset = offset, limit = limit).asFlow()
     }
 
-    fun getByRecordId(recordId: Long): List<Entry> {
-        return entryQueries.selectFromRecord(recordId).executeAsList()
+    fun getByRecordId(recordId: Long): List<SelectEntriesFromRecord> {
+        return entryQueries.selectEntriesFromRecord(recordId).executeAsList()
     }
 
-    fun create(
-        description: String,
-        amount: Money,
-        account: Account,
-        record: Record,
-        incurredAt: LocalDateTime,
-        recordedAt: LocalDateTime = incurredAt,
-    ) {
-        return create(description, amount, account.id, record.id, incurredAt, recordedAt)
-    }
+    fun create(entry: Entry) = create(
+        entry.description,
+        entry.getAmount(),
+        entry.account_id,
+        entry.record_id,
+        entry.incurred_at,
+        entry.recorded_at
+    )
 
     fun create(
         description: String,
@@ -55,6 +52,22 @@ class EntryRepository : KoinComponent {
         recordId: Long,
         incurredAt: LocalDateTime,
         recordedAt: LocalDateTime = incurredAt,
+    ) = create(
+        description,
+        amount,
+        accountId,
+        recordId,
+        incurredAt.toInstant(currentTz()),
+        recordedAt.toInstant(currentTz()),
+    )
+
+    fun create(
+        description: String,
+        amount: Money,
+        accountId: Long,
+        recordId: Long,
+        incurredAt: Instant,
+        recordedAt: Instant = incurredAt,
     ) {
         return entryQueries.insertEntry(
             description,
@@ -62,44 +75,70 @@ class EntryRepository : KoinComponent {
             recordId,
             amount.currency.code,
             amount.value,
-            incurredAt.toInstant(currentTz()),
-            recordedAt.toInstant(currentTz()),
+            incurredAt,
+            recordedAt,
         )
     }
 
-    fun edit(oldEntry: Entry, modifiedEntry: Entry) {
-        return edit(
-            oldEntry.id,
-            modifiedEntry.description,
-            modifiedEntry.account_id,
-            modifiedEntry.amount_currency.toCurrency(),
-            modifiedEntry.amount_value - oldEntry.amount_value,
-            modifiedEntry.incurred_at,
-            modifiedEntry.recorded_at,
-        )
+    fun edit(original: Entry, modified: Entry) {
+        if (original.account_id == modified.account_id) {
+            editAndNoMove(
+                original,
+                modified.description,
+                modified.getAmount(),
+                modified.incurred_at,
+                modified.recorded_at,
+            )
+        } else {
+            editAndMove(
+                original,
+                modified.account_id,
+                modified.description,
+                modified.getAmount(),
+                modified.incurred_at,
+                modified.recorded_at,
+            )
+        }
     }
 
-    fun edit(
-        entryId: Long,
+    private fun editAndNoMove(
+        entry: Entry,
         description: String,
+        amount: Money,
+        incurredAt: Instant,
+        recordedAt: Instant
+    ) = editAndNoMove(
+        entry.id,
+        description,
+        entry.account_id,
+        amount.currency,
+        (amount - entry.getAmount()).value,
+        incurredAt,
+        recordedAt,
+    )
+
+    private fun editAndMove(
+        entry: Entry,
         accountId: Long,
-        currency: Currency,
-        amountDelta: Double,
-        incurredAt: LocalDateTime,
-        recordedAt: LocalDateTime,
+        description: String,
+        amount: Money,
+        incurredAt: Instant,
+        recordedAt: Instant
     ) {
-        return edit(
-            entryId,
+        editAndMove(
+            entry.id,
             description,
             accountId,
-            currency,
-            amountDelta,
-            incurredAt.toInstant(currentTz()),
-            recordedAt.toInstant(currentTz()),
+            amount.currency,
+            (amount - entry.getAmount()).value,
+            incurredAt,
+            recordedAt,
+            entry.account_id,
+            entry.amount_value,
         )
     }
 
-    fun edit(
+    private fun editAndNoMove(
         entryId: Long,
         description: String,
         accountId: Long,
@@ -109,7 +148,37 @@ class EntryRepository : KoinComponent {
         recordedAt: Instant,
     ) {
         return entryQueries.updateEntry(
-            description, accountId, currency.toString(), amountDelta, incurredAt, recordedAt, entryId
+            id = entryId,
+            description = description,
+            account_id = accountId,
+            amount_currency = currency.toString(),
+            amount_delta = amountDelta,
+            incurred_at = incurredAt,
+            recorded_at = recordedAt
+        )
+    }
+
+    private fun editAndMove(
+        entryId: Long,
+        description: String,
+        accountId: Long,
+        currency: Currency,
+        amountDelta: Double,
+        incurredAt: Instant,
+        recordedAt: Instant,
+        originalAccountId: Long,
+        originalAmount: Double,
+    ) {
+        return entryQueries.updateAndMoveEntry(
+            id = entryId,
+            description = description,
+            account_id = accountId,
+            amount_currency = currency.toString(),
+            amount_delta = amountDelta,
+            incurred_at = incurredAt,
+            recorded_at = recordedAt,
+            original_account_id = originalAccountId,
+            original_amount = originalAmount,
         )
     }
 

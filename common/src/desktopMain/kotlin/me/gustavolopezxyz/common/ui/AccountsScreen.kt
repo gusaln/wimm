@@ -4,38 +4,65 @@
 
 package me.gustavolopezxyz.common.ui
 
-import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.material.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import com.squareup.sqldelight.runtime.coroutines.mapToList
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
 import me.gustavolopezxyz.common.Constants
+import me.gustavolopezxyz.common.data.Money
 import me.gustavolopezxyz.common.db.AccountRepository
-import org.koin.java.KoinJavaComponent
+import org.koin.java.KoinJavaComponent.inject
 
-@Preview
+@OptIn(DelicateCoroutinesApi::class)
 @Composable
 fun AccountsScreen(navController: NavController) {
-    val accountRepository: AccountRepository by KoinJavaComponent.inject(AccountRepository::class.java)
+    val accountRepository by inject<AccountRepository>(AccountRepository::class.java)
+    val accounts by accountRepository.allAsFlow().mapToList().collectAsState(listOf(), Dispatchers.IO)
+    val snackbar by inject<SnackbarHostState>(SnackbarHostState::class.java)
 
-    val accounts by accountRepository.allAsFlow().mapToList().collectAsState(accountRepository.getAll(), Dispatchers.IO)
+    var isCreatingOpen by remember { mutableStateOf(false) }
 
-    Row(
+    fun createAccount(name: String, initialBalance: Money) {
+        isCreatingOpen = false
+
+        GlobalScope.launch(Dispatchers.IO) {
+            accountRepository.create(name, initialBalance)
+
+            snackbar.showSnackbar("Account created")
+        }
+    }
+
+    if (isCreatingOpen) {
+        Dialog(onCloseRequest = { isCreatingOpen = false }, title = "Create an account") {
+            Card(modifier = Modifier.fillMaxSize()) {
+                Box(modifier = Modifier.fillMaxWidth().padding(Constants.Size.Medium.dp)) {
+                    CreateAccountForm(::createAccount, onCancel = {
+                        isCreatingOpen = false
+                    })
+                }
+            }
+        }
+    }
+
+    Column(
         modifier = Modifier.fillMaxWidth().padding(Constants.Size.Large.dp),
-        horizontalArrangement = Arrangement.spacedBy(Constants.Size.Large.dp)
+        verticalArrangement = Arrangement.spacedBy(Constants.Size.Large.dp)
     ) {
-        Box(modifier = Modifier.weight(1f)) {
-            CreateAccountForm { name, initialBalance ->
-                accountRepository.create(name, initialBalance)
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            ScreenTitle("Accounts")
+
+            Button(onClick = { isCreatingOpen = !isCreatingOpen }) {
+                Text("Create account")
             }
         }
 
-        Box(modifier = Modifier.weight(3f)) {
-            AccountsList(accounts)
-        }
+        Spacer(modifier = Modifier.fillMaxWidth())
+
+
+        AccountsList(accounts)
     }
 }

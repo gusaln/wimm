@@ -38,7 +38,7 @@ fun AccountsDropDown(
             DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { onExpandedChange(false) },
-                modifier = Modifier.widthIn(150.dp, 350.dp)
+                modifier = Modifier.widthIn(200.dp, 450.dp)
             ) {
                 accounts.forEach {
                     val isSelected = it.id == value?.id

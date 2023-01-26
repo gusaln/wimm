@@ -19,13 +19,21 @@ import me.gustavolopezxyz.common.data.Money
 
 @Preview
 @Composable
-fun CreateAccountForm(onAccountCreate: (name: String, initialBalance: Money) -> Unit) {
+fun CreateAccountForm(onCreate: (name: String, initialBalance: Money) -> Unit, onCancel: () -> Unit = {}) {
     var name by remember { mutableStateOf("") }
     var currency by remember { mutableStateOf("") }
     var initialBalance by remember { mutableStateOf(0.0) }
 
-    fun handleCreateAccount() {
-        onAccountCreate(name, Money(currency, initialBalance))
+    fun handleCreate() {
+        onCreate(name, Money(currency, initialBalance))
+    }
+
+    fun handleCancel() {
+        name = ""
+        currency = ""
+        initialBalance = 0.0
+
+        onCancel()
     }
 
     Column(
@@ -33,7 +41,8 @@ fun CreateAccountForm(onAccountCreate: (name: String, initialBalance: Money) -> 
     ) {
         Text("Create an Account", style = MaterialTheme.typography.h5)
 
-        OutlinedTextField(modifier = Modifier.fillMaxWidth(),
+        OutlinedTextField(
+            modifier = Modifier.fillMaxWidth(),
             value = name,
             onValueChange = { name = it },
             label = { Text("Name") },
@@ -56,15 +65,11 @@ fun CreateAccountForm(onAccountCreate: (name: String, initialBalance: Money) -> 
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(Constants.Size.Medium.dp, Alignment.End)
         ) {
-            Button(onClick = ::handleCreateAccount) {
+            Button(onClick = ::handleCreate) {
                 Text("Create")
             }
 
-            TextButton(onClick = {
-                name = ""
-                currency = ""
-                initialBalance = 0.0
-            }) {
+            TextButton(onClick = ::handleCancel) {
                 Text("Cancel")
             }
         }

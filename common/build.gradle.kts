@@ -73,8 +73,8 @@ android {
 
 sqldelight {
     database("Database") {
-        packageName = "me.gustavolopezxyz.db"
-        schemaOutputDirectory = file("me.gustavolopezxyz.db")
+        packageName = "me.gustavolopezxyz.common.data"
+        schemaOutputDirectory = file("me.gustavolopezxyz.common.data")
         migrationOutputDirectory = file("src/commonMain/sqldelight/databases")
         deriveSchemaFromMigrations = true
         verifyMigrations = true

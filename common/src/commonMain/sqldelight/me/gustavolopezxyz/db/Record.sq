@@ -16,3 +16,8 @@ UPDATE record
 SET
     description = :description
 WHERE id = :id;
+
+deleteRecord {
+    DELETE FROM entry WHERE record_id = :id;
+    DELETE FROM record WHERE id = :id;
+}

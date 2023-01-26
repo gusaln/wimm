@@ -4,7 +4,8 @@
 
 package me.gustavolopezxyz.common.db
 
-import me.gustavolopezxyz.db.Database
+import me.gustavolopezxyz.common.data.Database
+
 
 expect class DatabaseFactory {
     fun create(): Database

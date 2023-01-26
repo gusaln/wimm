@@ -13,10 +13,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalDate
 import me.gustavolopezxyz.common.Constants
+import me.gustavolopezxyz.common.data.Account
 import me.gustavolopezxyz.common.data.Currency
 import me.gustavolopezxyz.common.data.MissingAccount
 import me.gustavolopezxyz.common.data.getCurrency
-import me.gustavolopezxyz.db.Account
 
 
 object FormEntriesListDefault {

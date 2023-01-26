@@ -15,8 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import me.gustavolopezxyz.common.Constants
+import me.gustavolopezxyz.common.data.Account
 import me.gustavolopezxyz.common.data.getBalance
-import me.gustavolopezxyz.db.Account
 
 
 @Composable
@@ -47,6 +47,10 @@ fun AccountsList(accounts: List<Account>) {
     ) {
         accounts.forEach {
             AccountsListCard(it)
+        }
+
+        if (accounts.isEmpty()) {
+            Text("No accounts found")
         }
     }
 }

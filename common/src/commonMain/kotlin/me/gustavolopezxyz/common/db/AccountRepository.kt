@@ -7,11 +7,11 @@ package me.gustavolopezxyz.common.db
 import com.squareup.sqldelight.Query
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import kotlinx.coroutines.flow.Flow
+import me.gustavolopezxyz.common.data.Account
+import me.gustavolopezxyz.common.data.Database
 import me.gustavolopezxyz.common.data.Money
 import me.gustavolopezxyz.common.data.getInitialBalance
-import me.gustavolopezxyz.db.Account
 import me.gustavolopezxyz.db.AccountQueries
-import me.gustavolopezxyz.db.Database
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 

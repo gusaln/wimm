@@ -4,9 +4,9 @@
 
 package me.gustavolopezxyz.common.db
 
+import me.gustavolopezxyz.common.data.Database
+import me.gustavolopezxyz.common.data.Record
 import me.gustavolopezxyz.common.ext.getRandomString
-import me.gustavolopezxyz.db.Database
-import me.gustavolopezxyz.db.Record
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -34,7 +34,13 @@ class RecordRepository : KoinComponent {
         return reference
     }
 
-    fun update(record: Record, description: String) {
-        return queries.updateRecord(description, record.id)
+    fun update(record: Record, description: String) = queries.updateRecord(description, record.id)
+
+    fun update(recordId: Long, description: String) {
+        return queries.updateRecord(description, recordId)
+    }
+
+    fun delete(recordId: Long) {
+        return queries.deleteRecord(recordId)
     }
 }

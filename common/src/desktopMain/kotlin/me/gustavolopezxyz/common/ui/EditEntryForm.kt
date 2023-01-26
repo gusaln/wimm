@@ -16,8 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalDate
 import me.gustavolopezxyz.common.Constants
+import me.gustavolopezxyz.common.data.Account
 import me.gustavolopezxyz.common.data.UnknownAccount
-import me.gustavolopezxyz.db.Account
 
 
 @Composable

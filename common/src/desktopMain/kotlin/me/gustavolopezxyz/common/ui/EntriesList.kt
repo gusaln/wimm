@@ -17,11 +17,11 @@ import androidx.compose.ui.unit.dp
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import me.gustavolopezxyz.common.Constants
+import me.gustavolopezxyz.common.data.Account
 import me.gustavolopezxyz.common.data.Money
 import me.gustavolopezxyz.common.data.getCurrency
 import me.gustavolopezxyz.common.ext.toMoney
 import me.gustavolopezxyz.common.ext.toSimpleFormat
-import me.gustavolopezxyz.db.Account
 
 data class ListEntryDto(
     val id: Long,

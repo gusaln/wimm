@@ -18,13 +18,13 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.datetime.atTime
 import me.gustavolopezxyz.common.Constants
+import me.gustavolopezxyz.common.data.Database
 import me.gustavolopezxyz.common.data.MissingAccount
 import me.gustavolopezxyz.common.data.getCurrency
 import me.gustavolopezxyz.common.db.AccountRepository
 import me.gustavolopezxyz.common.db.EntryRepository
 import me.gustavolopezxyz.common.db.RecordRepository
 import me.gustavolopezxyz.common.ext.toMoney
-import me.gustavolopezxyz.db.Database
 import org.koin.java.KoinJavaComponent.inject
 
 @OptIn(DelicateCoroutinesApi::class)
@@ -109,7 +109,10 @@ fun CreateTransactionScreen(navController: NavController) {
             Box(modifier = Modifier.fillMaxWidth(0.5f)) {
                 AddEntryForm(
                     value = newEntryDto,
-                    onValueChanged = { newEntryDto = it },
+                    onValueChanged = {
+                        println(it)
+                        newEntryDto = it
+                    },
                     accounts = accounts,
                 ) {
                     Row(
@@ -142,7 +145,10 @@ fun CreateTransactionScreen(navController: NavController) {
             ) {
                 AddEntryForm(
                     value = newEntryDto,
-                    onValueChanged = { newEntryDto = it },
+                    onValueChanged = {
+                        println(it)
+                        newEntryDto = it
+                    },
                     accounts = accounts
                 ) {
                     Row(

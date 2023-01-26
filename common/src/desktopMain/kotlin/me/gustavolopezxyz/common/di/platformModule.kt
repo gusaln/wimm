@@ -7,6 +7,7 @@ package me.gustavolopezxyz.common.di
 import androidx.compose.material.SnackbarHostState
 import me.gustavolopezxyz.common.ConfigFactory
 import me.gustavolopezxyz.common.db.DatabaseFactory
+import me.gustavolopezxyz.common.ui.EditTransactionViewModel
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
@@ -24,5 +25,9 @@ actual fun platformModule(): Module = module {
 
     single {
         SnackbarHostState()
+    }
+
+    factory {
+        EditTransactionViewModel()
     }
 }

@@ -14,34 +14,96 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import androidx.compose.ui.window.Dialog
+import kotlinx.coroutines.*
 import kotlinx.datetime.atTime
 import me.gustavolopezxyz.common.Constants
-import me.gustavolopezxyz.common.data.MissingAccount
-import me.gustavolopezxyz.common.data.getCurrency
-import me.gustavolopezxyz.common.data.toEntry
+import me.gustavolopezxyz.common.data.*
 import me.gustavolopezxyz.common.db.AccountRepository
 import me.gustavolopezxyz.common.db.EntryRepository
 import me.gustavolopezxyz.common.db.RecordRepository
 import me.gustavolopezxyz.common.ext.toCurrency
 import me.gustavolopezxyz.common.ext.toMoney
-import me.gustavolopezxyz.db.Account
-import me.gustavolopezxyz.db.Database
 import me.gustavolopezxyz.db.SelectEntriesFromRecord
+import org.koin.core.component.KoinComponent
 import org.koin.java.KoinJavaComponent.inject
+
+class EditTransactionViewModel : KoinComponent {
+    private val db by inject<Database>(Database::class.java)
+    private val accountRepository by inject<AccountRepository>(AccountRepository::class.java)
+    private val recordRepository by inject<RecordRepository>(RecordRepository::class.java)
+    private val entriesRepository by inject<EntryRepository>(EntryRepository::class.java)
+
+    private val snackbar by inject<SnackbarHostState>(SnackbarHostState::class.java)
+
+    fun getRecord(recordId: Long) = recordRepository.findById(recordId)
+
+    fun getAccounts() = accountRepository.getAll()
+
+    fun getEntries(recordId: Long) = entriesRepository.getByRecordId(recordId)
+
+    suspend fun editRecord(
+        recordId: Long,
+        description: String,
+        entryMap: Map<Long, SelectEntriesFromRecord>,
+        toCreate: Collection<NewEntryDto>,
+        toModify: Collection<EditEntryDto>,
+    ) {
+        if (description.trim().isEmpty()) {
+            snackbar.showSnackbar("You need a description")
+
+            return
+        }
+
+        if ((toModify.count { !it.to_delete } + toCreate.size) < 1) {
+            snackbar.showSnackbar("You need at least one entry")
+
+            return
+        }
+
+        db.transaction {
+            recordRepository.update(recordId, description.trim())
+
+            toCreate.forEach {
+                entriesRepository.create(
+                    it.description,
+                    it.amount.toMoney(it.account!!.getCurrency()),
+                    it.account.id,
+                    recordId,
+                    it.incurred_at.atTime(0, 0),
+                    it.recorded_at.atTime(0, 0)
+                )
+            }
+
+            toModify.filter { it.to_delete }.forEach {
+                val entry = entryMap.getValue(it.id)
+                entriesRepository.delete(entry.id, entry.account_id, entry.amount_value)
+            }
+
+            toModify.filter { it.edited }.forEach {
+                val original = entryMap.getValue(it.id)
+
+                entriesRepository.edit(
+                    original.toEntry(),
+                    it.toEntry(original.record_id),
+                )
+            }
+        }
+
+        snackbar.showSnackbar("Transaction modified")
+    }
+
+    fun deleteRecord(recordId: Long) {
+        recordRepository.delete(recordId)
+    }
+}
 
 @OptIn(DelicateCoroutinesApi::class)
 @Composable
 fun EditTransactionScreen(navController: NavController, transactionRecordId: Long) {
-    val db by remember { inject<Database>(Database::class.java) }
-    val accountRepository by remember { inject<AccountRepository>(AccountRepository::class.java) }
-    val recordRepository by remember { inject<RecordRepository>(RecordRepository::class.java) }
-    val entriesRepository by remember { inject<EntryRepository>(EntryRepository::class.java) }
-    val snackbar by remember { inject<SnackbarHostState>(SnackbarHostState::class.java) }
+    val viewModel by remember { inject<EditTransactionViewModel>(EditTransactionViewModel::class.java) }
 
-    val record by remember { mutableStateOf(recordRepository.findById(transactionRecordId)) }
+    val record by remember { mutableStateOf(viewModel.getRecord(transactionRecordId)) }
     if (record == null) {
         Column(
             modifier = Modifier.fillMaxWidth(),
@@ -62,9 +124,9 @@ fun EditTransactionScreen(navController: NavController, transactionRecordId: Lon
         return
     }
 
-    val accounts = remember { accountRepository.getAll() }
+    val accounts = remember { viewModel.getAccounts() }
     val entryMap = remember {
-        entriesRepository.getByRecordId(record!!.id).associateBy { it.id }
+        viewModel.getEntries(record!!.id).associateBy { it.id }
     }
 
     val toCreate = remember { mutableStateListOf<NewEntryDto>() }
@@ -76,66 +138,67 @@ fun EditTransactionScreen(navController: NavController, transactionRecordId: Lon
 
     var description by remember { mutableStateOf(record!!.description) }
 
-    fun editTransaction() {
-        if (description.trim().isEmpty()) {
-            GlobalScope.launch {
-                snackbar.showSnackbar("You need a description")
-            }
+    val scroll = rememberScrollState()
+    var confirmDelete by remember { mutableStateOf(false) }
 
-            return
-        }
+    fun editRecord() {
+        GlobalScope.launch(Dispatchers.IO) {
+            viewModel.editRecord(record!!.id, description, entryMap, toCreate, toModify)
 
-        if (toModify.count { !it.to_delete } + toCreate.size < 1) {
-            GlobalScope.launch {
-                snackbar.showSnackbar("You need at least one entry")
-            }
-
-            return
-        }
-
-        db.transaction {
-            recordRepository.update(record!!, description.trim())
-
-            toCreate.forEach {
-                entriesRepository.create(
-                    it.description,
-                    it.amount.toMoney(it.account!!.getCurrency()),
-                    it.account.id,
-                    record!!.id,
-                    it.incurred_at.atTime(0, 0),
-                    it.recorded_at.atTime(0, 0)
-                )
-            }
-
-            toModify.filter { it.to_delete }.forEach {
-                val entry = entryMap.getValue(it.id)
-                entriesRepository.delete(entry.id, entry.account_id, entry.amount_value)
-            }
-
-            toModify.filter { it.edited }.forEach {
-                val original = entryMap.getValue(it.id)
-
-                entriesRepository.edit(
-                    original.toEntry(),
-                    it.toEntry(original.record_id),
-                )
-            }
-
-            GlobalScope.launch {
-                snackbar.showSnackbar("Transaction modified")
-            }
-
+//            withContext(Dispatchers.Main) {
             navController.navigateBack()
+//            }
         }
     }
 
-    val scroll = rememberScrollState()
+    fun deleteRecord() {
+        confirmDelete = false
+
+        GlobalScope.launch(Dispatchers.IO) {
+            viewModel.deleteRecord(record!!.id)
+
+//            withContext(Dispatchers.Main) {
+            navController.navigateBack()
+//            }
+        }
+    }
+
+
+    if (confirmDelete) {
+        Dialog(onCloseRequest = { confirmDelete = false }) {
+            Card(modifier = Modifier.fillMaxSize()) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(Constants.Size.Medium.dp)
+                ) {
+                    Box(modifier = Modifier.fillMaxWidth().padding(Constants.Size.Medium.dp)) {
+                        Text("Do you really want to delete this transaction?")
+                    }
+
+                    Spacer(modifier = Modifier.fillMaxWidth())
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
+                    ) {
+                        Button(onClick = ::deleteRecord) { Text("Delete") }
+                        TextButton(onClick = { confirmDelete = false }) { Text("Cancel") }
+                    }
+                }
+            }
+        }
+    }
 
     Column(
         modifier = Modifier.fillMaxWidth().verticalScroll(scroll).padding(Constants.Size.Large.dp),
         verticalArrangement = Arrangement.spacedBy(Constants.Size.Medium.dp)
     ) {
-        Text("Edit transaction", style = MaterialTheme.typography.h5)
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text("Edit transaction", style = MaterialTheme.typography.h5)
+            Button(onClick = { confirmDelete = !confirmDelete }) {
+                Text("Delete")
+            }
+        }
         OutlinedTextField(modifier = Modifier.fillMaxWidth(),
             value = description,
             onValueChange = { description = it },
@@ -156,7 +219,7 @@ fun EditTransactionScreen(navController: NavController, transactionRecordId: Lon
         Row(
             modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
         ) {
-            Button(onClick = ::editTransaction) { Text("Edit") }
+            Button(onClick = ::editRecord) { Text("Edit") }
             TextButton(onClick = { navController.navigateBack() }) {
                 Text("Go Back")
             }

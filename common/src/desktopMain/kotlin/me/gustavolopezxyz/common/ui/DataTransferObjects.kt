@@ -1,10 +1,10 @@
 package me.gustavolopezxyz.common.ui
 
 import kotlinx.datetime.*
+import me.gustavolopezxyz.common.data.Account
+import me.gustavolopezxyz.common.data.Entry
 import me.gustavolopezxyz.common.ext.currentTz
 import me.gustavolopezxyz.common.ext.getRandomString
-import me.gustavolopezxyz.db.Account
-import me.gustavolopezxyz.db.Entry
 import me.gustavolopezxyz.db.SelectEntriesFromRecord
 
 data class NewEntryDto(
@@ -70,19 +70,6 @@ data class EditEntryDto(
         recorded_at = recorded_at.atTime(0, 0, 0).toInstant(
             currentTz()
         )
-    )
-}
-
-fun makeEditEntryDtoFrom(entry: Entry, account: Account): EditEntryDto {
-    return EditEntryDto(
-        id = entry.id,
-        account_id = account.id,
-        account_name = account.name,
-        account_currency = account.balance_currency,
-        description = entry.description,
-        amount = entry.amount_value,
-        incurred_at = entry.incurred_at.toLocalDateTime(currentTz()).date,
-        recorded_at = entry.recorded_at.toLocalDateTime(currentTz()).date,
     )
 }
 

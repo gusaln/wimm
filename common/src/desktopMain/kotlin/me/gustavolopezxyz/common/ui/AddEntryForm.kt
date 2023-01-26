@@ -17,7 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import me.gustavolopezxyz.common.Constants
-import me.gustavolopezxyz.db.Account
+import me.gustavolopezxyz.common.data.Account
 
 
 @Composable

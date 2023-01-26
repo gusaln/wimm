@@ -23,7 +23,6 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toLocalDateTime
 import me.gustavolopezxyz.common.Constants
 import me.gustavolopezxyz.common.data.Currency
-import me.gustavolopezxyz.common.data.Money
 import me.gustavolopezxyz.common.ext.currentTz
 
 
@@ -79,17 +78,15 @@ fun OutlinedDoubleField(
     label: @Composable (() -> Unit)? = null,
     placeholder: @Composable (() -> Unit)? = null,
 ) {
-    fun handleChange(raw: String) {
-        val minorUnit = raw.filter { c -> c.isDigit() }.padStart(decimals + 2, '0')
-        val before = minorUnit.substring(0, minorUnit.length - decimals).padEnd(1, '0')
-        val after = minorUnit.substring(minorUnit.length - decimals).padEnd(decimals, '0')
-
-        onValueChange("$before.$after".toDouble())
-    }
-
     OutlinedTextField(
-        "%.2f".format(value),
-        ::handleChange,
+        value = "%.2f".format(value),
+        onValueChange = { raw ->
+            val minorUnit = raw.filter { c -> c.isDigit() }.padStart(decimals + 2, '0')
+            val before = minorUnit.substring(0, minorUnit.length - decimals).padEnd(1, '0')
+            val after = minorUnit.substring(minorUnit.length - decimals).padEnd(decimals, '0')
+
+            onValueChange("$before.$after".toDouble())
+        },
         modifier = modifier,
         label = label,
         placeholder = placeholder,
@@ -147,34 +144,6 @@ fun MoneyText(
             )
         }
     }, modifier = modifier, style = commonStyle)
-}
-
-@Composable
-fun MoneyText(
-    amount: Money,
-    modifier: Modifier = Modifier,
-    positiveColor: Color = Color.Unspecified,
-    negativeColor: Color = Color.Red,
-    commonStyle: TextStyle = TextStyle.Default,
-    valueStyle: TextStyle = TextStyle(
-        fontSize = MaterialTheme.typography.h6.fontSize
-    ),
-    currencyStyle: TextStyle = TextStyle(
-        color = Color.Gray,
-        fontSize = MaterialTheme.typography.caption.fontSize,
-        baselineShift = BaselineShift.Subscript
-    )
-) {
-    MoneyText(
-        amount.value,
-        amount.currency,
-        modifier,
-        positiveColor,
-        negativeColor,
-        commonStyle,
-        valueStyle,
-        currencyStyle,
-    )
 }
 
 @Composable

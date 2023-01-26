@@ -19,7 +19,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import me.gustavolopezxyz.db.Account
+import me.gustavolopezxyz.common.data.Account
 
 @Composable
 fun AccountsDropDown(

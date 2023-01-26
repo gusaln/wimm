@@ -145,9 +145,7 @@ fun EditTransactionScreen(navController: NavController, transactionRecordId: Lon
         GlobalScope.launch(Dispatchers.IO) {
             viewModel.editRecord(record!!.id, description, entryMap, toCreate, toModify)
 
-//            withContext(Dispatchers.Main) {
             navController.navigateBack()
-//            }
         }
     }
 
@@ -157,9 +155,7 @@ fun EditTransactionScreen(navController: NavController, transactionRecordId: Lon
         GlobalScope.launch(Dispatchers.IO) {
             viewModel.deleteRecord(record!!.id)
 
-//            withContext(Dispatchers.Main) {
             navController.navigateBack()
-//            }
         }
     }
 
@@ -194,11 +190,15 @@ fun EditTransactionScreen(navController: NavController, transactionRecordId: Lon
         verticalArrangement = Arrangement.spacedBy(Constants.Size.Medium.dp)
     ) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("Edit transaction", style = MaterialTheme.typography.h5)
+            ScreenTitle("Edit transaction")
+
             Button(onClick = { confirmDelete = !confirmDelete }) {
                 Text("Delete")
             }
         }
+
+        Spacer(modifier = Modifier.fillMaxWidth())
+
         OutlinedTextField(modifier = Modifier.fillMaxWidth(),
             value = description,
             onValueChange = { description = it },

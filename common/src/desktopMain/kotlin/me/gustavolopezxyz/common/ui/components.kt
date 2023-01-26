@@ -32,6 +32,10 @@ fun Int.minMax(min: Int, max: Int) = when {
     else -> this
 }
 
+@Composable
+fun ScreenTitle(title: String) {
+    Text(title, style = MaterialTheme.typography.h5)
+}
 
 @Composable
 fun OutlinedDateTextField(
@@ -41,7 +45,6 @@ fun OutlinedDateTextField(
     label: @Composable (() -> Unit)? = null,
     placeholder: @Composable (() -> Unit)? = null,
 ) {
-
     var dateString by remember { mutableStateOf(date.toString().replace("-", "/")) }
 
     fun handleChange(raw: String) {

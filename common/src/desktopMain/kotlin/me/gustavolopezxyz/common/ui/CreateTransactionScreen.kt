@@ -109,10 +109,7 @@ fun CreateTransactionScreen(navController: NavController) {
             Box(modifier = Modifier.fillMaxWidth(0.5f)) {
                 AddEntryForm(
                     value = newEntryDto,
-                    onValueChanged = {
-                        println(it)
-                        newEntryDto = it
-                    },
+                    onValueChanged = { newEntryDto = it },
                     accounts = accounts,
                 ) {
                     Row(
@@ -145,10 +142,7 @@ fun CreateTransactionScreen(navController: NavController) {
             ) {
                 AddEntryForm(
                     value = newEntryDto,
-                    onValueChanged = {
-                        println(it)
-                        newEntryDto = it
-                    },
+                    onValueChanged = { newEntryDto = it },
                     accounts = accounts
                 ) {
                     Row(

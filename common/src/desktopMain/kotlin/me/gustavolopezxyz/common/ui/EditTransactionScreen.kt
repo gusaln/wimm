@@ -18,18 +18,18 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.datetime.atTime
-import kotlinx.datetime.toInstant
 import me.gustavolopezxyz.common.Constants
 import me.gustavolopezxyz.common.data.MissingAccount
 import me.gustavolopezxyz.common.data.getCurrency
+import me.gustavolopezxyz.common.data.toEntry
 import me.gustavolopezxyz.common.db.AccountRepository
 import me.gustavolopezxyz.common.db.EntryRepository
 import me.gustavolopezxyz.common.db.RecordRepository
-import me.gustavolopezxyz.common.ext.currentTz
+import me.gustavolopezxyz.common.ext.toCurrency
 import me.gustavolopezxyz.common.ext.toMoney
 import me.gustavolopezxyz.db.Account
 import me.gustavolopezxyz.db.Database
-import me.gustavolopezxyz.db.Entry
+import me.gustavolopezxyz.db.SelectEntriesFromRecord
 import org.koin.java.KoinJavaComponent.inject
 
 @OptIn(DelicateCoroutinesApi::class)
@@ -70,7 +70,7 @@ fun EditTransactionScreen(navController: NavController, transactionRecordId: Lon
     val toCreate = remember { mutableStateListOf<NewEntryDto>() }
     val toModify = remember {
         entryMap.map { entry ->
-            makeEditEntryDtoFrom(entry.value, accounts.find { it.id == entry.value.account_id }!!)
+            makeEditEntryDtoFrom(entry.value)
         }.toMutableStateList()
     }
 
@@ -114,15 +114,10 @@ fun EditTransactionScreen(navController: NavController, transactionRecordId: Lon
 
             toModify.filter { it.edited }.forEach {
                 val original = entryMap.getValue(it.id)
+
                 entriesRepository.edit(
-                    original, original.copy(
-                        description = it.description,
-                        account_id = it.account.id,
-                        amount_currency = it.account.balance_currency,
-                        amount_value = it.amount,
-                        incurred_at = it.incurred_at.atTime(0, 0, 0).toInstant(currentTz()),
-                        recorded_at = it.recorded_at.atTime(0, 0, 0).toInstant(currentTz()),
-                    )
+                    original.toEntry(),
+                    it.toEntry(original.record_id),
                 )
             }
 
@@ -133,7 +128,6 @@ fun EditTransactionScreen(navController: NavController, transactionRecordId: Lon
             navController.navigateBack()
         }
     }
-
 
     val scroll = rememberScrollState()
 
@@ -173,7 +167,7 @@ fun EditTransactionScreen(navController: NavController, transactionRecordId: Lon
 @Composable
 private fun TransactionCurrentEntriesSection(
     accounts: List<Account>,
-    entries: List<Entry>,
+    entries: List<SelectEntriesFromRecord>,
     toModify: SnapshotStateList<EditEntryDto>,
 ) {
     var editEntryDto by remember { mutableStateOf<EditEntryDto?>(null) }
@@ -192,15 +186,16 @@ private fun TransactionCurrentEntriesSection(
             }, totals = {
                 val newTotal by remember {
                     derivedStateOf {
-                        toModify.filter { !it.to_delete }.groupBy { it.account.getCurrency() }.mapValues { mapEntry ->
-                            mapEntry.value.map { it.amount }.reduceOrNull { acc, amount -> acc + amount } ?: 0.0
-                        }
+                        toModify.filter { !it.to_delete }.groupBy { it.account_currency.toCurrency() }
+                            .mapValues { mapEntry ->
+                                mapEntry.value.map { it.amount }.reduceOrNull { acc, amount -> acc + amount } ?: 0.0
+                            }
                     }
                 }
 
                 val prevTotal by remember {
                     derivedStateOf {
-                        entries.groupBy { entry -> (accounts.find { it.id == entry.account_id }!!).getCurrency() }
+                        entries.groupBy { entry -> entry.account_currency.toCurrency() }
                             .mapValues { mapEntry ->
                                 mapEntry.value.map { it.amount_value }.reduceOrNull { acc, amount -> acc + amount }
                                     ?: 0.0

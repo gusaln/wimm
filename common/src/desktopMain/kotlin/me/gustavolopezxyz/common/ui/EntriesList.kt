@@ -15,27 +15,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import me.gustavolopezxyz.common.Constants
 import me.gustavolopezxyz.common.data.Account
 import me.gustavolopezxyz.common.data.AccountType
-import me.gustavolopezxyz.common.data.Money
-import me.gustavolopezxyz.common.data.getCurrency
-import me.gustavolopezxyz.common.ext.toMoney
+import me.gustavolopezxyz.common.data.DenormalizedEntry
+import me.gustavolopezxyz.common.ext.toCurrency
 import me.gustavolopezxyz.common.ext.toSimpleFormat
 
-data class ListEntryDto(
-    val entryId: Long,
-    val description: String,
-    val transactionId: Long,
-    val accountName: String,
-    val amount: Money,
-    val incurredAt: Instant,
-    val recordedAt: Instant
-)
-
 @Composable
-fun EntriesListCard(entry: ListEntryDto, onEdit: (ListEntryDto) -> Unit) {
+fun EntriesListCard(entry: DenormalizedEntry, onEdit: (DenormalizedEntry) -> Unit) {
     Card(modifier = Modifier.fillMaxWidth().clickable { onEdit(entry) }, elevation = 2.dp) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(12.dp),
@@ -49,7 +37,7 @@ fun EntriesListCard(entry: ListEntryDto, onEdit: (ListEntryDto) -> Unit) {
 
                 // Details
                 Column {
-                    EntrySummaryText(entry.description, entry.accountName)
+                    EntrySummaryText(entry.transactionDescription, entry.accountName)
 
                     Text(
                         entry.incurredAt.toSimpleFormat(), fontSize = MaterialTheme.typography.caption.fontSize
@@ -57,14 +45,14 @@ fun EntriesListCard(entry: ListEntryDto, onEdit: (ListEntryDto) -> Unit) {
                 }
 
                 // Amount
-                MoneyText(entry.amount.value, entry.amount.currency)
+                MoneyText(entry.amount, entry.currency.toCurrency())
             }
         }
     }
 }
 
 @Composable
-fun EntriesList(entries: List<ListEntryDto>, onEdit: (ListEntryDto) -> Unit) {
+fun EntriesList(entries: List<DenormalizedEntry>, onEdit: (DenormalizedEntry) -> Unit) {
     Column(
         modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(Constants.Size.Medium.dp)
     ) {
@@ -84,9 +72,39 @@ fun EntriesListPreview() {
 
     EntriesList(
         listOf(
-            ListEntryDto(1, "Cash", 1, ac1.name, 100.0.toMoney(ac1.getCurrency()), now, now),
-            ListEntryDto(2, "Bonus", 1, ac2.name, (100.0).toMoney(ac2.getCurrency()), now, now),
-            ListEntryDto(3, "Stuff", 1, ac2.name, (-10.0).toMoney(ac2.getCurrency()), now, now),
+            DenormalizedEntry(
+                1,
+                1,
+                "Cash",
+                1,
+                ac1.name,
+                "USD",
+                100.0,
+                now,
+                now
+            ),
+            DenormalizedEntry(
+                2,
+                1,
+                "Bonus",
+                1,
+                ac2.name,
+                "USD",
+                (100.0),
+                now,
+                now
+            ),
+            DenormalizedEntry(
+                3,
+                1,
+                "Stuff",
+                1,
+                ac2.name,
+                "USD",
+                (-10.0),
+                now,
+                now
+            ),
         )
     ) {}
 }

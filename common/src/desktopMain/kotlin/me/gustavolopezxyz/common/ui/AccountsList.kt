@@ -13,9 +13,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import me.gustavolopezxyz.common.Constants
 import me.gustavolopezxyz.common.data.Account
+import me.gustavolopezxyz.common.data.AccountType
 import me.gustavolopezxyz.common.data.getBalance
 
 
@@ -27,7 +30,17 @@ fun AccountsListCard(account: Account) {
             verticalArrangement = Arrangement.spacedBy(Constants.Size.Small.dp)
         ) {
             Row {
-                Text(account.name, style = MaterialTheme.typography.h5)
+                Text(buildAnnotatedString {
+                    withStyle(MaterialTheme.typography.h5.toSpanStyle()) {
+                        append(account.name)
+                    }
+
+                    append(' ')
+
+                    withStyle(MaterialTheme.typography.caption.toSpanStyle().copy(color = Color.Gray)) {
+                        append("[${account.type.name}]")
+                    }
+                })
             }
 
             Text(
@@ -61,8 +74,8 @@ fun AccountsList(accounts: List<Account>) {
 fun AccountsListPreview() {
     AccountsList(
         listOf(
-            Account(1, "Savings", "USD", 100.0, 0.0),
-            Account(2, "Checking", "VES", 50.0, 0.0),
+            Account(1, AccountType.Cash, "Savings", "USD", 100.0, 0.0),
+            Account(2, AccountType.Cash, "Checking", "VES", 50.0, 0.0),
         )
     )
 }

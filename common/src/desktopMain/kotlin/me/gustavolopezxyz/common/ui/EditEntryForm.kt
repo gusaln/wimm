@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalDate
 import me.gustavolopezxyz.common.Constants
 import me.gustavolopezxyz.common.data.Account
+import me.gustavolopezxyz.common.data.AccountType
 import me.gustavolopezxyz.common.data.UnknownAccount
 
 
@@ -42,7 +43,7 @@ fun EditEntryForm(
         Column(
             modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(Constants.Size.Field.dp)
         ) {
-            AccountsDropDown(
+            AccountDropdown(
                 expanded = isAccountsDropDownExpanded,
                 onExpandedChange = { isAccountsDropDownExpanded = it },
                 value = account,
@@ -50,7 +51,8 @@ fun EditEntryForm(
                 accounts = accounts
             ) {
                 Row {
-                    OutlinedTextField(value = account.name,
+                    OutlinedTextField(
+                        value = account.name,
                         onValueChange = {},
                         label = { Text("Account") },
                         modifier = Modifier.fillMaxWidth(),
@@ -107,20 +109,21 @@ fun EditEntryForm(
 @Preview
 @Composable
 fun EditEntryFormPreview() {
-    val ac1 = Account(99, "Savings", "USD", 100.0, 0.0)
-    val ac2 = Account(2, "Checking", "VES", 50.0, 0.0)
+    val ac1 = Account(99, AccountType.Cash, "Savings", "USD", 100.0, 0.0)
+    val ac2 = Account(2, AccountType.Cash, "Checking", "VES", 50.0, 0.0)
 
     Box(modifier = Modifier.padding(12.dp)) {
-        EditEntryForm(value = EditEntryDto(
-            1,
-            ac1.id,
-            ac1.name,
-            ac1.balance_currency,
-            "Beers",
-            120.0,
-            LocalDate(2023, 1, 13),
-            LocalDate(2023, 1, 13)
-        ),
+        EditEntryForm(
+            value = EditEntryDto(
+                1,
+                ac1.id,
+                ac1.name,
+                ac1.balance_currency,
+                "Beers",
+                120.0,
+                LocalDate(2023, 1, 13),
+                LocalDate(2023, 1, 13)
+            ),
             onValueChanged = {},
             accounts = listOf(ac1, ac2),
             onEditEntry = {},

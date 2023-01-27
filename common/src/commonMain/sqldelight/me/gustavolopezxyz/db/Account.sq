@@ -5,13 +5,14 @@ selectById:
 SELECT * FROM account WHERE id IN ?;
 
 insertAccount:
-INSERT INTO account(name, balance_currency, balance_value, initial_value)
-VALUES (:name, :balance_currency, :initial_value, :initial_value);
+INSERT INTO account(type, name, balance_currency, balance_value, initial_value)
+VALUES (:type, :name, :balance_currency, :initial_value, :initial_value);
 
 
 updateAccount:
 UPDATE account
 SET
+    type = :type,
     name = :name,
     balance_currency = :balance_currency,
     balance_value = :balance_value,

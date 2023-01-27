@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import me.gustavolopezxyz.common.Constants
 import me.gustavolopezxyz.common.data.Account
+import me.gustavolopezxyz.common.data.AccountType
 
 
 @Composable
@@ -37,7 +38,7 @@ fun AddEntryForm(
         Column(
             modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(Constants.Size.Field.dp)
         ) {
-            AccountsDropDown(
+            AccountDropdown(
                 expanded = isAccountsDropDownExpanded,
                 onExpandedChange = { isAccountsDropDownExpanded = it },
                 value = value.account,
@@ -45,7 +46,8 @@ fun AddEntryForm(
                 accounts = accounts
             ) {
                 Row {
-                    OutlinedTextField(value = value.account?.name ?: "",
+                    OutlinedTextField(
+                        value = value.account?.name ?: "",
                         onValueChange = {},
                         label = { Text("Account") },
                         modifier = Modifier.fillMaxWidth(),
@@ -102,7 +104,8 @@ fun AddEntryFormPreview() {
     Box(modifier = Modifier.padding(12.dp)) {
         AddEntryForm(
             value = makeEmptyNewEntryDto(), onValueChanged = {}, accounts = listOf(
-                Account(99, "Savings", "USD", 100.0, 0.0), Account(2, "Checking", "VES", 50.0, 0.0)
+                Account(99, AccountType.Cash, "Savings", "USD", 100.0, 0.0),
+                Account(2, AccountType.Cash, "Checking", "VES", 50.0, 0.0)
             )
         )
     }

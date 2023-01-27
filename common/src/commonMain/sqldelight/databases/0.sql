@@ -1,5 +1,6 @@
 CREATE TABLE account (
     id INTEGER PRIMARY KEY,
+    type TEXT NOT NULL,
     name TEXT NOT NULL,
     balance_currency TEXT NOT NULL,
     balance_value REAL NOT NULL DEFAULT 0,

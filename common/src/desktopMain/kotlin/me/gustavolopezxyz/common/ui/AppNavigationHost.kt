@@ -35,7 +35,7 @@ fun AppNavigationHost(navController: NavController) {
         }
 
         composable(Screen.Accounts.route) {
-            AccountsScreen(navController)
+            AccountsScreen()
         }
     }.build()
 }

@@ -13,10 +13,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalDate
 import me.gustavolopezxyz.common.Constants
-import me.gustavolopezxyz.common.data.Account
-import me.gustavolopezxyz.common.data.Currency
-import me.gustavolopezxyz.common.data.MissingAccount
-import me.gustavolopezxyz.common.data.getCurrency
+import me.gustavolopezxyz.common.data.*
 
 
 object FormEntriesListDefault {
@@ -122,8 +119,8 @@ fun NewEntriesList(
 @Preview
 @Composable
 fun NewEntriesListPreview() {
-    val ac1 = Account(99, "Income", "USD", 0.0, 0.0)
-    val ac2 = Account(2, "Expenses", "USD", 0.0, 0.0)
+    val ac1 = Account(99, AccountType.Cash, "Income", "USD", 0.0, 0.0)
+    val ac2 = Account(2, AccountType.Cash, "Expenses", "USD", 0.0, 0.0)
 
     NewEntriesList(entries = listOf(
         NewEntryDto("", "Cash", ac1, 100.0, LocalDate(2023, 1, 13)),

@@ -7,9 +7,11 @@ package me.gustavolopezxyz.common.ui
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.Dispatchers
@@ -45,7 +47,7 @@ fun DashboardScreen(navController: NavController) {
 
     RegularLayout(menu = { Text("Empty real state") }) {
         Column(verticalArrangement = Arrangement.spacedBy(Constants.Size.Medium.dp)) {
-            Row {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                 Button(onClick = { navController.navigate(Screen.CreateTransaction.route) }) { Text("Create entry") }
             }
 

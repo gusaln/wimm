@@ -41,7 +41,7 @@ fun AccountDropdown(
                 modifier = Modifier.widthIn(200.dp, 450.dp)
             ) {
                 accounts.forEach {
-                    val isSelected = it.id == value?.id
+                    val isSelected = it.accountId == value?.accountId
                     val style = if (isSelected) {
                         MaterialTheme.typography.body1.copy(
                             fontWeight = FontWeight.Bold, color = MaterialTheme.colors.secondary
@@ -63,7 +63,7 @@ fun AccountDropdown(
                             withStyle(
                                 SpanStyle(color = Color.Gray, fontSize = MaterialTheme.typography.caption.fontSize)
                             ) {
-                                append("[${it.type.name}; ${it.balance_currency}]")
+                                append("[${it.type.name}; ${it.currency}]")
                             }
                         }, style = style)
                     }

@@ -30,7 +30,7 @@ fun EditEntryForm(
     onCancel: () -> Unit,
 ) {
     val account by remember {
-        derivedStateOf { accounts.find { it.id == value.account_id } ?: UnknownAccount }
+        derivedStateOf { accounts.find { it.accountId == value.accountId } ?: UnknownAccount }
     }
 
     var isAccountsDropDownExpanded by remember { mutableStateOf(false) }
@@ -66,12 +66,6 @@ fun EditEntryForm(
                 }
             }
 
-            OutlinedTextField(modifier = Modifier.fillMaxWidth(),
-                value = value.description,
-                onValueChange = { onValueChanged(value.edit(description = it)) },
-                label = { Text("Description") },
-                placeholder = { Text("Pizza and a few beers") })
-
             OutlinedDoubleField(modifier = Modifier.fillMaxWidth(),
                 value = value.amount,
                 onValueChange = { onValueChanged(value.edit(amount = it)) },
@@ -80,13 +74,13 @@ fun EditEntryForm(
             OutlinedDateTextField(
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text("Date that it happened") },
-                date = value.incurred_at,
+                date = value.incurredAt,
                 onValueChange = {
                     onValueChanged(
                         value.edit(
-                            incurred_at = it, recorded_at = when (value.recorded_at) {
-                                value.incurred_at -> it
-                                else -> value.incurred_at
+                            incurredAt = it, recordedAt = when (value.recordedAt) {
+                                value.incurredAt -> it
+                                else -> value.incurredAt
                             }
                         )
                     )
@@ -94,8 +88,8 @@ fun EditEntryForm(
 
             OutlinedDateTextField(modifier = Modifier.fillMaxWidth(),
                 label = { Text("Date that it appears in the books") },
-                date = value.recorded_at,
-                onValueChange = { onValueChanged(value.edit(recorded_at = it)) })
+                date = value.recordedAt,
+                onValueChange = { onValueChanged(value.edit(recordedAt = it)) })
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)) {
                 Button(onClick = { onEditEntry(value) }) { Text("Edit entry") }
@@ -109,17 +103,16 @@ fun EditEntryForm(
 @Preview
 @Composable
 fun EditEntryFormPreview() {
-    val ac1 = Account(99, AccountType.Cash, "Savings", "USD", 100.0, 0.0)
-    val ac2 = Account(2, AccountType.Cash, "Checking", "VES", 50.0, 0.0)
+    val ac1 = Account(99, AccountType.Cash, "Savings", "USD", 100.0)
+    val ac2 = Account(2, AccountType.Cash, "Checking", "VES", 50.0)
 
     Box(modifier = Modifier.padding(12.dp)) {
         EditEntryForm(
             value = EditEntryDto(
                 1,
-                ac1.id,
+                ac1.accountId,
                 ac1.name,
-                ac1.balance_currency,
-                "Beers",
+                ac1.currency,
                 120.0,
                 LocalDate(2023, 1, 13),
                 LocalDate(2023, 1, 13)

@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalDate
 import me.gustavolopezxyz.common.Constants
@@ -27,8 +28,8 @@ fun EditedEntriesListItem(
     Row(
         modifier = Modifier.fillMaxWidth().background(
             when {
-                entry.to_delete -> Color.Red.copy(.5f)
-                entry.edited -> MaterialTheme.colors.secondary
+                entry.toDelete -> Color.Red.copy(.5f)
+                entry.wasEdited -> MaterialTheme.colors.secondary
                 else -> Color.Unspecified
             }
         ).padding(FormEntriesListDefault.rowPadding)
@@ -40,7 +41,7 @@ fun EditedEntriesListItem(
         ) {
             val iconSize = Modifier.size(20.dp)
 
-            if (entry.to_delete) {
+            if (entry.toDelete) {
                 IconButton(onClick = { onDeleteToggle(entry) }) {
                     Icon(Icons.Default.ArrowBack, "restore", iconSize)
                 }
@@ -54,16 +55,16 @@ fun EditedEntriesListItem(
             }
         }
 
-        EntrySummaryText(
-            entry.description,
-            entry.account_name,
+        Text(
+            entry.accountName,
             modifier = Modifier.weight(FormEntriesListDefault.contentWeight)
-                .padding(FormEntriesListDefault.rowCellPadding)
+                .padding(FormEntriesListDefault.rowCellPadding),
+            overflow = TextOverflow.Ellipsis
         )
 
         MoneyText(
             entry.amount,
-            entry.account_currency.toCurrency(),
+            entry.currency.toCurrency(),
             modifier = Modifier.weight(FormEntriesListDefault.amountWeight)
                 .padding(FormEntriesListDefault.rowCellPadding),
             commonStyle = TextStyle.Default.copy(textAlign = TextAlign.End)
@@ -103,7 +104,7 @@ fun EditedEntriesList(
 @Composable
 fun EditEntriesListPreview() {
     EditedEntriesList(entries = listOf(
-        EditEntryDto(1, 1, "Income", "USD", "Night work", 100.0, LocalDate(2023, 1, 13), LocalDate(2023, 1, 13)),
-        EditEntryDto(2, 99, "Expenses", "USD", "Beers", -10.0, LocalDate(2023, 1, 14), LocalDate(2023, 1, 14)),
+        EditEntryDto(1, 1, "Income", "USD", 100.0, LocalDate(2023, 1, 13), LocalDate(2023, 1, 13)),
+        EditEntryDto(2, 99, "Expenses", "USD", -10.0, LocalDate(2023, 1, 14), LocalDate(2023, 1, 14)),
     ), onEdit = {}, onDeleteToggle = {})
 }

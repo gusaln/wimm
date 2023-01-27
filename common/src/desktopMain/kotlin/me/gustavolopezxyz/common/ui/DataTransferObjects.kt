@@ -5,83 +5,76 @@ import me.gustavolopezxyz.common.data.Account
 import me.gustavolopezxyz.common.data.Entry
 import me.gustavolopezxyz.common.ext.currentTz
 import me.gustavolopezxyz.common.ext.getRandomString
-import me.gustavolopezxyz.db.SelectEntriesFromRecord
+import me.gustavolopezxyz.db.SelectEntriesFromTransaction
 
 data class NewEntryDto(
     val uid: String = getRandomString(8),
-    val description: String = "",
     val account: Account? = null,
     val amount: Double = 0.0,
-    val incurred_at: LocalDate,
-    val recorded_at: LocalDate = incurred_at
+    val incurredAt: LocalDate,
+    val recordedAt: LocalDate = incurredAt
 )
 
-fun makeEmptyNewEntryDto() = NewEntryDto(incurred_at = Clock.System.now().toLocalDateTime(currentTz()).date)
+fun makeEmptyNewEntryDto() = NewEntryDto(incurredAt = Clock.System.now().toLocalDateTime(currentTz()).date)
 
 
 data class EditEntryDto(
     val id: Long,
-    val account_id: Long,
-    val account_name: String,
-    val account_currency: String,
-    val description: String,
+    val accountId: Long,
+    val accountName: String,
+    val currency: String,
     val amount: Double,
-    val incurred_at: LocalDate,
-    val recorded_at: LocalDate,
-    val edited: Boolean = false,
-    val to_delete: Boolean = false,
+    val incurredAt: LocalDate,
+    val recordedAt: LocalDate,
+    val wasEdited: Boolean = false,
+    val toDelete: Boolean = false,
 ) {
     fun edit(
-        description: String = this.description,
         amount: Double = this.amount,
-        incurred_at: LocalDate = this.incurred_at,
-        recorded_at: LocalDate = this.recorded_at,
+        incurredAt: LocalDate = this.incurredAt,
+        recordedAt: LocalDate = this.recordedAt,
     ) = copy(
-        description = description,
         amount = amount,
-        incurred_at = incurred_at,
-        recorded_at = recorded_at,
-        edited = true,
-        to_delete = false,
+        incurredAt = incurredAt,
+        recordedAt = recordedAt,
+        wasEdited = true,
+        toDelete = false,
     )
 
     fun changeAccount(account: Account) = copy(
-        account_id = account.id,
-        account_name = account.name,
-        account_currency = account.balance_currency,
-        edited = true,
-        to_delete = false,
+        accountId = account.accountId,
+        accountName = account.name,
+        currency = account.currency,
+        wasEdited = true,
+        toDelete = false,
     )
 
-    fun delete() = copy(to_delete = true)
+    fun delete() = copy(toDelete = true)
 
-    fun restore() = copy(to_delete = false)
+    fun restore() = copy(toDelete = false)
 
-    fun toEntry(recordId: Long): Entry = Entry(
-        id,
-        account_id = account_id,
-        record_id = recordId,
-        description = description,
-        amount_currency = account_currency,
-        amount_value = amount,
-        incurred_at = incurred_at.atTime(0, 0, 0).toInstant(
+    fun toEntry(transactionId: Long): Entry = Entry(
+        entryId = id,
+        transactionId = transactionId,
+        accountId = accountId,
+        amount = amount,
+        incurredAt = incurredAt.atTime(0, 0, 0).toInstant(
             currentTz()
         ),
-        recorded_at = recorded_at.atTime(0, 0, 0).toInstant(
+        recordedAt = recordedAt.atTime(0, 0, 0).toInstant(
             currentTz()
         )
     )
 }
 
-fun makeEditEntryDtoFrom(entry: SelectEntriesFromRecord): EditEntryDto {
+fun makeEditEntryDtoFrom(entry: SelectEntriesFromTransaction): EditEntryDto {
     return EditEntryDto(
-        id = entry.id,
-        account_id = entry.account_id,
-        account_name = entry.account_name,
-        account_currency = entry.account_currency,
-        description = entry.description,
-        amount = entry.amount_value,
-        incurred_at = entry.incurred_at.toLocalDateTime(currentTz()).date,
-        recorded_at = entry.recorded_at.toLocalDateTime(currentTz()).date,
+        id = entry.entryId,
+        accountId = entry.accountId,
+        accountName = entry.accountName,
+        currency = entry.currency,
+        amount = entry.amount,
+        incurredAt = entry.incurredAt.toLocalDateTime(currentTz()).date,
+        recordedAt = entry.recordedAt.toLocalDateTime(currentTz()).date,
     )
 }

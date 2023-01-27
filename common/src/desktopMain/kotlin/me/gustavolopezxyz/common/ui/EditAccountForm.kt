@@ -70,17 +70,10 @@ fun EditAccountForm(
         }
 
         OutlinedTextField(modifier = Modifier.fillMaxWidth(),
-            value = value.balance_currency,
-            onValueChange = { onValueChange(value.copy(balance_currency = it.uppercase())) },
+            value = value.currency,
+            onValueChange = { onValueChange(value.copy(currency = it.uppercase())) },
             label = { Text("Currency") },
             placeholder = { Text("USD") })
-
-        OutlinedDoubleField(
-            modifier = Modifier.fillMaxWidth(),
-            value = value.initial_value,
-            onValueChange = { onValueChange(value.copy(initial_value = it)) },
-            label = { Text("Initial balance") },
-        )
 
         Row(
             modifier = Modifier.fillMaxWidth(),

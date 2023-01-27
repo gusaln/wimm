@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -86,19 +87,25 @@ fun OutlinedDoubleField(
     label: @Composable (() -> Unit)? = null,
     placeholder: @Composable (() -> Unit)? = null,
 ) {
+    val isNegative by remember { mutableStateOf(value < 0) }
+
     OutlinedTextField(
         value = "%.2f".format(value),
         onValueChange = { raw ->
+            val sign = if (raw.contains('-')) "-" else ""
             val minorUnit = raw.filter { c -> c.isDigit() }.padStart(decimals + 2, '0')
             val before = minorUnit.substring(0, minorUnit.length - decimals).padEnd(1, '0')
             val after = minorUnit.substring(minorUnit.length - decimals).padEnd(decimals, '0')
 
-            onValueChange("$before.$after".toDouble())
+            onValueChange("$sign$before.$after".toDouble())
         },
         modifier = modifier,
         label = label,
         placeholder = placeholder,
-        singleLine = true
+        singleLine = true,
+        colors = TextFieldDefaults.outlinedTextFieldColors(
+            textColor = if (isNegative) Color.Red else Color.Unspecified
+        )
     )
 }
 

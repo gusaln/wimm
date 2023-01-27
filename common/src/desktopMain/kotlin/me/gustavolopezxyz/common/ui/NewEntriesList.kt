@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalDate
 import me.gustavolopezxyz.common.Constants
@@ -69,11 +70,11 @@ fun NewEntriesListItem(entry: NewEntryDto, onEdit: (NewEntryDto) -> Unit, onDele
             }
         }
 
-        EntrySummaryText(
-            entry.description,
+        Text(
             (entry.account ?: MissingAccount).name,
             modifier = Modifier.weight(FormEntriesListDefault.contentWeight)
-                .padding(FormEntriesListDefault.rowCellPadding)
+                .padding(FormEntriesListDefault.rowCellPadding),
+            overflow = TextOverflow.Ellipsis
         )
 
         MoneyText(
@@ -108,7 +109,6 @@ fun NewEntriesList(
             entries.forEach {
                 NewEntriesListItem(entry = it, onEdit = onEdit, onDelete = onDelete)
                 Divider(Modifier.fillMaxWidth())
-
             }
         }
 
@@ -119,11 +119,11 @@ fun NewEntriesList(
 @Preview
 @Composable
 fun NewEntriesListPreview() {
-    val ac1 = Account(99, AccountType.Cash, "Income", "USD", 0.0, 0.0)
-    val ac2 = Account(2, AccountType.Cash, "Expenses", "USD", 0.0, 0.0)
+    val ac1 = Account(99, AccountType.Cash, "Income", "USD", 0.0)
+    val ac2 = Account(2, AccountType.Cash, "Expenses", "USD", 0.0)
 
     NewEntriesList(entries = listOf(
-        NewEntryDto("", "Cash", ac1, 100.0, LocalDate(2023, 1, 13)),
-        NewEntryDto("", "Beer", ac2, -10.0, LocalDate(2023, 1, 14)),
+        NewEntryDto("", ac1, 100.0, LocalDate(2023, 1, 13)),
+        NewEntryDto("", ac2, -10.0, LocalDate(2023, 1, 14)),
     ), onEdit = {}, onDelete = {})
 }

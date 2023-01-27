@@ -21,31 +21,30 @@ import me.gustavolopezxyz.common.Constants
 import me.gustavolopezxyz.common.data.*
 import me.gustavolopezxyz.common.db.AccountRepository
 import me.gustavolopezxyz.common.db.EntryRepository
-import me.gustavolopezxyz.common.db.RecordRepository
+import me.gustavolopezxyz.common.db.TransactionRepository
 import me.gustavolopezxyz.common.ext.toCurrency
-import me.gustavolopezxyz.common.ext.toMoney
-import me.gustavolopezxyz.db.SelectEntriesFromRecord
+import me.gustavolopezxyz.db.SelectEntriesFromTransaction
 import org.koin.core.component.KoinComponent
 import org.koin.java.KoinJavaComponent.inject
 
 class EditTransactionViewModel : KoinComponent {
     private val db by inject<Database>(Database::class.java)
     private val accountRepository by inject<AccountRepository>(AccountRepository::class.java)
-    private val recordRepository by inject<RecordRepository>(RecordRepository::class.java)
+    private val transactionRepository by inject<TransactionRepository>(TransactionRepository::class.java)
     private val entriesRepository by inject<EntryRepository>(EntryRepository::class.java)
 
     private val snackbar by inject<SnackbarHostState>(SnackbarHostState::class.java)
 
-    fun getRecord(recordId: Long) = recordRepository.findById(recordId)
+    fun getTransaction(transactionId: Long) = transactionRepository.findById(transactionId)
 
     fun getAccounts() = accountRepository.getAll()
 
-    fun getEntries(recordId: Long) = entriesRepository.getByRecordId(recordId)
+    fun getEntries(transactionId: Long) = entriesRepository.getByRecordId(transactionId)
 
     suspend fun editRecord(
-        recordId: Long,
+        transactionId: Long,
         description: String,
-        entryMap: Map<Long, SelectEntriesFromRecord>,
+        entryMap: Map<Long, SelectEntriesFromTransaction>,
         toCreate: Collection<NewEntryDto>,
         toModify: Collection<EditEntryDto>,
     ) {
@@ -55,37 +54,36 @@ class EditTransactionViewModel : KoinComponent {
             return
         }
 
-        if ((toModify.count { !it.to_delete } + toCreate.size) < 1) {
+        if ((toModify.count { !it.toDelete } + toCreate.size) < 1) {
             snackbar.showSnackbar("You need at least one entry")
 
             return
         }
 
         db.transaction {
-            recordRepository.update(recordId, description.trim())
+            transactionRepository.update(transactionId, description.trim())
 
             toCreate.forEach {
                 entriesRepository.create(
-                    it.description,
-                    it.amount.toMoney(it.account!!.getCurrency()),
-                    it.account.id,
-                    recordId,
-                    it.incurred_at.atTime(0, 0),
-                    it.recorded_at.atTime(0, 0)
+                    transactionId,
+                    it.account!!.accountId,
+                    it.amount,
+                    it.incurredAt.atTime(0, 0),
+                    it.recordedAt.atTime(0, 0)
                 )
             }
 
-            toModify.filter { it.to_delete }.forEach {
+            toModify.filter { it.toDelete }.forEach {
                 val entry = entryMap.getValue(it.id)
-                entriesRepository.delete(entry.id, entry.account_id, entry.amount_value)
+                entriesRepository.delete(entry.entryId, entry.accountId, entry.amount)
             }
 
-            toModify.filter { it.edited }.forEach {
+            toModify.filter { it.wasEdited }.forEach {
                 val original = entryMap.getValue(it.id)
 
                 entriesRepository.edit(
                     original.toEntry(),
-                    it.toEntry(original.record_id),
+                    it.toEntry(original.transactionId),
                 )
             }
         }
@@ -93,8 +91,8 @@ class EditTransactionViewModel : KoinComponent {
         snackbar.showSnackbar("Transaction modified")
     }
 
-    fun deleteRecord(recordId: Long) {
-        recordRepository.delete(recordId)
+    fun deleteTransaction(transactionId: Long) {
+        transactionRepository.delete(transactionId)
     }
 }
 
@@ -103,8 +101,8 @@ class EditTransactionViewModel : KoinComponent {
 fun EditTransactionScreen(navController: NavController, transactionRecordId: Long) {
     val viewModel by remember { inject<EditTransactionViewModel>(EditTransactionViewModel::class.java) }
 
-    val record by remember { mutableStateOf(viewModel.getRecord(transactionRecordId)) }
-    if (record == null) {
+    val transaction by remember { mutableStateOf(viewModel.getTransaction(transactionRecordId)) }
+    if (transaction == null) {
         Column(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(Constants.Size.Large.dp),
@@ -126,7 +124,7 @@ fun EditTransactionScreen(navController: NavController, transactionRecordId: Lon
 
     val accounts = remember { viewModel.getAccounts() }
     val entryMap = remember {
-        viewModel.getEntries(record!!.id).associateBy { it.id }
+        viewModel.getEntries(transaction!!.transactionId).associateBy { it.entryId }
     }
 
     val toCreate = remember { mutableStateListOf<NewEntryDto>() }
@@ -136,24 +134,24 @@ fun EditTransactionScreen(navController: NavController, transactionRecordId: Lon
         }.toMutableStateList()
     }
 
-    var description by remember { mutableStateOf(record!!.description) }
+    var description by remember { mutableStateOf(transaction!!.description) }
 
     val scroll = rememberScrollState()
     var confirmDelete by remember { mutableStateOf(false) }
 
     fun editRecord() {
         GlobalScope.launch(Dispatchers.IO) {
-            viewModel.editRecord(record!!.id, description, entryMap, toCreate, toModify)
+            viewModel.editRecord(transaction!!.transactionId, description, entryMap, toCreate, toModify)
 
             navController.navigateBack()
         }
     }
 
-    fun deleteRecord() {
+    fun deleteTransaction() {
         confirmDelete = false
 
         GlobalScope.launch(Dispatchers.IO) {
-            viewModel.deleteRecord(record!!.id)
+            viewModel.deleteTransaction(transaction!!.transactionId)
 
             navController.navigateBack()
         }
@@ -177,7 +175,7 @@ fun EditTransactionScreen(navController: NavController, transactionRecordId: Lon
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
                     ) {
-                        Button(onClick = ::deleteRecord) { Text("Delete") }
+                        Button(onClick = ::deleteTransaction) { Text("Delete") }
                         TextButton(onClick = { confirmDelete = false }) { Text("Cancel") }
                     }
                 }
@@ -230,7 +228,7 @@ fun EditTransactionScreen(navController: NavController, transactionRecordId: Lon
 @Composable
 private fun TransactionCurrentEntriesSection(
     accounts: List<Account>,
-    entries: List<SelectEntriesFromRecord>,
+    entries: List<SelectEntriesFromTransaction>,
     toModify: SnapshotStateList<EditEntryDto>,
 ) {
     var editEntryDto by remember { mutableStateOf<EditEntryDto?>(null) }
@@ -241,7 +239,7 @@ private fun TransactionCurrentEntriesSection(
         // Current, modified, and deleted entries
         Column(modifier = Modifier.weight(1f)) {
             EditedEntriesList(entries = toModify, onEdit = { editEntryDto = it }, onDeleteToggle = { entry ->
-                toModify[toModify.indexOf(entry)] = if (entry.to_delete) {
+                toModify[toModify.indexOf(entry)] = if (entry.toDelete) {
                     entry.restore()
                 } else {
                     entry.delete()
@@ -249,7 +247,7 @@ private fun TransactionCurrentEntriesSection(
             }, totals = {
                 val newTotal by remember {
                     derivedStateOf {
-                        toModify.filter { !it.to_delete }.groupBy { it.account_currency.toCurrency() }
+                        toModify.filter { !it.toDelete }.groupBy { it.currency.toCurrency() }
                             .mapValues { mapEntry ->
                                 mapEntry.value.map { it.amount }.reduceOrNull { acc, amount -> acc + amount } ?: 0.0
                             }
@@ -258,9 +256,9 @@ private fun TransactionCurrentEntriesSection(
 
                 val prevTotal by remember {
                     derivedStateOf {
-                        entries.groupBy { entry -> entry.account_currency.toCurrency() }
+                        entries.groupBy { entry -> entry.currency.toCurrency() }
                             .mapValues { mapEntry ->
-                                mapEntry.value.map { it.amount_value }.reduceOrNull { acc, amount -> acc + amount }
+                                mapEntry.value.map { it.amount }.reduceOrNull { acc, amount -> acc + amount }
                                     ?: 0.0
                             }
                     }

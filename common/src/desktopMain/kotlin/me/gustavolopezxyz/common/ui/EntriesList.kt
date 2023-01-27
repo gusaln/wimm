@@ -25,13 +25,13 @@ import me.gustavolopezxyz.common.ext.toMoney
 import me.gustavolopezxyz.common.ext.toSimpleFormat
 
 data class ListEntryDto(
-    val id: Long,
+    val entryId: Long,
     val description: String,
-    val record_id: Long,
-    val account: Account,
+    val transactionId: Long,
+    val accountName: String,
     val amount: Money,
-    val incurred_at: Instant,
-    val recorded_at: Instant
+    val incurredAt: Instant,
+    val recordedAt: Instant
 )
 
 @Composable
@@ -46,12 +46,13 @@ fun EntriesListCard(entry: ListEntryDto, onEdit: (ListEntryDto) -> Unit) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+
                 // Details
                 Column {
-                    EntrySummaryText(entry.description, entry.account.name)
+                    EntrySummaryText(entry.description, entry.accountName)
 
                     Text(
-                        entry.incurred_at.toSimpleFormat(), fontSize = MaterialTheme.typography.caption.fontSize
+                        entry.incurredAt.toSimpleFormat(), fontSize = MaterialTheme.typography.caption.fontSize
                     )
                 }
 
@@ -78,14 +79,14 @@ fun EntriesList(entries: List<ListEntryDto>, onEdit: (ListEntryDto) -> Unit) {
 fun EntriesListPreview() {
     val now = Clock.System.now()
 
-    val ac1 = Account(1, AccountType.Cash, "Savings", "USD", 100.0, 0.0)
-    val ac2 = Account(2, AccountType.Cash, "Checking", "VES", 50.0, 0.0)
+    val ac1 = Account(1, AccountType.Cash, "Savings", "USD", 100.0)
+    val ac2 = Account(2, AccountType.Cash, "Checking", "VES", 50.0)
 
     EntriesList(
         listOf(
-            ListEntryDto(1, "Cash", 1, ac1, 100.0.toMoney(ac1.getCurrency()), now, now),
-            ListEntryDto(2, "Bonus", 1, ac2, (100.0).toMoney(ac2.getCurrency()), now, now),
-            ListEntryDto(3, "Stuff", 1, ac2, (-10.0).toMoney(ac2.getCurrency()), now, now),
+            ListEntryDto(1, "Cash", 1, ac1.name, 100.0.toMoney(ac1.getCurrency()), now, now),
+            ListEntryDto(2, "Bonus", 1, ac2.name, (100.0).toMoney(ac2.getCurrency()), now, now),
+            ListEntryDto(3, "Stuff", 1, ac2.name, (-10.0).toMoney(ac2.getCurrency()), now, now),
         )
     ) {}
 }

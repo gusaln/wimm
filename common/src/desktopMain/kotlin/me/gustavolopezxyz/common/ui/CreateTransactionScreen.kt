@@ -4,9 +4,10 @@
 
 package me.gustavolopezxyz.common.ui
 
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,8 +24,7 @@ import me.gustavolopezxyz.common.data.MissingAccount
 import me.gustavolopezxyz.common.data.getCurrency
 import me.gustavolopezxyz.common.db.AccountRepository
 import me.gustavolopezxyz.common.db.EntryRepository
-import me.gustavolopezxyz.common.db.RecordRepository
-import me.gustavolopezxyz.common.ext.toMoney
+import me.gustavolopezxyz.common.db.TransactionRepository
 import org.koin.java.KoinJavaComponent.inject
 
 @OptIn(DelicateCoroutinesApi::class)
@@ -32,7 +32,7 @@ import org.koin.java.KoinJavaComponent.inject
 fun CreateTransactionScreen(navController: NavController) {
     val db by remember { inject<Database>(Database::class.java) }
     val accountRepository by remember { inject<AccountRepository>(AccountRepository::class.java) }
-    val recordRepository by remember { inject<RecordRepository>(RecordRepository::class.java) }
+    val transactionRepository by remember { inject<TransactionRepository>(TransactionRepository::class.java) }
     val entriesRepository by remember { inject<EntryRepository>(EntryRepository::class.java) }
     val snackbar by remember { inject<SnackbarHostState>(SnackbarHostState::class.java) }
 
@@ -41,8 +41,6 @@ fun CreateTransactionScreen(navController: NavController) {
     var description by remember { mutableStateOf("") }
     val entries = remember { mutableStateListOf<NewEntryDto>() }
     var newEntryDto by remember { mutableStateOf(makeEmptyNewEntryDto()) }
-
-    var singleEntryMode by remember { mutableStateOf(true) }
 
     fun createTransaction(description: String, entries: List<NewEntryDto>) {
         if (description.trim().isEmpty()) {
@@ -54,17 +52,16 @@ fun CreateTransactionScreen(navController: NavController) {
         }
 
         db.transaction {
-            val reference = recordRepository.create(description.trim())
-            val recordId = recordRepository.findByReference(reference)!!.id
+            val number = transactionRepository.create(description.trim())
+            val transactionId = transactionRepository.findByReference(number)!!.transactionId
 
             entries.forEach {
                 entriesRepository.create(
-                    it.description,
-                    it.amount.toMoney(it.account!!.getCurrency()),
-                    it.account.id,
-                    recordId,
-                    it.incurred_at.atTime(0, 0),
-                    it.recorded_at.atTime(0, 0)
+                    transactionId,
+                    it.account!!.accountId,
+                    it.amount,
+                    it.incurredAt.atTime(0, 0),
+                    it.recordedAt.atTime(0, 0)
                 )
             }
 
@@ -81,16 +78,15 @@ fun CreateTransactionScreen(navController: NavController) {
             GlobalScope.launch {
                 snackbar.showSnackbar("You need to add at least one entry")
             }
-        } else if (entries.size == 1) {
-            createTransaction(entries[0].description, entries = entries)
         } else {
             createTransaction(description, entries)
         }
     }
 
-    fun handleCreateWithSingle(entry: NewEntryDto) {
+
+    fun handleAddEntry(entry: NewEntryDto) {
         entries.add(entry)
-        handleCreate()
+        newEntryDto = makeEmptyNewEntryDto()
     }
 
     fun handleReset() {
@@ -99,117 +95,64 @@ fun CreateTransactionScreen(navController: NavController) {
     }
 
     val scroll = rememberScrollState()
-    val specialActionColors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.secondary)
+    Column(
+        modifier = Modifier.scrollable(scroll, orientation = Orientation.Vertical),
+        verticalArrangement = Arrangement.spacedBy(Constants.Size.Medium.dp)
+    ) {
+        Text("Create a transaction", style = MaterialTheme.typography.h5)
+        OutlinedTextField(modifier = Modifier.fillMaxWidth(),
+            value = description,
+            onValueChange = { description = it },
+            label = { Text("Description") },
+            placeholder = { Text("To what end the money was moved? (Beer night, Salary, Bonus)") })
 
-    if (singleEntryMode) {
-        Column(
-            modifier = Modifier.fillMaxWidth().verticalScroll(scroll).padding(Constants.Size.Large.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+        Spacer(modifier = Modifier.fillMaxWidth())
+
+        NewEntriesList(
+            entries = entries,
+            onEdit = { entry ->
+                entries.removeIf { entry.uid == it.uid }
+                newEntryDto = entry
+            },
+            onDelete = { entry -> entries.removeIf { entry.uid == it.uid } }
         ) {
-            Box {
-                AddEntryForm(
-                    value = newEntryDto,
-                    onValueChanged = { newEntryDto = it },
-                    accounts = accounts,
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
-                    ) {
-                        Button(
-                            onClick = { singleEntryMode = false }, colors = specialActionColors
-                        ) {
-                            Text("Change to multi-part transaction")
+            val totalsByCurrency by remember {
+                derivedStateOf {
+                    entries
+                        .groupBy { (it.account ?: MissingAccount).getCurrency() }
+                        .mapValues { mapEntry ->
+                            mapEntry.value.map { it.amount }.reduceOrNull { acc, amount -> acc + amount } ?: 0.0
                         }
-
-                        Spacer(modifier = Modifier)
-
-                        Button(onClick = { handleCreateWithSingle(newEntryDto) }) { Text("Create") }
-
-                        TextButton(onClick = { newEntryDto = makeEmptyNewEntryDto() }) { Text("Reset") }
-                    }
                 }
             }
+
+            TotalListItem(totalsByCurrency = totalsByCurrency)
         }
-    } else {
+
+        Spacer(modifier = Modifier.fillMaxWidth())
+
         Row(
-            modifier = Modifier.fillMaxWidth().padding(Constants.Size.Large.dp),
-            horizontalArrangement = Arrangement.spacedBy(Constants.Size.Large.dp)
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
         ) {
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(Constants.Size.Medium.dp)
+            Button(onClick = ::handleCreate) { Text("Create") }
+            TextButton(onClick = ::handleReset) { Text("Reset") }
+        }
+
+        Spacer(modifier = Modifier.fillMaxWidth())
+
+        AddEntryForm(
+            value = newEntryDto,
+            onValueChanged = { newEntryDto = it },
+            accounts = accounts
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
             ) {
-                AddEntryForm(
-                    value = newEntryDto,
-                    onValueChanged = { newEntryDto = it },
-                    accounts = accounts
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
-                    ) {
-                        Button(
-                            onClick = {
-                                handleReset()
-                                singleEntryMode = true
-                            }, colors = specialActionColors
-                        ) {
-                            Text("Reset to single-entry transaction")
-                        }
+                Button(onClick = { handleAddEntry(newEntryDto) }) { Text("Add") }
 
-                        Spacer(modifier = Modifier)
-
-                        Button(onClick = { handleCreateWithSingle(newEntryDto) }) { Text("Create") }
-
-                        TextButton(onClick = { newEntryDto = makeEmptyNewEntryDto() }) { Text("Reset") }
-                    }
-                }
-            }
-
-            Column(
-                modifier = Modifier.weight(2f),
-                verticalArrangement = Arrangement.spacedBy(Constants.Size.Medium.dp)
-            ) {
-                Text("Create a Multi-part transaction", style = MaterialTheme.typography.h5)
-                OutlinedTextField(modifier = Modifier.fillMaxWidth(),
-                    value = description,
-                    onValueChange = { description = it },
-                    label = { Text("Description") },
-                    placeholder = { Text("Awesome savings account") })
-
-                Spacer(modifier = Modifier.fillMaxWidth())
-
-                NewEntriesList(
-                    entries = entries,
-                    onEdit = { entry ->
-                        entries.removeIf { entry.uid == it.uid }
-                        newEntryDto = entry
-                    },
-                    onDelete = { entry -> entries.removeIf { entry.uid == it.uid } }
-                ) {
-                    val totalsByCurrency by remember {
-                        derivedStateOf {
-                            entries
-                                .groupBy { (it.account ?: MissingAccount).getCurrency() }
-                                .mapValues { mapEntry ->
-                                    mapEntry.value.map { it.amount }.reduceOrNull { acc, amount -> acc + amount } ?: 0.0
-                                }
-                        }
-                    }
-
-                    TotalListItem(totalsByCurrency = totalsByCurrency)
-                }
-
-                Spacer(modifier = Modifier.fillMaxWidth())
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
-                ) {
-                    Button(onClick = ::handleCreate) { Text("Create") }
-                    TextButton(onClick = ::handleReset) { Text("Reset") }
-                }
+                TextButton(onClick = { newEntryDto = makeEmptyNewEntryDto() }) { Text("Reset") }
             }
         }
     }

@@ -2,20 +2,17 @@ selectAll:
 SELECT * FROM account;
 
 selectById:
-SELECT * FROM account WHERE id IN ?;
+SELECT * FROM account WHERE accountId IN ?;
 
 insertAccount:
-INSERT INTO account(type, name, balance_currency, balance_value, initial_value)
-VALUES (:type, :name, :balance_currency, :initial_value, :initial_value);
-
+INSERT INTO account(type, name, currency)
+VALUES (:type, :name, :currency);
 
 updateAccount {
     UPDATE account
     SET
         type = :type,
         name = :name,
-        balance_currency = :balance_currency,
-        balance_value = balance_value + :initial_balance_delta,
-        initial_value = initial_value + :initial_balance_delta
-    WHERE id = :id;
+        currency = :currency
+    WHERE accountId = :accountId;
 }

@@ -4,10 +4,13 @@
 
 package me.gustavolopezxyz.common.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -20,6 +23,7 @@ import kotlinx.datetime.atTime
 import me.gustavolopezxyz.common.Constants
 import me.gustavolopezxyz.common.data.*
 import me.gustavolopezxyz.common.db.AccountRepository
+import me.gustavolopezxyz.common.db.CategoryRepository
 import me.gustavolopezxyz.common.db.EntryRepository
 import me.gustavolopezxyz.common.db.TransactionRepository
 import me.gustavolopezxyz.common.ext.toCurrency
@@ -30,19 +34,22 @@ import org.koin.java.KoinJavaComponent.inject
 class EditTransactionViewModel : KoinComponent {
     private val db by inject<Database>(Database::class.java)
     private val accountRepository by inject<AccountRepository>(AccountRepository::class.java)
+    private val categoriesRepository by inject<CategoryRepository>(CategoryRepository::class.java)
     private val transactionRepository by inject<TransactionRepository>(TransactionRepository::class.java)
     private val entriesRepository by inject<EntryRepository>(EntryRepository::class.java)
-
     private val snackbar by inject<SnackbarHostState>(SnackbarHostState::class.java)
 
     fun getTransaction(transactionId: Long) = transactionRepository.findById(transactionId)
 
     fun getAccounts() = accountRepository.getAll()
 
+    fun getCategories() = categoriesRepository.getAll()
+
     fun getEntries(transactionId: Long) = entriesRepository.getByRecordId(transactionId)
 
-    suspend fun editRecord(
+    suspend fun editTransaction(
         transactionId: Long,
+        categoryId: Long,
         description: String,
         entryMap: Map<Long, SelectEntriesFromTransaction>,
         toCreate: Collection<NewEntryDto>,
@@ -61,7 +68,7 @@ class EditTransactionViewModel : KoinComponent {
         }
 
         db.transaction {
-            transactionRepository.update(transactionId, description.trim())
+            transactionRepository.update(transactionId, categoryId, description.trim())
 
             toCreate.forEach {
                 entriesRepository.create(
@@ -123,6 +130,7 @@ fun EditTransactionScreen(navController: NavController, transactionRecordId: Lon
     }
 
     val accounts = remember { viewModel.getAccounts() }
+    val categories = remember { viewModel.getCategories().map { it.toDto() } }
     val entryMap = remember {
         viewModel.getEntries(transaction!!.transactionId).associateBy { it.entryId }
     }
@@ -135,20 +143,31 @@ fun EditTransactionScreen(navController: NavController, transactionRecordId: Lon
     }
 
     var description by remember { mutableStateOf(transaction!!.description) }
+    var category by remember {
+        mutableStateOf(categories.first { it.categoryId == transaction!!.categoryId })
+    }
 
     val scroll = rememberScrollState()
-    var confirmDelete by remember { mutableStateOf(false) }
+    var isConfirmingDelete by remember { mutableStateOf(false) }
+    var isCategoryDropdownExpanded by remember { mutableStateOf(false) }
 
     fun editRecord() {
         GlobalScope.launch(Dispatchers.IO) {
-            viewModel.editRecord(transaction!!.transactionId, description, entryMap, toCreate, toModify)
+            viewModel.editTransaction(
+                transaction!!.transactionId,
+                category.categoryId,
+                description,
+                entryMap,
+                toCreate,
+                toModify
+            )
 
             navController.navigateBack()
         }
     }
 
     fun deleteTransaction() {
-        confirmDelete = false
+        isConfirmingDelete = false
 
         GlobalScope.launch(Dispatchers.IO) {
             viewModel.deleteTransaction(transaction!!.transactionId)
@@ -158,8 +177,8 @@ fun EditTransactionScreen(navController: NavController, transactionRecordId: Lon
     }
 
 
-    if (confirmDelete) {
-        Dialog(onCloseRequest = { confirmDelete = false }) {
+    if (isConfirmingDelete) {
+        Dialog(onCloseRequest = { isConfirmingDelete = false }) {
             Card(modifier = Modifier.fillMaxSize()) {
                 Column(
                     modifier = Modifier.fillMaxSize(),
@@ -176,7 +195,7 @@ fun EditTransactionScreen(navController: NavController, transactionRecordId: Lon
                         horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
                     ) {
                         Button(onClick = ::deleteTransaction) { Text("Delete") }
-                        TextButton(onClick = { confirmDelete = false }) { Text("Cancel") }
+                        TextButton(onClick = { isConfirmingDelete = false }) { Text("Cancel") }
                     }
                 }
             }
@@ -190,7 +209,7 @@ fun EditTransactionScreen(navController: NavController, transactionRecordId: Lon
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             ScreenTitle("Edit transaction")
 
-            Button(onClick = { confirmDelete = !confirmDelete }) {
+            Button(onClick = { isConfirmingDelete = !isConfirmingDelete }) {
                 Text("Delete")
             }
         }
@@ -202,6 +221,37 @@ fun EditTransactionScreen(navController: NavController, transactionRecordId: Lon
             onValueChange = { description = it },
             label = { Text("Description") },
             placeholder = { Text("Awesome savings account") })
+
+        Spacer(modifier = Modifier.fillMaxWidth())
+
+        CategoryDropdown(
+            expanded = isCategoryDropdownExpanded,
+            onExpandedChange = { isCategoryDropdownExpanded = it },
+            value = category,
+            onSelect = { selected -> category = categories.first { it.categoryId == selected.categoryId } },
+            categories = categories
+        ) {
+            Row {
+                OutlinedTextField(value = category.fullname(),
+                    onValueChange = {},
+                    label = {
+                        Text("Subcategory of", modifier = Modifier.clickable(true) {
+                            isCategoryDropdownExpanded = !isCategoryDropdownExpanded
+                        })
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    readOnly = true,
+                    trailingIcon = {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowDropDown,
+                            contentDescription = "dropdown icon",
+                            modifier = Modifier.clickable(true) {
+                                isCategoryDropdownExpanded = !isCategoryDropdownExpanded
+                            }
+                        )
+                    })
+            }
+        }
 
         Spacer(modifier = Modifier.fillMaxWidth())
 

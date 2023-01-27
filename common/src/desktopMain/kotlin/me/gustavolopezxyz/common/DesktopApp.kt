@@ -49,6 +49,14 @@ fun DesktopApp() {
                             .padding(Constants.Size.Small.dp),
                         style = MaterialTheme.typography.h5
                     )
+
+                    Text(
+                        "Categories",
+                        modifier = Modifier
+                            .clickable { navController.navigate(Screen.Categories.route) }
+                            .padding(Constants.Size.Small.dp),
+                        style = MaterialTheme.typography.h5
+                    )
                 }
             }
         },

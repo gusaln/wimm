@@ -9,13 +9,13 @@ enum class AccountType {
     Receivable,
 
     Payable,
-    Cost,
+    Expense,
     Income;
 
     fun isDebit(): Boolean = when (this) {
         Cash,
         Receivable,
-        Cost -> true
+        Expense -> true
 
         Payable,
         Income -> false

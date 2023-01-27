@@ -5,6 +5,7 @@
 package me.gustavolopezxyz.common.di
 
 import me.gustavolopezxyz.common.db.AccountRepository
+import me.gustavolopezxyz.common.db.CategoryRepository
 import me.gustavolopezxyz.common.db.EntryRepository
 import me.gustavolopezxyz.common.db.TransactionRepository
 import org.koin.core.context.startKoin
@@ -21,6 +22,7 @@ fun initKoin(appDeclaration: KoinAppDeclaration = {}) {
 
 fun commonModule() = module {
     single { AccountRepository() }
-    single { EntryRepository() }
+    single { CategoryRepository() }
     single { TransactionRepository() }
+    single { EntryRepository() }
 }

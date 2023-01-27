@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import me.gustavolopezxyz.common.data.Account
 
 @Composable
-fun AccountsDropDown(
+fun AccountDropdown(
     expanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
     value: Account?,
@@ -58,14 +58,12 @@ fun AccountsDropDown(
                     }) {
                         Text(buildAnnotatedString {
                             append(it.name)
-                            append(" ")
+                            append(' ')
 
                             withStyle(
-                                SpanStyle(
-                                    color = Color.Gray, fontSize = MaterialTheme.typography.caption.fontSize
-                                )
+                                SpanStyle(color = Color.Gray, fontSize = MaterialTheme.typography.caption.fontSize)
                             ) {
-                                append("(${it.balance_currency})")
+                                append("[${it.type.name}; ${it.balance_currency}]")
                             }
                         }, style = style)
                     }

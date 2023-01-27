@@ -18,6 +18,7 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import me.gustavolopezxyz.common.Constants
 import me.gustavolopezxyz.common.data.Account
+import me.gustavolopezxyz.common.data.AccountType
 import me.gustavolopezxyz.common.data.Money
 import me.gustavolopezxyz.common.data.getCurrency
 import me.gustavolopezxyz.common.ext.toMoney
@@ -77,8 +78,8 @@ fun EntriesList(entries: List<ListEntryDto>, onEdit: (ListEntryDto) -> Unit) {
 fun EntriesListPreview() {
     val now = Clock.System.now()
 
-    val ac1 = Account(1, "Savings", "USD", 100.0, 0.0)
-    val ac2 = Account(2, "Checking", "VES", 50.0, 0.0)
+    val ac1 = Account(1, AccountType.Cash, "Savings", "USD", 100.0, 0.0)
+    val ac2 = Account(2, AccountType.Cash, "Checking", "VES", 50.0, 0.0)
 
     EntriesList(
         listOf(

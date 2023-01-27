@@ -106,7 +106,7 @@ fun CreateTransactionScreen(navController: NavController) {
             modifier = Modifier.fillMaxWidth().verticalScroll(scroll).padding(Constants.Size.Large.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(modifier = Modifier.fillMaxWidth(0.5f)) {
+            Box {
                 AddEntryForm(
                     value = newEntryDto,
                     onValueChanged = { newEntryDto = it },

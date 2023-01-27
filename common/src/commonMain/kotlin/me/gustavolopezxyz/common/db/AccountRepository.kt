@@ -7,10 +7,7 @@ package me.gustavolopezxyz.common.db
 import com.squareup.sqldelight.Query
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import kotlinx.coroutines.flow.Flow
-import me.gustavolopezxyz.common.data.Account
-import me.gustavolopezxyz.common.data.Database
-import me.gustavolopezxyz.common.data.Money
-import me.gustavolopezxyz.common.data.getInitialBalance
+import me.gustavolopezxyz.common.data.*
 import me.gustavolopezxyz.db.AccountQueries
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -35,18 +32,23 @@ class AccountRepository : KoinComponent {
         return accountQueries.selectAll().asFlow()
     }
 
-    fun create(name: String, initialBalance: Money) {
-        return accountQueries.insertAccount(name, initialBalance.currency.toString(), initialBalance.value)
+    fun create(type: AccountType, name: String, initialBalance: Money) {
+        return accountQueries.insertAccount(type, name, initialBalance.currency.toString(), initialBalance.value)
     }
 
     private fun update(account: Account) {
         return accountQueries.updateAccount(
+            type = account.type,
             name = account.name,
             balance_currency = account.balance_currency,
             balance_value = account.balance_value,
             initial_value = account.initial_value,
             id = account.id,
         )
+    }
+
+    fun updateType(account: Account, type: AccountType) {
+        return update(account.copy(type = type))
     }
 
     fun updateName(account: Account, name: String) {

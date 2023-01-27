@@ -1,7 +1,9 @@
 import kotlinx.datetime.Instant;
+import me.gustavolopezxyz.common.data.AccountType;
 
 CREATE TABLE account (
     id INTEGER PRIMARY KEY,
+    type TEXT AS AccountType NOT NULL,
     name TEXT NOT NULL,
     balance_currency TEXT NOT NULL,
     balance_value REAL NOT NULL DEFAULT 0,

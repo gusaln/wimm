@@ -1,34 +1,31 @@
 CREATE TABLE account (
-    id INTEGER PRIMARY KEY,
+    accountId INTEGER PRIMARY KEY,
     type TEXT NOT NULL,
     name TEXT NOT NULL,
-    balance_currency TEXT NOT NULL,
-    balance_value REAL NOT NULL DEFAULT 0,
-    initial_value REAL NOT NULL DEFAULT 0
+    currency TEXT NOT NULL,
+    balance REAL NOT NULL DEFAULT 0
 );
 
-CREATE TABLE record (
-    id INTEGER PRIMARY KEY,
-    description TEXT NOT NULL,
-    reference TEXT NOT NULL UNIQUE
+CREATE TABLE moneyTransaction (
+    transactionId INTEGER PRIMARY KEY,
+    number INTEGER NOT NULL UNIQUE,
+    description TEXT NOT NULL
 );
 
 CREATE TABLE entry (
-    id INTEGER PRIMARY KEY,
-    account_id INTEGER NOT NULL,
-    record_id INTEGER NOT NULL,
-    description TEXT NOT NULL,
-    amount_currency TEXT NOT NULL,
-    amount_value REAL NOT NULL DEFAULT 0,
-    incurred_at INTEGER NOT NULL,
-    recorded_at INTEGER NOT NULL,
+    entryId INTEGER PRIMARY KEY,
+    transactionId INTEGER NOT NULL,
+    accountId INTEGER NOT NULL,
+    amount REAL NOT NULL DEFAULT 0,
+    incurredAt INTEGER NOT NULL,
+    recordedAt INTEGER NOT NULL,
 
-    FOREIGN KEY (account_id)
-        REFERENCES account (id)
+    FOREIGN KEY (transactionId)
+        REFERENCES moneyTransaction (transactionId)
             ON DELETE CASCADE
             ON UPDATE NO ACTION,
-    FOREIGN KEY (record_id)
-        REFERENCES record (id)
+    FOREIGN KEY (accountId)
+        REFERENCES account (accountId)
             ON DELETE CASCADE
             ON UPDATE NO ACTION
 );

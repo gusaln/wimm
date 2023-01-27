@@ -19,27 +19,30 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import me.gustavolopezxyz.common.Constants
 import me.gustavolopezxyz.common.data.AccountType
-import me.gustavolopezxyz.common.data.Money
+import me.gustavolopezxyz.common.data.Currency
+import me.gustavolopezxyz.common.ext.toCurrency
+
+const val defaultCurrency = "USD"
 
 @Preview
 @Composable
 fun CreateAccountForm(
-    onCreate: (name: String, type: AccountType, initialBalance: Money) -> Unit,
+    onCreate: (name: String, type: AccountType, currency: Currency) -> Unit,
     onCancel: () -> Unit = {}
 ) {
     var name by remember { mutableStateOf("") }
-    var currency by remember { mutableStateOf("") }
+    var currency by remember { mutableStateOf(defaultCurrency) }
     var type by remember { mutableStateOf(AccountType.Cash) }
-    var initialBalance by remember { mutableStateOf(0.0) }
 
     fun handleCreate() {
-        onCreate(name, type, Money(currency, initialBalance))
+        name = name.trimEnd()
+
+        if (currency.isNotEmpty() || name.isNotEmpty()) onCreate(name.trimEnd(), type, currency.toCurrency())
     }
 
     fun handleCancel() {
         name = ""
-        currency = ""
-        initialBalance = 0.0
+        currency = defaultCurrency
 
         onCancel()
     }
@@ -54,9 +57,11 @@ fun CreateAccountForm(
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
             value = name,
-            onValueChange = { name = it },
+            onValueChange = { name = it.trimStart() },
             label = { Text("Name") },
-            placeholder = { Text("Awesome savings account") })
+            placeholder = { Text("Awesome savings account") },
+            singleLine = true
+        )
 
         AccountTypeDropdown(
             expanded = isTypeDropDownExpanded,
@@ -87,16 +92,9 @@ fun CreateAccountForm(
 
         OutlinedTextField(modifier = Modifier.fillMaxWidth(),
             value = currency,
-            onValueChange = { currency = it },
+            onValueChange = { currency = it.uppercase().trim() },
             label = { Text("Currency") },
-            placeholder = { Text("USD") })
-
-        OutlinedDoubleField(
-            modifier = Modifier.fillMaxWidth(),
-            value = initialBalance,
-            onValueChange = { initialBalance = it },
-            label = { Text("Initial balance") },
-        )
+            placeholder = { Text("USD, EUR, etc.") })
 
         Row(
             modifier = Modifier.fillMaxWidth(),

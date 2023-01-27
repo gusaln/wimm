@@ -49,23 +49,21 @@ fun AddEntryForm(
                     OutlinedTextField(
                         value = value.account?.name ?: "",
                         onValueChange = {},
-                        label = { Text("Account") },
+                        label = {
+                            Text("Account", modifier = Modifier.clickable {
+                                isAccountsDropDownExpanded = !isAccountsDropDownExpanded
+                            })
+                        },
                         modifier = Modifier.fillMaxWidth(),
                         trailingIcon = {
                             Icon(imageVector = Icons.Filled.ArrowDropDown,
                                 contentDescription = "dropdown icon",
-                                modifier = Modifier.clickable(true) {
+                                modifier = Modifier.clickable {
                                     isAccountsDropDownExpanded = !isAccountsDropDownExpanded
                                 })
                         })
                 }
             }
-
-            OutlinedTextField(modifier = Modifier.fillMaxWidth(),
-                value = value.description,
-                onValueChange = { onValueChanged(value.copy(description = it)) },
-                label = { Text("Description") },
-                placeholder = { Text("Pizza and a few beers") })
 
             OutlinedDoubleField(modifier = Modifier.fillMaxWidth(),
                 value = value.amount,
@@ -75,13 +73,13 @@ fun AddEntryForm(
             OutlinedDateTextField(
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text("Date that it happened") },
-                date = value.incurred_at,
+                date = value.incurredAt,
                 onValueChange = {
                     onValueChanged(
                         value.copy(
-                            incurred_at = it, recorded_at = when (value.recorded_at) {
-                                value.incurred_at -> it
-                                else -> value.incurred_at
+                            incurredAt = it, recordedAt = when (value.recordedAt) {
+                                value.incurredAt -> it
+                                else -> value.incurredAt
                             }
                         )
                     )
@@ -89,8 +87,8 @@ fun AddEntryForm(
 
             OutlinedDateTextField(modifier = Modifier.fillMaxWidth(),
                 label = { Text("Date that it appears in the books") },
-                date = value.incurred_at,
-                onValueChange = { onValueChanged(value.copy(incurred_at = it)) })
+                date = value.incurredAt,
+                onValueChange = { onValueChanged(value.copy(incurredAt = it)) })
 
             actions?.invoke()
         }
@@ -104,8 +102,8 @@ fun AddEntryFormPreview() {
     Box(modifier = Modifier.padding(12.dp)) {
         AddEntryForm(
             value = makeEmptyNewEntryDto(), onValueChanged = {}, accounts = listOf(
-                Account(99, AccountType.Cash, "Savings", "USD", 100.0, 0.0),
-                Account(2, AccountType.Cash, "Checking", "VES", 50.0, 0.0)
+                Account(99, AccountType.Cash, "Savings", "USD", 100.0),
+                Account(2, AccountType.Cash, "Checking", "VES", 50.0)
             )
         )
     }

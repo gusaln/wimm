@@ -32,19 +32,21 @@ fun DesktopApp() {
                 ) {
                     Text("WIMM", style = MaterialTheme.typography.h4)
 
-                    Spacer(modifier = Modifier.width(Constants.Size.Large.dp))
+                    Spacer(modifier = Modifier.width((Constants.Size.Large * 2).dp))
 
                     Text(
                         "Dashboard",
-                        modifier = Modifier.padding(Constants.Size.Small.dp)
-                            .clickable { navController.navigate(Screen.Dashboard.route) },
+                        modifier = Modifier
+                            .clickable { navController.navigate(Screen.Dashboard.route) }
+                            .padding(Constants.Size.Small.dp),
                         style = MaterialTheme.typography.h5
                     )
 
                     Text(
                         "Accounts",
-                        modifier = Modifier.padding(Constants.Size.Small.dp)
-                            .clickable { navController.navigate(Screen.Accounts.route) },
+                        modifier = Modifier
+                            .clickable { navController.navigate(Screen.Accounts.route) }
+                            .padding(Constants.Size.Small.dp),
                         style = MaterialTheme.typography.h5
                     )
                 }

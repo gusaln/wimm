@@ -36,7 +36,7 @@ actual class DatabaseFactory(val config: Config) {
                 0,
                 Database.Schema.version,
                 AfterVersion(0) {
-                    it.accountQueries.insertAccount(AccountType.Cash, "Savings", "USD", 0.0)
+                    it.accountQueries.insertAccount(AccountType.Cash, "Savings", "USD")
                 }
             )
         }

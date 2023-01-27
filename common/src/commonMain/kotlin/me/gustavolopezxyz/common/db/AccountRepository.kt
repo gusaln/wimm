@@ -9,8 +9,8 @@ import com.squareup.sqldelight.runtime.coroutines.asFlow
 import kotlinx.coroutines.flow.Flow
 import me.gustavolopezxyz.common.data.Account
 import me.gustavolopezxyz.common.data.AccountType
+import me.gustavolopezxyz.common.data.Currency
 import me.gustavolopezxyz.common.data.Database
-import me.gustavolopezxyz.common.data.Money
 import me.gustavolopezxyz.db.AccountQueries
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -35,16 +35,15 @@ class AccountRepository : KoinComponent {
         return accountQueries.selectAll().asFlow()
     }
 
-    fun create(type: AccountType, name: String, initialBalance: Money) {
-        return accountQueries.insertAccount(type, name, initialBalance.currency.toString(), initialBalance.value)
+    fun create(type: AccountType, name: String, currency: Currency) {
+        return accountQueries.insertAccount(type, name, currency.toString())
     }
 
     fun update(original: Account, modified: Account) = update(
-        original.id,
+        original.accountId,
         modified.type,
         modified.name,
-        modified.balance_currency,
-        modified.initial_value - original.initial_value,
+        modified.currency
     )
 
     private fun update(
@@ -52,14 +51,12 @@ class AccountRepository : KoinComponent {
         type: AccountType,
         name: String,
         currency: String,
-        initialBalanceDelta: Double,
     ) {
         return accountQueries.updateAccount(
             type = type,
             name = name,
-            balance_currency = currency,
-            initial_balance_delta = initialBalanceDelta,
-            id = accountId,
+            currency = currency,
+            accountId = accountId,
         )
     }
 

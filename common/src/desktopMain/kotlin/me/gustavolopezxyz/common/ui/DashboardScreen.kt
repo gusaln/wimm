@@ -17,30 +17,27 @@ import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import me.gustavolopezxyz.common.Constants
-import me.gustavolopezxyz.common.data.getAmount
-import me.gustavolopezxyz.common.db.AccountRepository
 import me.gustavolopezxyz.common.db.EntryRepository
+import me.gustavolopezxyz.common.ext.toMoney
 import org.koin.java.KoinJavaComponent
 
 @Composable
 fun DashboardScreen(navController: NavController) {
-    val accountRepository by remember { KoinJavaComponent.inject<AccountRepository>(AccountRepository::class.java) }
     val entriesRepository by remember { KoinJavaComponent.inject<EntryRepository>(EntryRepository::class.java) }
 
     var page by remember { mutableStateOf(1L) }
     var limit by remember { mutableStateOf(15L) }
 
-    val accounts = accountRepository.getAll().associateBy { account -> account.id }
     val entries = entriesRepository.asFlow((page - 1) * limit, limit).mapToList().map { entryList ->
-        entryList.filter { accounts.contains(it.account_id) }.map { entry ->
+        entryList.map { entry ->
             ListEntryDto(
-                entry.id,
-                entry.description,
-                entry.record_id,
-                accounts[entry.account_id]!!,
-                entry.getAmount(),
-                entry.incurred_at,
-                entry.recorded_at
+                entry.entryId,
+                entry.transactionDescription,
+                entry.transactionId,
+                entry.accountName,
+                entry.amount.toMoney(entry.currency),
+                entry.incurredAt,
+                entry.recordedAt
             )
         }
     }.collectAsState(listOf(), Dispatchers.IO)
@@ -56,7 +53,7 @@ fun DashboardScreen(navController: NavController) {
                 onEdit = {
                     navController.navigate(
                         Screen.EditTransaction.route,
-                        Screen.EditTransaction.withArguments(it.record_id)
+                        Screen.EditTransaction.withArguments(it.transactionId)
                     )
                 }
             )

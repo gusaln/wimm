@@ -13,10 +13,7 @@ import androidx.compose.ui.window.Dialog
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.*
 import me.gustavolopezxyz.common.Constants
-import me.gustavolopezxyz.common.data.Account
-import me.gustavolopezxyz.common.data.AccountType
-import me.gustavolopezxyz.common.data.Money
-import me.gustavolopezxyz.common.data.UnknownAccount
+import me.gustavolopezxyz.common.data.*
 import me.gustavolopezxyz.common.db.AccountRepository
 import org.koin.java.KoinJavaComponent.inject
 
@@ -31,11 +28,11 @@ fun AccountsScreen() {
 
     var editing by remember { mutableStateOf<Account?>(null) }
 
-    fun createAccount(name: String, type: AccountType, initialBalance: Money) {
+    fun createAccount(name: String, type: AccountType, currency: Currency) {
         isCreatingOpen = false
 
         GlobalScope.launch(Dispatchers.IO) {
-            accountRepository.create(type, name, initialBalance)
+            accountRepository.create(type, name, currency)
 
             snackbar.showSnackbar("The account was created")
         }
@@ -46,7 +43,7 @@ fun AccountsScreen() {
         editing = null
 
         GlobalScope.launch(Dispatchers.IO) {
-            accountRepository.update(accounts.find { it.id == modified.id }!!, modified)
+            accountRepository.update(accounts.find { it.accountId == modified.accountId }!!, modified)
 
             snackbar.showSnackbar("The account was modified")
         }

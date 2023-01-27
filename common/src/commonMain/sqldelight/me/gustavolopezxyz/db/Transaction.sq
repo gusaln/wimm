@@ -1,0 +1,22 @@
+selectPaginated:
+SELECT * FROM moneyTransaction LIMIT :limit, :offset;
+
+selectById:
+SELECT * FROM moneyTransaction WHERE transactionId = :transactionId;
+
+selectByNumber:
+SELECT * FROM moneyTransaction WHERE number = :number;
+
+insertTransaction:
+INSERT INTO moneyTransaction(number, description)
+VALUES (:number, :description);
+
+updateTransaction:
+UPDATE moneyTransaction
+SET description = :description
+WHERE transactionId = :transactionId;
+
+deleteTransaction {
+    DELETE FROM entry WHERE transactionId = :transactionId;
+    DELETE FROM moneyTransaction WHERE transactionId = :transactionId;
+}

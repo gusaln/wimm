@@ -5,6 +5,7 @@
 package me.gustavolopezxyz.common.data
 
 import me.gustavolopezxyz.db.SelectAllCategories
+import me.gustavolopezxyz.db.SelectEntries
 import me.gustavolopezxyz.db.SelectEntriesFromTransaction
 
 
@@ -44,4 +45,16 @@ fun SelectEntriesFromTransaction.toEntry() = Entry(
     this.amount,
     this.incurredAt,
     this.recordedAt
+)
+
+fun SelectEntries.toDto() = DenormalizedEntry(
+    this.entryId,
+    this.transactionId,
+    this.transactionDescription,
+    this.accountId,
+    this.accountName,
+    this.currency,
+    this.amount,
+    this.incurredAt,
+    this.recordedAt,
 )

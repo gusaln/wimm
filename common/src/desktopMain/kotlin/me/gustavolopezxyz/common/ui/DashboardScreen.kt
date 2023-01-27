@@ -17,8 +17,8 @@ import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import me.gustavolopezxyz.common.Constants
+import me.gustavolopezxyz.common.data.toDto
 import me.gustavolopezxyz.common.db.EntryRepository
-import me.gustavolopezxyz.common.ext.toMoney
 import org.koin.java.KoinJavaComponent
 
 @Composable
@@ -28,19 +28,9 @@ fun DashboardScreen(navController: NavController) {
     var page by remember { mutableStateOf(1L) }
     var limit by remember { mutableStateOf(15L) }
 
-    val entries = entriesRepository.asFlow((page - 1) * limit, limit).mapToList().map { entryList ->
-        entryList.map { entry ->
-            ListEntryDto(
-                entry.entryId,
-                entry.transactionDescription,
-                entry.transactionId,
-                entry.accountName,
-                entry.amount.toMoney(entry.currency),
-                entry.incurredAt,
-                entry.recordedAt
-            )
-        }
-    }.collectAsState(listOf(), Dispatchers.IO)
+    val entries by entriesRepository.asFlow((page - 1) * limit, limit).mapToList().map { list ->
+        list.map { it.toDto() }
+    }.collectAsState(emptyList(), Dispatchers.IO)
 
     RegularLayout(menu = { Text("Empty real state") }) {
         Column(verticalArrangement = Arrangement.spacedBy(Constants.Size.Medium.dp)) {
@@ -49,14 +39,13 @@ fun DashboardScreen(navController: NavController) {
             }
 
             EntriesList(
-                entries = entries.value,
-                onEdit = {
-                    navController.navigate(
-                        Screen.EditTransaction.route,
-                        Screen.EditTransaction.withArguments(it.transactionId)
-                    )
-                }
-            )
+                entries = entries
+            ) {
+                navController.navigate(
+                    Screen.EditTransaction.route,
+                    Screen.EditTransaction.withArguments(it.transactionId)
+                )
+            }
         }
     }
 }

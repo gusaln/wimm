@@ -8,12 +8,12 @@ selectByNumber:
 SELECT * FROM moneyTransaction WHERE number = :number;
 
 insertTransaction:
-INSERT INTO moneyTransaction(number, description)
-VALUES (:number, :description);
+INSERT INTO moneyTransaction(number, categoryId, description)
+VALUES (:number, :categoryId, :description);
 
 updateTransaction:
 UPDATE moneyTransaction
-SET description = :description
+SET categoryId = :categoryId, description = :description
 WHERE transactionId = :transactionId;
 
 deleteTransaction {

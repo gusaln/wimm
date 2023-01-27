@@ -16,6 +16,8 @@ sealed class Screen(val route: String) {
     }
 
     object Accounts : Screen("accounts")
+
+    object Categories : Screen("categories")
 }
 
 
@@ -36,6 +38,10 @@ fun AppNavigationHost(navController: NavController) {
 
         composable(Screen.Accounts.route) {
             AccountsScreen()
+        }
+
+        composable(Screen.Categories.route) {
+            CategoriesScreen()
         }
     }.build()
 }

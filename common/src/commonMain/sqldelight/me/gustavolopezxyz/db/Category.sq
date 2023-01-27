@@ -1,0 +1,17 @@
+selectAllCategories:
+SELECT category.*, parent.name AS parentCategoryName FROM category
+LEFT JOIN category AS parent ON category.parentCategoryId = parent.categoryId;
+
+selectCategoryById:
+SELECT * FROM category WHERE categoryId IN ?;
+
+insertCategory:
+INSERT INTO category(parentCategoryId, name)
+VALUES (:parentCategoryId, :name);
+
+updateCategory:
+UPDATE category SET name = :name, parentCategoryId = :parentCategoryId
+WHERE categoryId = :categoryId AND isLocked = 0;
+
+deleteCategory:
+DELETE FROM category WHERE categoryId = :categoryId AND isLocked = 0;

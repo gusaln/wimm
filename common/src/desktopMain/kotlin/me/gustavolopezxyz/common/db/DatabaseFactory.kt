@@ -5,12 +5,9 @@
 package me.gustavolopezxyz.common.db
 
 import com.squareup.sqldelight.EnumColumnAdapter
-import com.squareup.sqldelight.db.AfterVersion
-import com.squareup.sqldelight.db.migrateWithCallbacks
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
 import me.gustavolopezxyz.common.Config
 import me.gustavolopezxyz.common.data.Account
-import me.gustavolopezxyz.common.data.AccountType
 import me.gustavolopezxyz.common.data.Database
 import me.gustavolopezxyz.common.data.Entry
 import java.io.File
@@ -31,14 +28,7 @@ actual class DatabaseFactory(val config: Config) {
                 return it
             }
 
-            Database.Schema.migrateWithCallbacks(
-                driver,
-                0,
-                Database.Schema.version,
-                AfterVersion(0) {
-                    it.accountQueries.insertAccount(AccountType.Cash, "Savings", "USD")
-                }
-            )
+            Database.Schema.migrate(driver, 0, Database.Schema.version)
         }
     }
 }

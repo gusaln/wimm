@@ -6,10 +6,33 @@ CREATE TABLE account (
     balance REAL NOT NULL DEFAULT 0
 );
 
+CREATE TABLE category (
+    categoryId INTEGER PRIMARY KEY,
+    parentCategoryId INTEGER,
+    name TEXT NOT NULL UNIQUE,
+    isLocked INTEGER NOT NULL DEFAULT 0
+);
+
+INSERT INTO category
+    (parentCategoryId, name, isLocked)
+VALUES
+    (NULL, "cash", 1),
+    (NULL, "asset", 1),
+    (NULL, "income", 1),
+    (NULL, "expense", 1),
+    (NULL, "receivable", 1),
+    (NULL, "payable", 1);
+
 CREATE TABLE moneyTransaction (
     transactionId INTEGER PRIMARY KEY,
+    categoryId INTEGER NOT NULL,
     number INTEGER NOT NULL UNIQUE,
-    description TEXT NOT NULL
+    description TEXT NOT NULL,
+
+    FOREIGN KEY (categoryId)
+        REFERENCES category (categoryId)
+            ON DELETE CASCADE
+            ON UPDATE NO ACTION
 );
 
 CREATE TABLE entry (

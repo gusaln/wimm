@@ -18,54 +18,38 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import me.gustavolopezxyz.common.Constants
-import me.gustavolopezxyz.common.data.AccountType
-import me.gustavolopezxyz.common.data.Money
+import me.gustavolopezxyz.common.data.Account
 
 @Preview
 @Composable
-fun CreateAccountForm(
-    onCreate: (name: String, type: AccountType, initialBalance: Money) -> Unit,
+fun EditAccountForm(
+    value: Account,
+    onValueChange: (Account) -> Unit,
+    onEdit: () -> Unit,
     onCancel: () -> Unit = {}
 ) {
-    var name by remember { mutableStateOf("") }
-    var currency by remember { mutableStateOf("") }
-    var type by remember { mutableStateOf(AccountType.Cash) }
-    var initialBalance by remember { mutableStateOf(0.0) }
-
-    fun handleCreate() {
-        onCreate(name, type, Money(currency, initialBalance))
-    }
-
-    fun handleCancel() {
-        name = ""
-        currency = ""
-        initialBalance = 0.0
-
-        onCancel()
-    }
-
     var isTypeDropDownExpanded by remember { mutableStateOf(false) }
 
     Column(
         verticalArrangement = Arrangement.spacedBy(Constants.Size.Field.dp)
     ) {
-        FormTitle("Create an Account")
+        FormTitle("Edit Account ${value.name}")
 
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
-            value = name,
-            onValueChange = { name = it },
+            value = value.name,
+            onValueChange = { onValueChange(value.copy(name = it)) },
             label = { Text("Name") },
             placeholder = { Text("Awesome savings account") })
 
         AccountTypeDropdown(
             expanded = isTypeDropDownExpanded,
             onExpandedChange = { isTypeDropDownExpanded = it },
-            value = type,
-            onClick = { type = it },
+            value = value.type,
+            onClick = { onValueChange(value.copy(type = it)) },
         ) {
             Row {
-                OutlinedTextField(value = type.name,
+                OutlinedTextField(value = value.type.name,
                     onValueChange = {},
                     label = {
                         Text("Type", modifier = Modifier.clickable(true) {
@@ -86,15 +70,15 @@ fun CreateAccountForm(
         }
 
         OutlinedTextField(modifier = Modifier.fillMaxWidth(),
-            value = currency,
-            onValueChange = { currency = it },
+            value = value.balance_currency,
+            onValueChange = { onValueChange(value.copy(balance_currency = it.uppercase())) },
             label = { Text("Currency") },
             placeholder = { Text("USD") })
 
         OutlinedDoubleField(
             modifier = Modifier.fillMaxWidth(),
-            value = initialBalance,
-            onValueChange = { initialBalance = it },
+            value = value.initial_value,
+            onValueChange = { onValueChange(value.copy(initial_value = it)) },
             label = { Text("Initial balance") },
         )
 
@@ -102,11 +86,11 @@ fun CreateAccountForm(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(Constants.Size.Medium.dp, Alignment.End)
         ) {
-            Button(onClick = ::handleCreate) {
-                Text("Create")
+            Button(onClick = onEdit) {
+                Text("Edit")
             }
 
-            TextButton(onClick = ::handleCancel) {
+            TextButton(onClick = onCancel) {
                 Text("Cancel")
             }
         }

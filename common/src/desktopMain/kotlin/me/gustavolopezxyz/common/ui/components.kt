@@ -38,6 +38,11 @@ fun ScreenTitle(title: String) {
 }
 
 @Composable
+fun FormTitle(title: String) {
+    Text(title, style = MaterialTheme.typography.h5)
+}
+
+@Composable
 fun OutlinedDateTextField(
     date: LocalDate,
     onValueChange: (date: LocalDate) -> Unit,

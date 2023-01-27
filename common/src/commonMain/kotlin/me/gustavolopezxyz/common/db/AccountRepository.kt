@@ -7,7 +7,10 @@ package me.gustavolopezxyz.common.db
 import com.squareup.sqldelight.Query
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import kotlinx.coroutines.flow.Flow
-import me.gustavolopezxyz.common.data.*
+import me.gustavolopezxyz.common.data.Account
+import me.gustavolopezxyz.common.data.AccountType
+import me.gustavolopezxyz.common.data.Database
+import me.gustavolopezxyz.common.data.Money
 import me.gustavolopezxyz.db.AccountQueries
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -36,33 +39,28 @@ class AccountRepository : KoinComponent {
         return accountQueries.insertAccount(type, name, initialBalance.currency.toString(), initialBalance.value)
     }
 
-    private fun update(account: Account) {
+    fun update(original: Account, modified: Account) = update(
+        original.id,
+        modified.type,
+        modified.name,
+        modified.balance_currency,
+        modified.initial_value - original.initial_value,
+    )
+
+    private fun update(
+        accountId: Long,
+        type: AccountType,
+        name: String,
+        currency: String,
+        initialBalanceDelta: Double,
+    ) {
         return accountQueries.updateAccount(
-            type = account.type,
-            name = account.name,
-            balance_currency = account.balance_currency,
-            balance_value = account.balance_value,
-            initial_value = account.initial_value,
-            id = account.id,
+            type = type,
+            name = name,
+            balance_currency = currency,
+            initial_balance_delta = initialBalanceDelta,
+            id = accountId,
         )
     }
 
-    fun updateType(account: Account, type: AccountType) {
-        return update(account.copy(type = type))
-    }
-
-    fun updateName(account: Account, name: String) {
-        return update(account.copy(name = name))
-    }
-
-    fun updateInitialBalance(account: Account, initialBalance: Money) {
-        val delta = initialBalance - account.getInitialBalance()
-
-        return update(
-            account.copy(
-                balance_value = account.balance_value + delta.value,
-                initial_value = initialBalance.value,
-            )
-        )
-    }
 }

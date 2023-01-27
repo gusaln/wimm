@@ -5,6 +5,7 @@
 package me.gustavolopezxyz.common.ui
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
@@ -23,8 +24,8 @@ import me.gustavolopezxyz.common.data.getBalance
 
 
 @Composable
-fun AccountsListCard(account: Account) {
-    Card(modifier = Modifier.widthIn(200.dp, 350.dp), elevation = 4.dp) {
+fun AccountsListCard(account: Account, onSelect: (Account) -> Unit) {
+    Card(modifier = Modifier.widthIn(200.dp, 350.dp).clickable { onSelect(account) }, elevation = 4.dp) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(Constants.Size.Small.dp)
@@ -54,12 +55,12 @@ fun AccountsListCard(account: Account) {
 }
 
 @Composable
-fun AccountsList(accounts: List<Account>) {
+fun AccountsList(accounts: List<Account>, onSelect: (Account) -> Unit = {}) {
     Column(
         modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(Constants.Size.Medium.dp)
     ) {
         accounts.forEach {
-            AccountsListCard(it)
+            AccountsListCard(it, onSelect)
         }
 
         if (accounts.isEmpty()) {

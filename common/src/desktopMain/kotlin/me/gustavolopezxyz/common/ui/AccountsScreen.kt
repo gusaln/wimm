@@ -13,8 +13,10 @@ import androidx.compose.ui.window.Dialog
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.*
 import me.gustavolopezxyz.common.Constants
+import me.gustavolopezxyz.common.data.Account
 import me.gustavolopezxyz.common.data.AccountType
 import me.gustavolopezxyz.common.data.Money
+import me.gustavolopezxyz.common.data.UnknownAccount
 import me.gustavolopezxyz.common.db.AccountRepository
 import org.koin.java.KoinJavaComponent.inject
 
@@ -27,21 +29,49 @@ fun AccountsScreen() {
 
     var isCreatingOpen by remember { mutableStateOf(false) }
 
+    var editing by remember { mutableStateOf<Account?>(null) }
+
     fun createAccount(name: String, type: AccountType, initialBalance: Money) {
         isCreatingOpen = false
 
         GlobalScope.launch(Dispatchers.IO) {
             accountRepository.create(type, name, initialBalance)
 
-            snackbar.showSnackbar("Account created")
+            snackbar.showSnackbar("The account was created")
+        }
+    }
+
+    fun editAccount() {
+        val modified = editing!!.copy()
+        editing = null
+
+        GlobalScope.launch(Dispatchers.IO) {
+            accountRepository.update(accounts.find { it.id == modified.id }!!, modified)
+
+            snackbar.showSnackbar("The account was modified")
         }
     }
 
     if (isCreatingOpen) {
-        Dialog(onCloseRequest = { isCreatingOpen = false }, title = "Create an account") {
+        Dialog(onCloseRequest = { isCreatingOpen = false }, title = "Create an Account") {
             Card(modifier = Modifier.fillMaxSize()) {
                 Box(modifier = Modifier.fillMaxWidth().padding(Constants.Size.Medium.dp)) {
                     CreateAccountForm(::createAccount, onCancel = { isCreatingOpen = false })
+                }
+            }
+        }
+    }
+
+    if (editing != null) {
+        Dialog(onCloseRequest = { editing = null }, title = "Edit an Account") {
+            Card(modifier = Modifier.fillMaxSize()) {
+                Box(modifier = Modifier.fillMaxWidth().padding(Constants.Size.Medium.dp)) {
+                    EditAccountForm(
+                        value = editing ?: UnknownAccount,
+                        onValueChange = { editing = it },
+                        onEdit = ::editAccount,
+                        onCancel = { editing = null }
+                    )
                 }
             }
         }
@@ -61,6 +91,6 @@ fun AccountsScreen() {
 
         Spacer(modifier = Modifier.fillMaxWidth())
 
-        AccountsList(accounts)
+        AccountsList(accounts) { editing = it.copy() }
     }
 }

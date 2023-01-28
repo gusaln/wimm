@@ -62,6 +62,6 @@ deleteEntry {
     DELETE FROM entry WHERE entryId = :entryId;
 
     UPDATE account
-    SET balance = balance + :amount
+    SET balance = balance - :amount
     WHERE accountId = :accountId;
 }

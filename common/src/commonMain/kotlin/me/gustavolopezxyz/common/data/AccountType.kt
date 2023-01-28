@@ -6,6 +6,7 @@ package me.gustavolopezxyz.common.data
 
 enum class AccountType {
     Cash,
+    Asset,
     Receivable,
 
     Payable,
@@ -14,6 +15,7 @@ enum class AccountType {
 
     fun isDebit(): Boolean = when (this) {
         Cash,
+        Asset,
         Receivable,
         Expense -> true
 

@@ -55,8 +55,10 @@ object ConfigFactory {
 }
 
 class Config(
-    val appDir: String,
+    val dataDir: String,
     val dataFileName: String = "data.db",
+    val backupsToKeep: UByte = 7u,
 ) {
-    val dataFilePath get() = Path(appDir, dataFileName).absolute().toString()
+    val dataFilePath get() = Path(dataDir, dataFileName).absolute().toString()
+    val backupDirPath get() = Path(dataDir, "backups").absolute().toString()
 }

@@ -7,6 +7,7 @@ package me.gustavolopezxyz.common.di
 import androidx.compose.material.SnackbarHostState
 import me.gustavolopezxyz.common.ConfigFactory
 import me.gustavolopezxyz.common.db.DatabaseFactory
+import me.gustavolopezxyz.common.services.BackupService
 import me.gustavolopezxyz.common.ui.EditTransactionViewModel
 import org.koin.core.module.Module
 import org.koin.dsl.module
@@ -14,8 +15,8 @@ import org.koin.dsl.module
 actual fun platformModule(): Module = module {
     single {
         ConfigFactory.new().also {
-            println("[config] App dir: ${it.appDir}")
-            println("[config] Data file: ${it.dataFilePath}")
+            logger.info("App dir: ${it.dataDir}")
+            logger.info("Data file: ${it.dataFilePath}")
         }
     }
 
@@ -25,6 +26,10 @@ actual fun platformModule(): Module = module {
 
     single {
         SnackbarHostState()
+    }
+
+    single {
+        BackupService(get())
     }
 
     factory {

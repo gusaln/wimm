@@ -13,9 +13,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -28,24 +30,39 @@ import me.gustavolopezxyz.common.data.CategoryWithParent
 
 
 @Composable
-fun CategoriesListCard(category: CategoryWithParent, onSelect: (CategoryWithParent) -> Unit) {
+fun CategoriesListCard(
+    category: CategoryWithParent, onSelect: (CategoryWithParent) -> Unit, onDelete: (CategoryWithParent) -> Unit
+) {
     Row(
-        modifier = Modifier.clickable(!category.isLocked) { onSelect(category) }
-            .padding(Constants.Size.Small.dp).width(300.dp),
-        verticalAlignment = Alignment.CenterVertically
+        modifier = Modifier.clickable(!category.isLocked) { onSelect(category) }.padding(Constants.Size.Small.dp)
+            .width(300.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(Icons.Default.KeyboardArrowRight, "arrow marker")
+        Row {
+            Icon(Icons.Default.KeyboardArrowRight, "arrow marker")
 
-        Text(
-            category.fullname(),
-            overflow = TextOverflow.Ellipsis,
-            style = MaterialTheme.typography.h6.copy(fontWeight = FontWeight.Normal)
-        )
+            Spacer(modifier = Modifier.width(Constants.Size.Medium.dp))
+
+            Text(
+                category.fullname(),
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.h6.copy(fontWeight = FontWeight.Normal)
+            )
+        }
+
+        IconButton(onClick = { onDelete(category) }) {
+            Icon(Icons.Default.Delete, "delete category")
+        }
     }
 }
 
 @Composable
-fun CategoriesList(categories: List<CategoryWithParent>, onSelect: (CategoryWithParent) -> Unit = {}) {
+fun CategoriesList(
+    categories: List<CategoryWithParent>,
+    onSelect: (CategoryWithParent) -> Unit = {},
+    onDelete: (CategoryWithParent) -> Unit = {}
+) {
     val parents = categories.filter { it.parentCategoryId == null }
     val byParent = categories.filter { it.parentCategoryId != null }.groupBy { it.parentCategoryId!! }
 
@@ -55,24 +72,34 @@ fun CategoriesList(categories: List<CategoryWithParent>, onSelect: (CategoryWith
             modifier = Modifier.scrollable(loLoCaScroll, Orientation.Vertical),
             verticalArrangement = Arrangement.spacedBy(Constants.Size.Large.dp)
         ) {
-            parents.forEach { category ->
+            val iconSize = Modifier.size(20.dp)
+
+            parents.forEach { parentCategory ->
                 // Container of a category subtree
                 Column(modifier = Modifier.fillMaxWidth().width(300.dp)) {
-                    Text(
-                        category.name,
-                        modifier = Modifier.clickable(!category.isLocked) { onSelect(category) }
-                            .padding(Constants.Size.Small.dp)
-                            .fillMaxWidth(),
-                        style = MaterialTheme.typography.h6
-                    )
+                    Row(
+                        modifier = Modifier.padding(Constants.Size.Small.dp).width(300.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(parentCategory.name,
+                            modifier = Modifier.clickable(!parentCategory.isLocked) { onSelect(parentCategory) }
+                                .padding(Constants.Size.Small.dp),
+                            overflow = TextOverflow.Ellipsis,
+                            style = MaterialTheme.typography.h6
+                        )
+
+                        IconButton(onClick = { onDelete(parentCategory) }) {
+                            Icon(Icons.Default.Delete, "delete category", iconSize)
+                        }
+                    }
 
                     val scroll = rememberScrollState()
                     Row(
                         modifier = Modifier.wrapContentHeight().scrollable(scroll, Orientation.Horizontal),
                         horizontalArrangement = Arrangement.spacedBy(Constants.Size.Medium.dp)
                     ) {
-                        byParent[category.categoryId]?.forEach {
-                            CategoriesListCard(it, onSelect)
+                        byParent[parentCategory.categoryId]?.forEach {
+                            CategoriesListCard(it, onSelect, onDelete)
                         }
                     }
                 }
@@ -89,8 +116,9 @@ fun CategoriesList(categories: List<CategoryWithParent>, onSelect: (CategoryWith
 fun CategoriesListPreview() {
     CategoriesList(
         listOf(
-            CategoryWithParent(1, 1, "alpha", "beta", false),
-            CategoryWithParent(2, null, null, "single", false),
+            CategoryWithParent(1, null, null, "alpha", true),
+            CategoryWithParent(10, 1, "alpha", "beta", false),
+            CategoryWithParent(11, null, null, "single", false),
         )
     )
 }

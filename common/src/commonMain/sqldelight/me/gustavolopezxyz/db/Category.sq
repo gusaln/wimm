@@ -5,6 +5,12 @@ LEFT JOIN category AS parent ON category.parentCategoryId = parent.categoryId;
 selectCategoryById:
 SELECT * FROM category WHERE categoryId IN ?;
 
+countTransactionsOfCategory:
+SELECT COUNT(transactionId) FROM moneyTransaction WHERE categoryId = :categoryId;
+
+countChildrenOfCategory:
+SELECT COUNT(categoryId) FROM category WHERE parentCategoryId = :categoryId;
+
 insertCategory:
 INSERT INTO category(parentCategoryId, name)
 VALUES (:parentCategoryId, :name);
@@ -14,4 +20,4 @@ UPDATE category SET name = :name, parentCategoryId = :parentCategoryId
 WHERE categoryId = :categoryId AND isLocked = 0;
 
 deleteCategory:
-DELETE FROM category WHERE categoryId = :categoryId AND isLocked = 0;
+DELETE FROM category WHERE categoryId = :categoryId;

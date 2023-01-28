@@ -23,6 +23,10 @@ class CategoryRepository : KoinComponent {
 
     fun allAsFlow() = categoryQueries.selectAllCategories().asFlow()
 
+    fun countTransactions(id: Long) = categoryQueries.countTransactionsOfCategory(id).executeAsOne()
+
+    fun countChildren(id: Long) = categoryQueries.countChildrenOfCategory(id).executeAsOne()
+
     fun create(category: Category) {
         return create(category.name, category.parentCategoryId)
     }
@@ -39,4 +43,7 @@ class CategoryRepository : KoinComponent {
         return categoryQueries.updateCategory(name = name, parentCategoryId = parentCategoryId, categoryId = categoryId)
     }
 
+    fun delete(categoryId: Long) {
+        categoryQueries.deleteCategory(categoryId)
+    }
 }

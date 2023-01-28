@@ -60,4 +60,13 @@ class AccountRepository : KoinComponent {
         )
     }
 
+    fun recomputeBalance(account: Account) = recomputeBalance(account.accountId)
+
+    fun recomputeBalance(accountId: Long) {
+        accountQueries.recomputeBalanceOf(accountId)
+    }
+
+    fun recomputeBalances() {
+        accountQueries.recomputeAllBalances()
+    }
 }

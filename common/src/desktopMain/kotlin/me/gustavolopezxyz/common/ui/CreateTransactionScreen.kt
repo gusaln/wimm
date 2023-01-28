@@ -5,10 +5,9 @@
 package me.gustavolopezxyz.common.ui
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -105,7 +104,7 @@ fun CreateTransactionScreen(navController: NavController) {
 
     val scroll = rememberScrollState()
     Column(
-        modifier = Modifier.scrollable(scroll, orientation = Orientation.Vertical),
+        modifier = Modifier.fillMaxWidth().verticalScroll(scroll).padding(Constants.Size.Large.dp),
         verticalArrangement = Arrangement.spacedBy(Constants.Size.Medium.dp)
     ) {
         Text("Create a transaction", style = MaterialTheme.typography.h5)

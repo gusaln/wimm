@@ -16,3 +16,20 @@ updateAccount {
         currency = :currency
     WHERE accountId = :accountId;
 }
+
+recomputeBalanceOf:
+UPDATE account
+SET balance = (
+    SELECT SUM(entry.amount) AS balance
+    FROM entry
+    WHERE entry.accountId = account.accountId
+)
+WHERE accountId = :accountId;
+
+recomputeAllBalances:
+UPDATE account
+SET balance = (
+    SELECT SUM(entry.amount) AS balance
+    FROM entry
+    WHERE entry.accountId = account.accountId
+);

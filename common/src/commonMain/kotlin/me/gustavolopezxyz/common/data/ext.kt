@@ -5,8 +5,8 @@
 package me.gustavolopezxyz.common.data
 
 import me.gustavolopezxyz.db.SelectAllCategories
-import me.gustavolopezxyz.db.SelectEntries
-import me.gustavolopezxyz.db.SelectEntriesFromTransaction
+import me.gustavolopezxyz.db.SelectEntriesForAccount
+import me.gustavolopezxyz.db.SelectEntriesForTransaction
 
 
 val UnknownAccount = Account(-1, AccountType.Cash, "Unknown", "XXX", 0.0)
@@ -38,7 +38,7 @@ fun SelectAllCategories.toDto() = CategoryWithParent(
     this.isLocked
 )
 
-fun SelectEntriesFromTransaction.toEntry() = Entry(
+fun SelectEntriesForTransaction.toEntry() = Entry(
     this.entryId,
     this.transactionId,
     this.accountId,
@@ -47,13 +47,22 @@ fun SelectEntriesFromTransaction.toEntry() = Entry(
     this.recordedAt
 )
 
-fun SelectEntries.toDto() = DenormalizedEntry(
+fun SelectEntriesForTransaction.toEntryForTransaction() = EntryForTransaction(
+    this.entryId,
+    this.transactionId,
+    this.accountId,
+    this.accountName,
+    this.currency,
+    this.amount,
+    this.incurredAt,
+    this.recordedAt,
+)
+
+fun SelectEntriesForAccount.toEntryForAccount() = EntryForAccount(
     this.entryId,
     this.transactionId,
     this.transactionDescription,
     this.accountId,
-    this.accountName,
-    this.currency,
     this.amount,
     this.incurredAt,
     this.recordedAt,

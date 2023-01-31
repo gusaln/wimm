@@ -4,47 +4,122 @@
 
 package me.gustavolopezxyz.common.ui
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
+import androidx.compose.material.Icon
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.squareup.sqldelight.runtime.coroutines.mapToList
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import me.gustavolopezxyz.common.Constants
+import me.gustavolopezxyz.common.data.CategoryWithParent
 import me.gustavolopezxyz.common.data.toDto
-import me.gustavolopezxyz.common.db.EntryRepository
-import org.koin.java.KoinJavaComponent
+import me.gustavolopezxyz.common.db.CategoryRepository
+import org.koin.core.parameter.parametersOf
+import org.koin.java.KoinJavaComponent.inject
 
 @Composable
 fun DashboardScreen(navController: NavController) {
-    val entriesRepository by remember { KoinJavaComponent.inject<EntryRepository>(EntryRepository::class.java) }
+    val transactionsListViewModel by remember { inject<TransactionsListViewModel>(TransactionsListViewModel::class.java) }
 
-    var page by remember { mutableStateOf(1L) }
-    var limit by remember { mutableStateOf(15L) }
+    val accountSummaryViewModel by remember {
+        inject<AccountSummaryViewModel>(AccountSummaryViewModel::class.java) {
+            // Todo: Change this hard-coded value to a setting
+            parametersOf(1)
+        }
+    }
 
-    val entries by entriesRepository.asFlow((page - 1) * limit, limit).mapToList().map { list ->
-        list.map { it.toDto() }
-    }.collectAsState(emptyList(), Dispatchers.IO)
+    val categoryRepository by remember { inject<CategoryRepository>(CategoryRepository::class.java) }
+    val categories by categoryRepository.allAsFlow().mapToList().map { list ->
+        list.map { it.toDto() }.sortedBy { it.fullname() }
+    }.collectAsState(emptyList())
+    var categoryFilter by remember { mutableStateOf<CategoryWithParent?>(null) }
+    var isCategoryDropdownExpanded by remember { mutableStateOf(false) }
 
     RegularLayout(menu = { Text("Empty real state") }) {
-        Column(verticalArrangement = Arrangement.spacedBy(Constants.Size.Medium.dp)) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                Button(onClick = { navController.navigate(Screen.CreateTransaction.route) }) { Text("Create entry") }
+        Column(verticalArrangement = Arrangement.spacedBy(Constants.Size.Large.dp)) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                // Filters
+                Row(
+                    modifier = Modifier.weight(2f),
+                    horizontalArrangement = Arrangement.spacedBy(Constants.Size.Small.dp, Alignment.Start)
+                ) {
+                    CategoryDropdown(
+                        expanded = isCategoryDropdownExpanded,
+                        onExpandedChange = { isCategoryDropdownExpanded = it },
+                        value = categoryFilter,
+                        onSelect = { categoryFilter = it },
+                        categories = categories
+                    ) {
+                        Row {
+                            TextField(value = categoryFilter?.name ?: "all",
+                                onValueChange = {},
+                                label = {
+                                    Text("Category", modifier = Modifier.clickable(true) {
+                                        isCategoryDropdownExpanded = !isCategoryDropdownExpanded
+                                    })
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                leadingIcon = categoryFilter.let {
+                                    if (it == null) {
+                                        null
+                                    } else {
+                                        {
+                                            Icon(
+                                                imageVector = Icons.Filled.Clear,
+                                                contentDescription = "clear category",
+                                                modifier = Modifier.clickable(true) {
+                                                    categoryFilter = null
+                                                }
+                                            )
+                                        }
+                                    }
+                                },
+                                trailingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Filled.ArrowDropDown,
+                                        contentDescription = "dropdown category icon",
+                                        modifier = Modifier.clickable(true) {
+                                            isCategoryDropdownExpanded = !isCategoryDropdownExpanded
+                                        }
+                                    )
+                                })
+                        }
+                    }
+                }
+
+                // Actions
+                Row(
+                    modifier = Modifier.weight(1f),
+                    horizontalArrangement = Arrangement.spacedBy(Constants.Size.Small.dp, Alignment.End)
+                ) {
+                    Button(onClick = { }) { Text("Create entry") }
+                }
             }
 
-            EntriesList(
-                entries = entries
-            ) {
-                navController.navigate(
-                    Screen.EditTransaction.route,
-                    Screen.EditTransaction.withArguments(it.transactionId)
-                )
+            Spacer(Modifier.fillMaxWidth())
+
+            Row(horizontalArrangement = Arrangement.spacedBy(Constants.Size.Large.dp)) {
+                Box(Modifier.weight(1f)) {
+                    TransactionsList(transactionsListViewModel) {
+                        navController.navigate(
+                            Screen.EditTransaction.route,
+                            Screen.EditTransaction.withArguments(it.transactionId)
+                        )
+                    }
+                }
+
+                Box(Modifier.weight(1f)) {
+                    AccountSummary(accountSummaryViewModel)
+                }
             }
         }
     }

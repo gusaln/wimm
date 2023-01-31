@@ -11,7 +11,6 @@ import kotlinx.datetime.toInstant
 import me.gustavolopezxyz.common.data.Database
 import me.gustavolopezxyz.common.data.Entry
 import me.gustavolopezxyz.common.ext.currentTz
-import me.gustavolopezxyz.db.SelectEntriesFromTransaction
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -22,11 +21,23 @@ class EntryRepository : KoinComponent {
     fun get(offset: Long = 0, limit: Long = 15) =
         entryQueries.selectEntries(offset = offset, limit = limit).executeAsList()
 
-    fun asFlow(offset: Long = 0, limit: Long = 15) =
+    fun getAsFlow(offset: Long = 0, limit: Long = 15) =
         entryQueries.selectEntries(offset = offset, limit = limit).asFlow()
 
-    fun getByRecordId(transactionId: Long): List<SelectEntriesFromTransaction> =
-        entryQueries.selectEntriesFromTransaction(transactionId).executeAsList()
+    fun getAllForTransactionAsFlow(transactionId: Long) =
+        entryQueries.selectEntriesForTransaction(listOf(transactionId)).asFlow()
+
+    fun getAllForTransaction(transactionId: Long) =
+        entryQueries.selectEntriesForTransaction(listOf(transactionId)).executeAsList()
+
+    fun getAllForTransactionsAsFlow(transactionIds: Collection<Long>) =
+        entryQueries.selectEntriesForTransaction(transactionIds).asFlow()
+
+    fun getAllForTransactions(transactionIds: Collection<Long>) =
+        entryQueries.selectEntriesForTransaction(transactionIds).executeAsList()
+
+    fun getAllForAccount(accountId: Long, offset: Long = 0, limit: Long = 15) =
+        entryQueries.selectEntriesForAccount(listOf(accountId), offset = offset, limit = limit).asFlow()
 
     fun create(entry: Entry) = create(
         entry.transactionId,

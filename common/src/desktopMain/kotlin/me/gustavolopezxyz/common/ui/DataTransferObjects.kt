@@ -5,7 +5,8 @@ import me.gustavolopezxyz.common.data.Account
 import me.gustavolopezxyz.common.data.Entry
 import me.gustavolopezxyz.common.ext.currentTz
 import me.gustavolopezxyz.common.ext.getRandomString
-import me.gustavolopezxyz.db.SelectEntriesFromTransaction
+import me.gustavolopezxyz.db.SelectEntriesForTransaction
+
 
 data class NewEntryDto(
     val uid: String = getRandomString(8),
@@ -67,7 +68,7 @@ data class EditEntryDto(
     )
 }
 
-fun makeEditEntryDtoFrom(entry: SelectEntriesFromTransaction): EditEntryDto {
+fun makeEditEntryDtoFrom(entry: SelectEntriesForTransaction): EditEntryDto {
     return EditEntryDto(
         id = entry.entryId,
         accountId = entry.accountId,

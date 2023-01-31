@@ -16,9 +16,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.BaselineShift
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toLocalDateTime
@@ -129,7 +129,7 @@ fun MoneyText(
     positiveColor: Color = Color.Unspecified,
     negativeColor: Color = Color.Red,
     commonStyle: TextStyle = TextStyle.Default,
-    valueStyle: TextStyle = TextStyle.Default,
+    valueStyle: TextStyle = TextStyle.Default.copy(fontSize = 1.3.em),
     currencyStyle: TextStyle = TextStyle(
         color = Color.Gray,
         fontSize = MaterialTheme.typography.caption.fontSize,
@@ -147,6 +147,8 @@ fun MoneyText(
             valueStyle.copy(color = amountColor).toSpanStyle()
         ) { append("%.2f".format(amount)) }
 
+        append(' ')
+
         withStyle(
             currencyStyle.toSpanStyle()
         ) {
@@ -155,34 +157,6 @@ fun MoneyText(
             )
         }
     }, modifier = modifier, style = commonStyle)
-}
-
-@Composable
-fun EntrySummaryText(
-    description: String,
-    accountName: String,
-    modifier: Modifier = Modifier,
-    descriptionStyle: TextStyle = MaterialTheme.typography.body1,
-    accountStyle: TextStyle = TextStyle(
-        color = Color.Gray, fontSize = MaterialTheme.typography.caption.fontSize
-    )
-) {
-    Text(
-        buildAnnotatedString {
-            withStyle(
-                descriptionStyle.toSpanStyle()
-            ) {
-                append(description)
-                append(' ')
-            }
-
-            withStyle(
-                accountStyle.toSpanStyle()
-            ) {
-                append("($accountName)")
-            }
-        }, modifier = modifier, overflow = TextOverflow.Ellipsis
-    )
 }
 
 @Preview

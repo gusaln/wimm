@@ -4,6 +4,7 @@
 
 package me.gustavolopezxyz.common.db
 
+import com.squareup.sqldelight.runtime.coroutines.asFlow
 import kotlinx.datetime.Clock
 import me.gustavolopezxyz.common.data.Database
 import me.gustavolopezxyz.common.data.MoneyTransaction
@@ -15,8 +16,11 @@ class TransactionRepository : KoinComponent {
     private val queries = db.transactionQueries
 
     fun get(offset: Long = 0, limit: Long = 15): List<MoneyTransaction> {
-        return queries.selectPaginated(limit, offset).executeAsList()
+        return queries.selectTransactions(limit, offset).executeAsList()
     }
+
+    fun getAsFlow(offset: Long = 0, limit: Long = 15) =
+        queries.selectTransactions(offset = offset, limit = limit).asFlow()
 
     fun findById(id: Long): MoneyTransaction? {
         return queries.selectById(id).executeAsOneOrNull()

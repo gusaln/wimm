@@ -8,7 +8,9 @@ import androidx.compose.material.SnackbarHostState
 import me.gustavolopezxyz.common.ConfigFactory
 import me.gustavolopezxyz.common.db.DatabaseFactory
 import me.gustavolopezxyz.common.services.BackupService
+import me.gustavolopezxyz.common.ui.AccountSummaryViewModel
 import me.gustavolopezxyz.common.ui.EditTransactionViewModel
+import me.gustavolopezxyz.common.ui.TransactionsListViewModel
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
@@ -34,5 +36,13 @@ actual fun platformModule(): Module = module {
 
     factory {
         EditTransactionViewModel()
+    }
+
+    factory { (accountId: Long) ->
+        AccountSummaryViewModel(accountId)
+    }
+
+    factory {
+        TransactionsListViewModel()
     }
 }

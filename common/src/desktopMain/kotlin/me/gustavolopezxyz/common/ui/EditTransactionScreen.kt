@@ -27,8 +27,9 @@ import me.gustavolopezxyz.common.db.CategoryRepository
 import me.gustavolopezxyz.common.db.EntryRepository
 import me.gustavolopezxyz.common.db.TransactionRepository
 import me.gustavolopezxyz.common.ext.toCurrency
-import me.gustavolopezxyz.db.SelectEntriesFromTransaction
+import me.gustavolopezxyz.db.SelectEntriesForTransaction
 import org.koin.core.component.KoinComponent
+import org.koin.core.parameter.parametersOf
 import org.koin.java.KoinJavaComponent.inject
 
 class EditTransactionViewModel : KoinComponent {
@@ -45,13 +46,13 @@ class EditTransactionViewModel : KoinComponent {
 
     fun getCategories() = categoriesRepository.getAll()
 
-    fun getEntries(transactionId: Long) = entriesRepository.getByRecordId(transactionId)
+    fun getEntries() = entriesRepository.getAllForTransaction(transactionId)
 
     suspend fun editTransaction(
         transactionId: Long,
         categoryId: Long,
         description: String,
-        entryMap: Map<Long, SelectEntriesFromTransaction>,
+        entryMap: Map<Long, SelectEntriesForTransaction>,
         toCreate: Collection<NewEntryDto>,
         toModify: Collection<EditEntryDto>,
     ) {
@@ -278,7 +279,7 @@ fun EditTransactionScreen(navController: NavController, transactionRecordId: Lon
 @Composable
 private fun TransactionCurrentEntriesSection(
     accounts: List<Account>,
-    entries: List<SelectEntriesFromTransaction>,
+    entries: List<SelectEntriesForTransaction>,
     toModify: SnapshotStateList<EditEntryDto>,
 ) {
     var editEntryDto by remember { mutableStateOf<EditEntryDto?>(null) }

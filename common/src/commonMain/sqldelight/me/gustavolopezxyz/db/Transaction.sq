@@ -1,5 +1,14 @@
-selectPaginated:
-SELECT * FROM moneyTransaction LIMIT :limit, :offset;
+selectTransactions:
+SELECT * FROM moneyTransaction LIMIT :offset, :limit;
+
+selectTransactionsInCategory:
+SELECT moneyTransaction.*
+FROM
+    moneyTransaction
+    JOIN category ON moneyTransaction.categoryId = category.categoryId
+WHERE
+    moneyTransaction.categoryId = :categoryId OR category.parentCategoryId = :categoryId
+LIMIT :offset, :limit;
 
 selectById:
 SELECT * FROM moneyTransaction WHERE transactionId = :transactionId;

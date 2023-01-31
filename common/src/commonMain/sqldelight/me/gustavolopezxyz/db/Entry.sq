@@ -10,14 +10,25 @@ JOIN moneyTransaction USING (transactionId)
 ORDER BY incurredAt DESC
 LIMIT :offset, :limit;
 
-selectEntriesFromTransaction:
+selectEntriesForTransaction:
 SELECT
     entry.*,
     account.name AS accountName,
     account.currency AS currency
 FROM entry
 JOIN account USING (accountId)
-WHERE transactionId = :transactionId;
+WHERE transactionId IN ?
+ORDER BY incurredAt DESC;
+
+selectEntriesForAccount:
+SELECT
+    entry.*,
+    moneyTransaction.description AS transactionDescription
+FROM entry
+JOIN moneyTransaction USING (transactionId)
+WHERE accountId IN ?
+ORDER BY incurredAt DESC
+LIMIT :offset, :limit;
 
 insertEntry {
     INSERT INTO entry(accountId, transactionId, amount, incurredAt, recordedAt)

@@ -5,7 +5,6 @@
 package me.gustavolopezxyz.common.data
 
 import kotlinx.datetime.Instant
-import me.gustavolopezxyz.common.ext.toMoney
 
 data class CategoryWithParent(
     val categoryId: Long,
@@ -24,16 +23,23 @@ data class CategoryWithParent(
     fun fullname() = if (parentCategoryName != null) "$parentCategoryName / $name" else name
 }
 
-data class DenormalizedEntry(
+data class EntryForTransaction(
     val entryId: Long,
     val transactionId: Long,
-    val transactionDescription: String,
     val accountId: Long,
     val accountName: String,
     val currency: String,
     val amount: Double,
     val incurredAt: Instant,
     val recordedAt: Instant,
-) {
-    val amountAsMoney get() = amount.toMoney(currency)
-}
+)
+
+data class EntryForAccount(
+    val entryId: Long,
+    val transactionId: Long,
+    val transactionDescription: String,
+    val accountId: Long,
+    val amount: Double,
+    val incurredAt: Instant,
+    val recordedAt: Instant,
+)

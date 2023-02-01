@@ -30,6 +30,7 @@ import me.gustavolopezxyz.common.db.EntryRepository
 import me.gustavolopezxyz.common.db.TransactionRepository
 import me.gustavolopezxyz.common.ext.toCurrency
 import me.gustavolopezxyz.common.ext.toSimpleFormat
+import me.gustavolopezxyz.common.ui.core.MoneyText
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 

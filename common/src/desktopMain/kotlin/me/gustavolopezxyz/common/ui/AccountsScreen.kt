@@ -5,24 +5,33 @@
 package me.gustavolopezxyz.common.ui
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.material.Button
+import androidx.compose.material.Card
+import androidx.compose.material.SnackbarHostState
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.squareup.sqldelight.runtime.coroutines.mapToList
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import me.gustavolopezxyz.common.Constants
-import me.gustavolopezxyz.common.data.*
+import me.gustavolopezxyz.common.data.Account
+import me.gustavolopezxyz.common.data.AccountType
+import me.gustavolopezxyz.common.data.Currency
+import me.gustavolopezxyz.common.data.UnknownAccount
 import me.gustavolopezxyz.common.db.AccountRepository
+import me.gustavolopezxyz.common.ui.core.ScreenTitle
 import org.koin.java.KoinJavaComponent.inject
 
-@OptIn(DelicateCoroutinesApi::class)
 @Composable
 fun AccountsScreen() {
     val accountRepository by inject<AccountRepository>(AccountRepository::class.java)
     val accounts by accountRepository.allAsFlow().mapToList().collectAsState(listOf(), Dispatchers.IO)
     val snackbar by inject<SnackbarHostState>(SnackbarHostState::class.java)
+
+    val scope = rememberCoroutineScope()
 
     var isCreatingOpen by remember { mutableStateOf(false) }
 
@@ -31,7 +40,7 @@ fun AccountsScreen() {
     fun createAccount(name: String, type: AccountType, currency: Currency) {
         isCreatingOpen = false
 
-        GlobalScope.launch(Dispatchers.IO) {
+        scope.launch(Dispatchers.IO) {
             accountRepository.create(type, name, currency)
 
             snackbar.showSnackbar("The account was created")
@@ -42,7 +51,7 @@ fun AccountsScreen() {
         val modified = editing!!.copy()
         editing = null
 
-        GlobalScope.launch(Dispatchers.IO) {
+        scope.launch(Dispatchers.IO) {
             accountRepository.update(accounts.find { it.accountId == modified.accountId }!!, modified)
 
             snackbar.showSnackbar("The account was modified")

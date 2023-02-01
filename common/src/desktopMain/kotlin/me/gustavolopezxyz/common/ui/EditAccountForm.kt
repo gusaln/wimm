@@ -19,6 +19,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import me.gustavolopezxyz.common.Constants
 import me.gustavolopezxyz.common.data.Account
+import me.gustavolopezxyz.common.ui.core.FormTitle
+
 
 @Preview
 @Composable
@@ -28,7 +30,7 @@ fun EditAccountForm(
     onEdit: () -> Unit,
     onCancel: () -> Unit = {}
 ) {
-    var isTypeDropDownExpanded by remember { mutableStateOf(false) }
+    var isTypeDropDownExpanded by remember(onEdit) { mutableStateOf(false) }
 
     Column(
         verticalArrangement = Arrangement.spacedBy(Constants.Size.Field.dp)
@@ -52,16 +54,16 @@ fun EditAccountForm(
                 OutlinedTextField(value = value.type.name,
                     onValueChange = {},
                     label = {
-                        Text("Type", modifier = Modifier.clickable(true) {
+                        Text("Type", modifier = Modifier.clickable {
                             isTypeDropDownExpanded = !isTypeDropDownExpanded
                         })
                     },
                     modifier = Modifier.fillMaxWidth(),
                     trailingIcon = {
                         Icon(
-                            imageVector = Icons.Filled.ArrowDropDown,
+                            imageVector = Icons.Default.ArrowDropDown,
                             contentDescription = "dropdown icon",
-                            modifier = Modifier.clickable(true) {
+                            modifier = Modifier.clickable {
                                 isTypeDropDownExpanded = !isTypeDropDownExpanded
                             }
                         )

@@ -12,6 +12,8 @@ import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
@@ -31,14 +33,16 @@ fun AccountDropdown(
     modifier: Modifier = Modifier,
     anchor: @Composable (() -> Unit),
 ) {
-    Box {
-        Row(modifier = modifier) {
+    val onClickAccount by rememberUpdatedState(onClick)
+
+    Box(modifier = modifier) {
+        Row() {
             anchor()
 
             DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { onExpandedChange(false) },
-                modifier = Modifier.widthIn(200.dp, 450.dp)
+                modifier = Modifier.widthIn(300.dp, 450.dp)
             ) {
                 accounts.forEach {
                     val isSelected = it.accountId == value?.accountId
@@ -53,7 +57,7 @@ fun AccountDropdown(
                     }
 
                     DropdownMenuItem(onClick = {
-                        onClick(it)
+                        onClickAccount(it)
                         onExpandedChange(false)
                     }) {
                         Text(buildAnnotatedString {

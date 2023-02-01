@@ -12,14 +12,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.squareup.sqldelight.runtime.coroutines.mapToList
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import me.gustavolopezxyz.common.Constants
-import me.gustavolopezxyz.common.data.*
+import me.gustavolopezxyz.common.data.CategoryWithParent
+import me.gustavolopezxyz.common.data.MissingCategory
+import me.gustavolopezxyz.common.data.toDto
 import me.gustavolopezxyz.common.db.CategoryRepository
+import me.gustavolopezxyz.common.ui.core.FormTitle
+import me.gustavolopezxyz.common.ui.core.ScreenTitle
 import org.koin.java.KoinJavaComponent.inject
 
-@OptIn(DelicateCoroutinesApi::class)
 @Composable
 fun CategoriesScreen() {
     val categoryRepository by inject<CategoryRepository>(CategoryRepository::class.java)
@@ -28,6 +32,8 @@ fun CategoriesScreen() {
     }.collectAsState(emptyList(), Dispatchers.IO)
     val snackbar by inject<SnackbarHostState>(SnackbarHostState::class.java)
 
+    val scope = rememberCoroutineScope()
+
     var isCreatingOpen by remember { mutableStateOf(false) }
     var editing by remember { mutableStateOf<CategoryWithParent?>(null) }
     var deleting by remember { mutableStateOf<CategoryWithParent?>(null) }
@@ -35,7 +41,7 @@ fun CategoriesScreen() {
     fun createCategory(name: String, parentCategoryId: Long?) {
         isCreatingOpen = false
 
-        GlobalScope.launch(Dispatchers.IO) {
+        scope.launch(Dispatchers.IO) {
             categoryRepository.create(name, parentCategoryId)
 
             snackbar.showSnackbar("The category was created")
@@ -46,7 +52,7 @@ fun CategoriesScreen() {
         val modified = editing!!.toCategory()
         editing = null
 
-        GlobalScope.launch(Dispatchers.IO) {
+        scope.launch(Dispatchers.IO) {
             categoryRepository.update(
                 categories.find { it.categoryId == modified.categoryId }?.toCategory()!!, modified
             )
@@ -60,7 +66,7 @@ fun CategoriesScreen() {
         deleting = null
 
         if (categoryRepository.countTransactions(category.categoryId) > 0) {
-            GlobalScope.launch {
+            scope.launch {
                 snackbar.showSnackbar("The category ${category.name} has transactions and can't be deleted")
             }
 
@@ -68,14 +74,14 @@ fun CategoriesScreen() {
         }
 
         if (categoryRepository.countChildren(category.categoryId) > 0) {
-            GlobalScope.launch {
+            scope.launch {
                 snackbar.showSnackbar("The category ${category.name} has children and can't be deleted")
             }
 
             return
         }
 
-        GlobalScope.launch(Dispatchers.IO) {
+        scope.launch(Dispatchers.IO) {
             categoryRepository.delete(category.categoryId)
 
             snackbar.showSnackbar("The category ${category.name} was deleted")

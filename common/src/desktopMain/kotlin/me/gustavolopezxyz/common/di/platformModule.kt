@@ -9,6 +9,7 @@ import me.gustavolopezxyz.common.ConfigFactory
 import me.gustavolopezxyz.common.db.DatabaseFactory
 import me.gustavolopezxyz.common.services.BackupService
 import me.gustavolopezxyz.common.ui.AccountSummaryViewModel
+import me.gustavolopezxyz.common.ui.CreateTransactionViewModel
 import me.gustavolopezxyz.common.ui.EditTransactionViewModel
 import me.gustavolopezxyz.common.ui.TransactionsListViewModel
 import org.koin.core.module.Module
@@ -34,8 +35,8 @@ actual fun platformModule(): Module = module {
         BackupService(get())
     }
 
-    factory {
-        EditTransactionViewModel()
+    factory { (transactionId: Long) ->
+        EditTransactionViewModel(transactionId)
     }
 
     factory { (accountId: Long) ->
@@ -44,5 +45,9 @@ actual fun platformModule(): Module = module {
 
     factory {
         TransactionsListViewModel()
+    }
+
+    factory {
+        CreateTransactionViewModel()
     }
 }

@@ -4,22 +4,21 @@ import kotlinx.datetime.*
 import me.gustavolopezxyz.common.data.Account
 import me.gustavolopezxyz.common.data.Entry
 import me.gustavolopezxyz.common.ext.currentTz
-import me.gustavolopezxyz.common.ext.getRandomString
 import me.gustavolopezxyz.db.SelectEntriesForTransaction
 
 
 data class NewEntryDto(
-    val uid: String = getRandomString(8),
+    val id: Long = -Clock.System.now().toEpochMilliseconds(),
     val account: Account? = null,
     val amount: Double = 0.0,
     val incurredAt: LocalDate,
     val recordedAt: LocalDate = incurredAt
 )
 
-fun makeEmptyNewEntryDto() = NewEntryDto(incurredAt = Clock.System.now().toLocalDateTime(currentTz()).date)
+fun emptyNewEntryDto() = NewEntryDto(incurredAt = Clock.System.now().toLocalDateTime(currentTz()).date)
 
 
-data class EditEntryDto(
+data class ModifiedEntryDto(
     val id: Long,
     val accountId: Long,
     val accountName: String,
@@ -68,8 +67,8 @@ data class EditEntryDto(
     )
 }
 
-fun makeEditEntryDtoFrom(entry: SelectEntriesForTransaction): EditEntryDto {
-    return EditEntryDto(
+fun modifiedEntryDto(entry: SelectEntriesForTransaction): ModifiedEntryDto {
+    return ModifiedEntryDto(
         id = entry.entryId,
         accountId = entry.accountId,
         accountName = entry.accountName,

@@ -10,14 +10,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.squareup.sqldelight.runtime.coroutines.mapToList
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.datetime.atTime
@@ -27,40 +26,41 @@ import me.gustavolopezxyz.common.db.AccountRepository
 import me.gustavolopezxyz.common.db.CategoryRepository
 import me.gustavolopezxyz.common.db.EntryRepository
 import me.gustavolopezxyz.common.db.TransactionRepository
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import org.koin.java.KoinJavaComponent.inject
 
-@OptIn(DelicateCoroutinesApi::class)
-@Composable
-fun CreateTransactionScreen(navController: NavController) {
-    val db by remember { inject<Database>(Database::class.java) }
-    val accountRepository by remember { inject<AccountRepository>(AccountRepository::class.java) }
-    val categoryRepository by remember { inject<CategoryRepository>(CategoryRepository::class.java) }
-    val transactionRepository by remember { inject<TransactionRepository>(TransactionRepository::class.java) }
-    val entriesRepository by remember { inject<EntryRepository>(EntryRepository::class.java) }
-    val snackbar by remember { inject<SnackbarHostState>(SnackbarHostState::class.java) }
+class CreateTransactionViewModel : KoinComponent {
+    private val db: Database by inject()
+    private val accountRepository: AccountRepository by inject()
+    private val categoryRepository: CategoryRepository by inject()
+    private val transactionRepository: TransactionRepository by inject()
+    private val entriesRepository: EntryRepository by inject()
+    val snackbar: SnackbarHostState by inject()
 
-    val accounts by accountRepository.allAsFlow().mapToList().collectAsState(listOf())
-    val categories by categoryRepository.allAsFlow().mapToList().map { list ->
-        list.map { it.toDto() }
-    }.collectAsState(listOf())
+    @Composable
+    fun getAccounts() = accountRepository.allAsFlow().mapToList().collectAsState(emptyList())
 
-    var description by remember { mutableStateOf("") }
-    var category by remember { mutableStateOf<CategoryWithParent?>(null) }
-    val entries = remember { mutableStateListOf<NewEntryDto>() }
-    var newEntryDto by remember { mutableStateOf(makeEmptyNewEntryDto()) }
-    var isCategoryDropdownExpanded by remember { mutableStateOf(false) }
+    @Composable
+    fun getCategories() = categoryRepository.allAsFlow().mapToList().map { list ->
+        list.map { it.toDto() }.sortedBy { it.fullname() }
+    }.collectAsState(emptyList())
 
-    fun createTransaction(description: String, entries: List<NewEntryDto>) {
+    suspend fun createTransaction(description: String, category: Category, entries: List<NewEntryDto>) {
         if (description.trim().isEmpty()) {
-            GlobalScope.launch {
-                snackbar.showSnackbar("You need a description")
-            }
+            snackbar.showSnackbar("You need a description")
+
+            return
+        }
+
+        if (entries.isEmpty()) {
+            snackbar.showSnackbar("You need to add at least one entry")
 
             return
         }
 
         db.transaction {
-            val number = transactionRepository.create(category!!.categoryId, description.trim())
+            val number = transactionRepository.create(category.categoryId, description.trim())
             val transactionId = transactionRepository.findByReference(number)!!.transactionId
 
             entries.forEach {
@@ -72,29 +72,41 @@ fun CreateTransactionScreen(navController: NavController) {
                     it.recordedAt.atTime(0, 0)
                 )
             }
-
-            GlobalScope.launch {
-                snackbar.showSnackbar("Transaction recorded")
-            }
-
-            navController.navigateBack()
         }
+
+        snackbar.showSnackbar("Transaction recorded")
     }
+}
+
+@Composable
+fun CreateTransactionScreen(onCreate: () -> Unit = {}, onCancel: (() -> Unit)? = null) {
+    val viewModel by remember { inject<CreateTransactionViewModel>(CreateTransactionViewModel::class.java) }
+
+    val scope = rememberCoroutineScope()
+
+    val accounts by viewModel.getAccounts()
+    val categories by viewModel.getCategories()
+
+    var description by remember { mutableStateOf("") }
+    var category by remember { mutableStateOf<CategoryWithParent?>(null) }
+    val entries = remember { mutableStateListOf<NewEntryDto>() }
+    var isCategoryDropdownExpanded by remember { mutableStateOf(false) }
 
     fun handleCreate() {
-        if (entries.size < 1) {
-            GlobalScope.launch {
-                snackbar.showSnackbar("You need to add at least one entry")
+        if (category == null) {
+            scope.launch {
+                viewModel.snackbar.showSnackbar("You need to select a category")
             }
         } else {
-            createTransaction(description, entries)
+            scope.launch {
+                viewModel.createTransaction(description, category!!.toCategory(), entries)
+                onCreate()
+            }
         }
     }
 
-
-    fun handleAddEntry(entry: NewEntryDto) {
-        entries.add(entry)
-        newEntryDto = makeEmptyNewEntryDto()
+    fun handleAddEntry() {
+        entries.add(emptyNewEntryDto())
     }
 
     fun handleReset() {
@@ -123,11 +135,12 @@ fun CreateTransactionScreen(navController: NavController) {
             onSelect = { category = it },
             categories = categories
         ) {
-            Row {
-                OutlinedTextField(value = category?.name ?: "none",
+            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                OutlinedTextField(
+                    value = category?.fullname() ?: "-",
                     onValueChange = {},
                     label = {
-                        Text("Subcategory of", modifier = Modifier.clickable(true) {
+                        Text("Category", modifier = Modifier.clickable(true) {
                             isCategoryDropdownExpanded = !isCategoryDropdownExpanded
                         })
                     },
@@ -147,12 +160,25 @@ fun CreateTransactionScreen(navController: NavController) {
         Spacer(modifier = Modifier.fillMaxWidth())
 
         NewEntriesList(
+            accounts = accounts,
             entries = entries,
             onEdit = { entry ->
-                entries.removeIf { entry.uid == it.uid }
-                newEntryDto = entry
+                entries[entries.indexOfFirst { entry.id == it.id }] = entry
             },
-            onDelete = { entry -> entries.removeIf { entry.uid == it.uid } }
+            onDelete = { entry -> entries.removeIf { entry.id == it.id } },
+            name = {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Entries", style = MaterialTheme.typography.h5)
+
+                    IconButton(onClick = ::handleAddEntry) {
+                        Icon(Icons.Default.Add, "add new entry")
+                    }
+                }
+            }
         ) {
             val totalsByCurrency by remember {
                 derivedStateOf {
@@ -171,26 +197,12 @@ fun CreateTransactionScreen(navController: NavController) {
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
+            horizontalArrangement = Arrangement.spacedBy(Constants.Size.Small.dp, Alignment.End)
         ) {
             Button(onClick = ::handleCreate) { Text("Create") }
             TextButton(onClick = ::handleReset) { Text("Reset") }
-        }
-
-        Spacer(modifier = Modifier.fillMaxWidth())
-
-        AddEntryForm(
-            value = newEntryDto,
-            onValueChanged = { newEntryDto = it },
-            accounts = accounts
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
-            ) {
-                Button(onClick = { handleAddEntry(newEntryDto) }) { Text("Add") }
-
-                TextButton(onClick = { newEntryDto = makeEmptyNewEntryDto() }) { Text("Reset") }
+            if (onCancel != null) {
+                TextButton(onClick = onCancel) { Text("Cancel") }
             }
         }
     }

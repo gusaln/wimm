@@ -2,7 +2,7 @@
  * Copyright (c) 2023. Gustavo López. All rights reserved.
  */
 
-package me.gustavolopezxyz.common.ui
+package me.gustavolopezxyz.common.ui.core
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.*
@@ -13,17 +13,11 @@ import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.style.BaselineShift
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toLocalDateTime
 import me.gustavolopezxyz.common.Constants
-import me.gustavolopezxyz.common.data.Currency
 import me.gustavolopezxyz.common.ext.currentTz
 
 
@@ -48,6 +42,7 @@ fun OutlinedDateTextField(
     date: LocalDate,
     onValueChange: (date: LocalDate) -> Unit,
     modifier: Modifier = Modifier,
+    readOnly: Boolean = false,
     label: @Composable (() -> Unit)? = null,
     placeholder: @Composable (() -> Unit)? = null,
 ) {
@@ -70,7 +65,7 @@ fun OutlinedDateTextField(
             onValueChange(LocalDate(year, month, dayOfMonth))
 
             dateString = "%04d/%02d/%02d".format(year, month, dayOfMonth)
-        }, modifier = modifier, label = label, placeholder = placeholder, singleLine = true
+        }, modifier = modifier, label = label, placeholder = placeholder, singleLine = true, readOnly = readOnly
     )
 }
 
@@ -80,6 +75,7 @@ fun OutlinedDoubleField(
     onValueChange: (Double) -> Unit,
     decimals: Int = 2,
     modifier: Modifier = Modifier,
+    readOnly: Boolean = false,
     label: @Composable (() -> Unit)? = null,
     placeholder: @Composable (() -> Unit)? = null,
 ) {
@@ -99,6 +95,7 @@ fun OutlinedDoubleField(
         label = label,
         placeholder = placeholder,
         singleLine = true,
+        readOnly = readOnly,
         colors = TextFieldDefaults.outlinedTextFieldColors(
             textColor = if (isNegative) Color.Red else Color.Unspecified
         )
@@ -119,44 +116,6 @@ fun RegularLayout(menu: @Composable() (() -> Unit)? = null, content: @Composable
             content()
         }
     }
-}
-
-@Composable
-fun MoneyText(
-    amount: Double,
-    currency: Currency,
-    modifier: Modifier = Modifier,
-    positiveColor: Color = Color.Unspecified,
-    negativeColor: Color = Color.Red,
-    commonStyle: TextStyle = TextStyle.Default,
-    valueStyle: TextStyle = TextStyle.Default.copy(fontSize = 1.3.em),
-    currencyStyle: TextStyle = TextStyle(
-        color = Color.Gray,
-        fontSize = MaterialTheme.typography.caption.fontSize,
-        baselineShift = BaselineShift.Subscript
-    )
-) {
-    val amountColor = if (amount < 0) {
-        negativeColor
-    } else {
-        positiveColor
-    }
-
-    Text(buildAnnotatedString {
-        withStyle(
-            valueStyle.copy(color = amountColor).toSpanStyle()
-        ) { append("%.2f".format(amount)) }
-
-        append(' ')
-
-        withStyle(
-            currencyStyle.toSpanStyle()
-        ) {
-            append(
-                currency.toString()
-            )
-        }
-    }, modifier = modifier, style = commonStyle)
 }
 
 @Preview

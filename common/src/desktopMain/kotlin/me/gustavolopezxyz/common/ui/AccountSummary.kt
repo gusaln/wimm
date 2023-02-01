@@ -25,6 +25,7 @@ import me.gustavolopezxyz.common.data.toEntryForAccount
 import me.gustavolopezxyz.common.db.AccountRepository
 import me.gustavolopezxyz.common.db.EntryRepository
 import me.gustavolopezxyz.common.ext.toSimpleFormat
+import me.gustavolopezxyz.common.ui.core.MoneyText
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 

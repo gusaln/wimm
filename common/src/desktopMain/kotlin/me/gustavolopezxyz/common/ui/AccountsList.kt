@@ -22,6 +22,7 @@ import me.gustavolopezxyz.common.Constants
 import me.gustavolopezxyz.common.data.Account
 import me.gustavolopezxyz.common.data.AccountType
 import me.gustavolopezxyz.common.ext.toCurrency
+import me.gustavolopezxyz.common.ui.core.MoneyText
 
 
 @Composable
@@ -46,7 +47,6 @@ fun AccountsListCard(account: Account, onSelect: (Account) -> Unit) {
             }
 
             Spacer(modifier = Modifier.fillMaxWidth())
-
 
             MoneyText(
                 account.balance,

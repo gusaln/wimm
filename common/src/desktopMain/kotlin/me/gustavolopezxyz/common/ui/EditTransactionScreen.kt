@@ -10,12 +10,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import kotlinx.coroutines.*
@@ -27,20 +26,22 @@ import me.gustavolopezxyz.common.db.CategoryRepository
 import me.gustavolopezxyz.common.db.EntryRepository
 import me.gustavolopezxyz.common.db.TransactionRepository
 import me.gustavolopezxyz.common.ext.toCurrency
+import me.gustavolopezxyz.common.ext.toMoney
+import me.gustavolopezxyz.common.ui.core.ScreenTitle
 import me.gustavolopezxyz.db.SelectEntriesForTransaction
 import org.koin.core.component.KoinComponent
 import org.koin.core.parameter.parametersOf
 import org.koin.java.KoinJavaComponent.inject
 
-class EditTransactionViewModel : KoinComponent {
+class EditTransactionViewModel(val transactionId: Long) : KoinComponent {
     private val db by inject<Database>(Database::class.java)
     private val accountRepository by inject<AccountRepository>(AccountRepository::class.java)
     private val categoriesRepository by inject<CategoryRepository>(CategoryRepository::class.java)
     private val transactionRepository by inject<TransactionRepository>(TransactionRepository::class.java)
     private val entriesRepository by inject<EntryRepository>(EntryRepository::class.java)
-    private val snackbar by inject<SnackbarHostState>(SnackbarHostState::class.java)
+    val snackbar by inject<SnackbarHostState>(SnackbarHostState::class.java)
 
-    fun getTransaction(transactionId: Long) = transactionRepository.findById(transactionId)
+    fun getTransaction() = transactionRepository.findById(transactionId)
 
     fun getAccounts() = accountRepository.getAll()
 
@@ -54,7 +55,7 @@ class EditTransactionViewModel : KoinComponent {
         description: String,
         entryMap: Map<Long, SelectEntriesForTransaction>,
         toCreate: Collection<NewEntryDto>,
-        toModify: Collection<EditEntryDto>,
+        toModify: Collection<ModifiedEntryDto>,
     ) {
         if (description.trim().isEmpty()) {
             snackbar.showSnackbar("You need a description")
@@ -95,8 +96,6 @@ class EditTransactionViewModel : KoinComponent {
                 )
             }
         }
-
-        snackbar.showSnackbar("Transaction modified")
     }
 
     fun deleteTransaction(transactionId: Long) {
@@ -106,10 +105,16 @@ class EditTransactionViewModel : KoinComponent {
 
 @OptIn(DelicateCoroutinesApi::class)
 @Composable
-fun EditTransactionScreen(navController: NavController, transactionRecordId: Long) {
-    val viewModel by remember { inject<EditTransactionViewModel>(EditTransactionViewModel::class.java) }
+fun EditTransactionScreen(navController: NavController, transactionId: Long) {
+    val viewModel by remember {
+        inject<EditTransactionViewModel>(EditTransactionViewModel::class.java) {
+            parametersOf(transactionId)
+        }
+    }
 
-    val transaction by remember { mutableStateOf(viewModel.getTransaction(transactionRecordId)) }
+    val scope = rememberCoroutineScope()
+
+    val transaction by remember { mutableStateOf(viewModel.getTransaction()) }
     if (transaction == null) {
         Column(
             modifier = Modifier.fillMaxWidth(),
@@ -123,7 +128,7 @@ fun EditTransactionScreen(navController: NavController, transactionRecordId: Lon
             }
 
             Card(modifier = Modifier.widthIn(200.dp, 400.dp).padding(Constants.Size.Medium.dp)) {
-                Text("Transaction ID $transactionRecordId not found")
+                Text("Transaction ID $transactionId not found")
             }
         }
 
@@ -133,13 +138,13 @@ fun EditTransactionScreen(navController: NavController, transactionRecordId: Lon
     val accounts = remember { viewModel.getAccounts() }
     val categories = remember { viewModel.getCategories().map { it.toDto() } }
     val entryMap = remember {
-        viewModel.getEntries(transaction!!.transactionId).associateBy { it.entryId }
+        viewModel.getEntries().associateBy { it.entryId }
     }
 
     val toCreate = remember { mutableStateListOf<NewEntryDto>() }
     val toModify = remember {
         entryMap.map { entry ->
-            makeEditEntryDtoFrom(entry.value)
+            modifiedEntryDto(entry.value)
         }.toMutableStateList()
     }
 
@@ -153,15 +158,12 @@ fun EditTransactionScreen(navController: NavController, transactionRecordId: Lon
     var isCategoryDropdownExpanded by remember { mutableStateOf(false) }
 
     fun editRecord() {
-        GlobalScope.launch(Dispatchers.IO) {
+        scope.launch(Dispatchers.IO) {
             viewModel.editTransaction(
-                transaction!!.transactionId,
-                category.categoryId,
-                description,
-                entryMap,
-                toCreate,
-                toModify
+                transaction!!.transactionId, category.categoryId, description, entryMap, toCreate, toModify
             )
+
+            launch { viewModel.snackbar.showSnackbar("Transaction modified") }
 
             navController.navigateBack()
         }
@@ -170,8 +172,10 @@ fun EditTransactionScreen(navController: NavController, transactionRecordId: Lon
     fun deleteTransaction() {
         isConfirmingDelete = false
 
-        GlobalScope.launch(Dispatchers.IO) {
+        scope.launch(Dispatchers.IO) {
             viewModel.deleteTransaction(transaction!!.transactionId)
+
+            launch { viewModel.snackbar.showSnackbar("Transaction deleted") }
 
             navController.navigateBack()
         }
@@ -233,37 +237,88 @@ fun EditTransactionScreen(navController: NavController, transactionRecordId: Lon
             categories = categories
         ) {
             Row {
-                OutlinedTextField(value = category.fullname(),
-                    onValueChange = {},
-                    label = {
-                        Text("Subcategory of", modifier = Modifier.clickable(true) {
+                OutlinedTextField(value = category.fullname(), onValueChange = {}, label = {
+                    Text("Category", modifier = Modifier.clickable(true) {
+                        isCategoryDropdownExpanded = !isCategoryDropdownExpanded
+                    })
+                }, modifier = Modifier.fillMaxWidth(), readOnly = true, trailingIcon = {
+                    Icon(imageVector = Icons.Filled.ArrowDropDown,
+                        contentDescription = "dropdown icon",
+                        modifier = Modifier.clickable(true) {
                             isCategoryDropdownExpanded = !isCategoryDropdownExpanded
                         })
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    readOnly = true,
-                    trailingIcon = {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowDropDown,
-                            contentDescription = "dropdown icon",
-                            modifier = Modifier.clickable(true) {
-                                isCategoryDropdownExpanded = !isCategoryDropdownExpanded
-                            }
-                        )
-                    })
+                })
             }
         }
 
         Spacer(modifier = Modifier.fillMaxWidth())
 
-        TransactionCurrentEntriesSection(accounts, entryMap.values.toList(), toModify)
+        ModifiedEntriesList(
+            accounts = accounts,
+            entries = toModify,
+            onEdit = { entry ->
+                toModify[toModify.indexOfFirst { entry.id == it.id }] = entry
+            },
+            onDelete = { entry -> toModify[toModify.indexOfFirst { entry.id == it.id }] = entry.delete() },
+            onRestore = { entry -> toModify[toModify.indexOfFirst { entry.id == it.id }] = entry.restore() },
+            name = {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Modified entries", style = MaterialTheme.typography.h5)
+                }
+            }
+        )
 
-        Spacer(modifier = Modifier.fillMaxWidth())
+        NewEntriesList(
+            accounts = accounts,
+            entries = toCreate,
+            onEdit = { entry ->
+                toCreate[toCreate.indexOfFirst { entry.id == it.id }] = entry
+            },
+            onDelete = { entry -> toCreate.removeIf { entry.id == it.id } },
+            name = {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("New entries", style = MaterialTheme.typography.h5)
 
-        // New entries
-        TransactionNewEntriesSection(accounts, toCreate)
+                    IconButton(onClick = { toCreate.add(emptyNewEntryDto()) }) {
+                        Icon(Icons.Default.Add, "add new entry")
+                    }
+                }
+            }
+        )
 
-        Spacer(modifier = Modifier.fillMaxWidth())
+        val prevTotal by remember {
+            derivedStateOf {
+                entryMap.values.toList().groupBy { entry -> entry.currency.toCurrency() }.mapValues { mapEntry ->
+                    mapEntry.value.map { it.amount }.reduceOrNull { acc, amount -> acc + amount } ?: 0.0
+                }
+            }
+        }
+
+        val newTotal by remember {
+            derivedStateOf {
+                val amountsByCurrency = mutableMapOf<Currency, MutableList<Money>>()
+
+                toModify.filter { !it.toDelete }.map { it.amount.toMoney(it.currency) }
+                    .groupByTo(amountsByCurrency) { it.currency }
+                toCreate.map { it.amount.toMoney((it.account ?: MissingAccount).currency) }
+                    .groupByTo(amountsByCurrency) { it.currency }
+
+                amountsByCurrency.mapValues { mapEntry ->
+                    mapEntry.value.map { it.value }.reduceOrNull { acc, amount -> acc + amount } ?: 0.0
+                }
+            }
+        }
+
+        TotalListItem("Prev. Total", totalsByCurrency = prevTotal)
+        TotalListItem("Modified Total", totalsByCurrency = newTotal)
 
         Row(
             modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
@@ -271,134 +326,6 @@ fun EditTransactionScreen(navController: NavController, transactionRecordId: Lon
             Button(onClick = ::editRecord) { Text("Edit") }
             TextButton(onClick = { navController.navigateBack() }) {
                 Text("Go Back")
-            }
-        }
-    }
-}
-
-@Composable
-private fun TransactionCurrentEntriesSection(
-    accounts: List<Account>,
-    entries: List<SelectEntriesForTransaction>,
-    toModify: SnapshotStateList<EditEntryDto>,
-) {
-    var editEntryDto by remember { mutableStateOf<EditEntryDto?>(null) }
-
-    Row(
-        modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Constants.Size.Medium.dp)
-    ) {
-        // Current, modified, and deleted entries
-        Column(modifier = Modifier.weight(1f)) {
-            EditedEntriesList(entries = toModify, onEdit = { editEntryDto = it }, onDeleteToggle = { entry ->
-                toModify[toModify.indexOf(entry)] = if (entry.toDelete) {
-                    entry.restore()
-                } else {
-                    entry.delete()
-                }
-            }, totals = {
-                val newTotal by remember {
-                    derivedStateOf {
-                        toModify.filter { !it.toDelete }.groupBy { it.currency.toCurrency() }
-                            .mapValues { mapEntry ->
-                                mapEntry.value.map { it.amount }.reduceOrNull { acc, amount -> acc + amount } ?: 0.0
-                            }
-                    }
-                }
-
-                val prevTotal by remember {
-                    derivedStateOf {
-                        entries.groupBy { entry -> entry.currency.toCurrency() }
-                            .mapValues { mapEntry ->
-                                mapEntry.value.map { it.amount }.reduceOrNull { acc, amount -> acc + amount }
-                                    ?: 0.0
-                            }
-                    }
-                }
-
-                TotalListItem("Prev. Total", totalsByCurrency = prevTotal)
-                TotalListItem("Modified Total", totalsByCurrency = newTotal)
-            })
-        }
-
-        // Edit entries form
-        if (editEntryDto != null) {
-            Column(modifier = Modifier.weight(1f)) {
-                EditEntryForm(
-                    value = editEntryDto!!,
-                    onValueChanged = { editEntryDto = it },
-                    accounts = accounts,
-                    onEditEntry = {
-                        toModify[toModify.indexOfFirst { e -> e.id == editEntryDto!!.id }] = editEntryDto!!
-                        editEntryDto = null
-                    },
-                    onCancel = { editEntryDto = null },
-                )
-            }
-        } else {
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text("Select an entry to modify it", color = Color.LightGray)
-            }
-        }
-    }
-}
-
-@Composable
-private fun TransactionNewEntriesSection(
-    accounts: List<Account>, toCreate: SnapshotStateList<NewEntryDto>
-) {
-    var newEntryDto by remember { mutableStateOf<NewEntryDto?>(null) }
-
-    Row(
-        modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Constants.Size.Medium.dp)
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            NewEntriesList(entries = toCreate, onEdit = { entry ->
-                toCreate.removeIf { entry.uid == it.uid }
-                newEntryDto = entry
-            }, onDelete = { entry -> toCreate.removeIf { entry.uid == it.uid } }, name = {
-                Text("New entries", style = MaterialTheme.typography.h5)
-            }) {
-                val totalsByCurrency by remember {
-                    derivedStateOf {
-                        toCreate.groupBy { (it.account ?: MissingAccount).getCurrency() }.mapValues { mapEntry ->
-                            mapEntry.value.map { it.amount }.reduceOrNull { acc, amount -> acc + amount } ?: 0.0
-                        }
-                    }
-                }
-
-                TotalListItem("New entries Total", totalsByCurrency = totalsByCurrency)
-            }
-        }
-
-        // New entries form
-        Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.End) {
-            if (newEntryDto != null) {
-                AddEntryForm(
-                    value = newEntryDto!!, onValueChanged = { newEntryDto = it }, accounts = accounts
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
-                    ) {
-                        Button(onClick = {
-                            toCreate.add(newEntryDto!!)
-                            newEntryDto = null
-                        }) { Text("Add") }
-
-                        TextButton(onClick = { newEntryDto = null }) { Text("Cancel") }
-                    }
-                }
-            } else {
-                Button(
-                    onClick = { newEntryDto = makeEmptyNewEntryDto() },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.secondary)
-                ) {
-                    Text("Add a new entry")
-                }
             }
         }
     }

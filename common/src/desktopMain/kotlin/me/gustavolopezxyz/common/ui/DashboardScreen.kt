@@ -17,12 +17,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Window
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.flow.map
 import me.gustavolopezxyz.common.Constants
 import me.gustavolopezxyz.common.data.CategoryWithParent
 import me.gustavolopezxyz.common.data.toDto
 import me.gustavolopezxyz.common.db.CategoryRepository
+import me.gustavolopezxyz.common.ui.core.RegularLayout
 import org.koin.core.parameter.parametersOf
 import org.koin.java.KoinJavaComponent.inject
 
@@ -43,6 +45,15 @@ fun DashboardScreen(navController: NavController) {
     }.collectAsState(emptyList())
     var categoryFilter by remember { mutableStateOf<CategoryWithParent?>(null) }
     var isCategoryDropdownExpanded by remember { mutableStateOf(false) }
+
+    var isCreateWindowOpen by remember { mutableStateOf(false) }
+    if (isCreateWindowOpen) {
+        Window(onCloseRequest = { isCreateWindowOpen = false }, undecorated = true, title = "Create a transaction") {
+            CreateTransactionScreen(
+                onCreate = { isCreateWindowOpen = false },
+                onCancel = { isCreateWindowOpen = false })
+        }
+    }
 
     RegularLayout(menu = { Text("Empty real state") }) {
         Column(verticalArrangement = Arrangement.spacedBy(Constants.Size.Large.dp)) {
@@ -101,7 +112,7 @@ fun DashboardScreen(navController: NavController) {
                     modifier = Modifier.weight(1f),
                     horizontalArrangement = Arrangement.spacedBy(Constants.Size.Small.dp, Alignment.End)
                 ) {
-                    Button(onClick = { }) { Text("Create entry") }
+                    Button(onClick = { isCreateWindowOpen = true }) { Text("Create entry") }
                 }
             }
 

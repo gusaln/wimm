@@ -98,7 +98,7 @@ class BackupService(private val config: Config) {
             datePart.substring(6, 8).toInt(),
             datePart.substring(8, 10).toInt(),
             datePart.substring(10, 12).toInt(),
-            datePart.substring(12, 13).toInt(),
+            datePart.substring(12, 14).toInt(),
         )
 
         return Backup(file.absolutePath, date)

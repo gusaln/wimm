@@ -15,17 +15,16 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.datetime.atTime
-import me.gustavolopezxyz.common.Constants
 import me.gustavolopezxyz.common.data.*
 import me.gustavolopezxyz.common.db.AccountRepository
 import me.gustavolopezxyz.common.db.CategoryRepository
 import me.gustavolopezxyz.common.db.EntryRepository
 import me.gustavolopezxyz.common.db.TransactionRepository
+import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.koin.java.KoinJavaComponent.inject
@@ -116,8 +115,8 @@ fun CreateTransactionScreen(onCreate: () -> Unit = {}, onCancel: (() -> Unit)? =
 
     val scroll = rememberScrollState()
     Column(
-        modifier = Modifier.fillMaxWidth().verticalScroll(scroll).padding(Constants.Size.Large.dp),
-        verticalArrangement = Arrangement.spacedBy(Constants.Size.Medium.dp)
+        modifier = Modifier.fillMaxWidth().verticalScroll(scroll).padding(AppDimensions.Default.padding.large),
+        verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium)
     ) {
         Text("Create a transaction", style = MaterialTheme.typography.h5)
         OutlinedTextField(modifier = Modifier.fillMaxWidth(),
@@ -197,7 +196,7 @@ fun CreateTransactionScreen(onCreate: () -> Unit = {}, onCancel: (() -> Unit)? =
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(Constants.Size.Small.dp, Alignment.End)
+            horizontalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.small, Alignment.End)
         ) {
             Button(onClick = ::handleCreate) { Text("Create") }
             TextButton(onClick = ::handleReset) { Text("Reset") }

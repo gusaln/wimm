@@ -14,10 +14,9 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import me.gustavolopezxyz.common.Constants
 import me.gustavolopezxyz.common.data.CategoryWithParent
 import me.gustavolopezxyz.common.ui.core.FormTitle
+import me.gustavolopezxyz.common.ui.theme.AppDimensions
 
 @Preview
 @Composable
@@ -45,7 +44,7 @@ fun CreateCategoryForm(
     var isParentDropDownExpanded by remember { mutableStateOf(false) }
 
     Column(
-        verticalArrangement = Arrangement.spacedBy(Constants.Size.Field.dp)
+        verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.fieldSpacing)
     ) {
         FormTitle("Create a Category")
 
@@ -105,7 +104,7 @@ fun CreateCategoryForm(
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(Constants.Size.Medium.dp, Alignment.End)
+            horizontalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium, Alignment.End)
         ) {
             Button(onClick = ::handleCreate) {
                 Text("Create")

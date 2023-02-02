@@ -6,38 +6,43 @@ package me.gustavolopezxyz.common.ui
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.flow.map
-import me.gustavolopezxyz.common.Constants
 import me.gustavolopezxyz.common.data.CategoryWithParent
 import me.gustavolopezxyz.common.data.toDto
+import me.gustavolopezxyz.common.data.toEntryForTransaction
 import me.gustavolopezxyz.common.db.CategoryRepository
 import me.gustavolopezxyz.common.ui.core.RegularLayout
+import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import org.koin.core.parameter.parametersOf
 import org.koin.java.KoinJavaComponent.inject
 
 @Composable
 fun DashboardScreen(navController: NavController) {
     val transactionsListViewModel by remember { inject<TransactionsListViewModel>(TransactionsListViewModel::class.java) }
-
     val accountSummaryViewModel by remember {
         inject<AccountSummaryViewModel>(AccountSummaryViewModel::class.java) {
             // Todo: Change this hard-coded value to a setting
             parametersOf(1)
         }
     }
+
+    val transactions by transactionsListViewModel.getTransactions().mapToList()
+        .collectAsState(emptyList())
+    val entriesByTransaction by transactionsListViewModel.getEntries(transactions.map { it.transactionId }).mapToList()
+        .map { list ->
+            list.map { it.toEntryForTransaction() }.groupBy { it.transactionId }
+        }
+        .collectAsState(emptyMap())
 
     val categoryRepository by remember { inject<CategoryRepository>(CategoryRepository::class.java) }
     val categories by categoryRepository.allAsFlow().mapToList().map { list ->
@@ -46,22 +51,29 @@ fun DashboardScreen(navController: NavController) {
     var categoryFilter by remember { mutableStateOf<CategoryWithParent?>(null) }
     var isCategoryDropdownExpanded by remember { mutableStateOf(false) }
 
-    var isCreateWindowOpen by remember { mutableStateOf(false) }
-    if (isCreateWindowOpen) {
-        Window(onCloseRequest = { isCreateWindowOpen = false }, undecorated = true, title = "Create a transaction") {
-            CreateTransactionScreen(
-                onCreate = { isCreateWindowOpen = false },
-                onCancel = { isCreateWindowOpen = false })
+    var isCreateOpen by remember { mutableStateOf(false) }
+    if (isCreateOpen) {
+        Window(
+            onCloseRequest = { isCreateOpen = false },
+            title = "Create a transaction",
+            undecorated = true,
+        ) {
+            Card(Modifier.fillMaxSize(), shape = RoundedCornerShape(0)) {
+                CreateTransactionScreen(
+                    onCreate = { isCreateOpen = false },
+                    onCancel = { isCreateOpen = false }
+                )
+            }
         }
     }
 
     RegularLayout(menu = { Text("Empty real state") }) {
-        Column(verticalArrangement = Arrangement.spacedBy(Constants.Size.Large.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.large)) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 // Filters
                 Row(
                     modifier = Modifier.weight(2f),
-                    horizontalArrangement = Arrangement.spacedBy(Constants.Size.Small.dp, Alignment.Start)
+                    horizontalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.small, Alignment.Start)
                 ) {
                     CategoryDropdown(
                         expanded = isCategoryDropdownExpanded,
@@ -110,17 +122,17 @@ fun DashboardScreen(navController: NavController) {
                 // Actions
                 Row(
                     modifier = Modifier.weight(1f),
-                    horizontalArrangement = Arrangement.spacedBy(Constants.Size.Small.dp, Alignment.End)
+                    horizontalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.small, Alignment.End)
                 ) {
-                    Button(onClick = { isCreateWindowOpen = true }) { Text("Create entry") }
+                    Button(onClick = { isCreateOpen = true }) { Text("Create entry") }
                 }
             }
 
             Spacer(Modifier.fillMaxWidth())
 
-            Row(horizontalArrangement = Arrangement.spacedBy(Constants.Size.Large.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.large)) {
                 Box(Modifier.weight(1f)) {
-                    TransactionsList(transactionsListViewModel) {
+                    TransactionsList(transactions, entriesByTransaction) {
                         navController.navigate(
                             Screen.EditTransaction.route,
                             Screen.EditTransaction.withArguments(it.transactionId)

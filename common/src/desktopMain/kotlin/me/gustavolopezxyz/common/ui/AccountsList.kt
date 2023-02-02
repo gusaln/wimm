@@ -18,11 +18,11 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import me.gustavolopezxyz.common.Constants
 import me.gustavolopezxyz.common.data.Account
 import me.gustavolopezxyz.common.data.AccountType
 import me.gustavolopezxyz.common.ext.toCurrency
 import me.gustavolopezxyz.common.ui.core.MoneyText
+import me.gustavolopezxyz.common.ui.theme.AppDimensions
 
 
 @Composable
@@ -30,7 +30,7 @@ fun AccountsListCard(account: Account, onSelect: (Account) -> Unit) {
     Card(modifier = Modifier.widthIn(200.dp, 350.dp).clickable { onSelect(account) }, elevation = 4.dp) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(Constants.Size.Small.dp)
+            verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.small)
         ) {
             Row {
                 Text(buildAnnotatedString {
@@ -62,13 +62,16 @@ fun AccountsListCard(account: Account, onSelect: (Account) -> Unit) {
 fun AccountsList(accounts: List<Account>, onSelect: (Account) -> Unit = {}) {
     val byType = accounts.groupBy { it.type }
 
-    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(Constants.Size.Large.dp)) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.large)
+    ) {
         byType.forEach { entry ->
             Text(entry.key.name)
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(Constants.Size.Medium.dp)
+                horizontalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium)
             ) {
                 entry.value.forEach {
                     AccountsListCard(it, onSelect)

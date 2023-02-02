@@ -13,6 +13,7 @@ import me.gustavolopezxyz.common.di.initKoin
 import me.gustavolopezxyz.common.ui.AppNavigationHost
 import me.gustavolopezxyz.common.ui.Screen
 import me.gustavolopezxyz.common.ui.rememberNavController
+import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import org.koin.java.KoinJavaComponent.inject
 
 @Composable
@@ -24,7 +25,7 @@ fun DesktopApp() {
     Scaffold(
         scaffoldState = scaffoldState,
         topBar = {
-            TopAppBar(contentPadding = PaddingValues(Constants.Size.Large.dp, 0.dp)) {
+            TopAppBar(contentPadding = PaddingValues(AppDimensions.Default.spacing.large, 0.dp)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
@@ -32,13 +33,13 @@ fun DesktopApp() {
                 ) {
                     Text("WIMM", style = MaterialTheme.typography.h4)
 
-                    Spacer(modifier = Modifier.width((Constants.Size.Large * 2).dp))
+                    Spacer(modifier = Modifier.width(42.dp))
 
                     Text(
                         "Dashboard",
                         modifier = Modifier
                             .clickable { navController.navigate(Screen.Dashboard.route) }
-                            .padding(Constants.Size.Small.dp),
+                            .padding(AppDimensions.Default.padding.medium),
                         style = MaterialTheme.typography.h5
                     )
 
@@ -46,7 +47,7 @@ fun DesktopApp() {
                         "Accounts",
                         modifier = Modifier
                             .clickable { navController.navigate(Screen.Accounts.route) }
-                            .padding(Constants.Size.Small.dp),
+                            .padding(AppDimensions.Default.padding.medium),
                         style = MaterialTheme.typography.h5
                     )
 
@@ -54,7 +55,7 @@ fun DesktopApp() {
                         "Categories",
                         modifier = Modifier
                             .clickable { navController.navigate(Screen.Categories.route) }
-                            .padding(Constants.Size.Small.dp),
+                            .padding(AppDimensions.Default.padding.medium),
                         style = MaterialTheme.typography.h5
                     )
                 }

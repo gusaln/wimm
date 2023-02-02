@@ -16,12 +16,11 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import me.gustavolopezxyz.common.Constants
 import me.gustavolopezxyz.common.data.AccountType
 import me.gustavolopezxyz.common.data.Currency
 import me.gustavolopezxyz.common.ext.toCurrency
 import me.gustavolopezxyz.common.ui.core.FormTitle
+import me.gustavolopezxyz.common.ui.theme.AppDimensions
 
 const val defaultCurrency = "USD"
 
@@ -51,7 +50,7 @@ fun CreateAccountForm(
     var isTypeDropDownExpanded by remember { mutableStateOf(false) }
 
     Column(
-        verticalArrangement = Arrangement.spacedBy(Constants.Size.Field.dp)
+        verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.fieldSpacing)
     ) {
         FormTitle("Create an Account")
 
@@ -99,7 +98,7 @@ fun CreateAccountForm(
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(Constants.Size.Medium.dp, Alignment.End)
+            horizontalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium, Alignment.End)
         ) {
             Button(onClick = ::handleCreate) {
                 Text("Create")

@@ -9,19 +9,18 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import me.gustavolopezxyz.common.Constants
 import me.gustavolopezxyz.common.data.CategoryWithParent
 import me.gustavolopezxyz.common.data.MissingCategory
 import me.gustavolopezxyz.common.data.toDto
 import me.gustavolopezxyz.common.db.CategoryRepository
 import me.gustavolopezxyz.common.ui.core.FormTitle
 import me.gustavolopezxyz.common.ui.core.ScreenTitle
+import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import org.koin.java.KoinJavaComponent.inject
 
 @Composable
@@ -91,7 +90,7 @@ fun CategoriesScreen() {
     if (isCreatingOpen) {
         Dialog(onCloseRequest = { isCreatingOpen = false }, title = "Create a Category") {
             Card(modifier = Modifier.fillMaxSize()) {
-                Box(modifier = Modifier.fillMaxWidth().padding(Constants.Size.Medium.dp)) {
+                Box(modifier = Modifier.fillMaxWidth().padding(AppDimensions.Default.padding.medium)) {
                     CreateCategoryForm(categories = categories.filter { it.parentCategoryId == null },
                         onCreate = ::createCategory,
                         onCancel = { isCreatingOpen = false })
@@ -103,7 +102,7 @@ fun CategoriesScreen() {
     if (editing != null) {
         Dialog(onCloseRequest = { editing = null }, title = "Edit category ${editing?.name}") {
             Card(modifier = Modifier.fillMaxSize()) {
-                Box(modifier = Modifier.fillMaxWidth().padding(Constants.Size.Medium.dp)) {
+                Box(modifier = Modifier.fillMaxWidth().padding(AppDimensions.Default.padding.medium)) {
                     EditCategoryForm(categories = categories.filter { it.parentCategoryId == null },
                         value = categories.find { it.categoryId == editing?.categoryId } ?: MissingCategory.toDto(),
                         onValueChange = { editing = it },
@@ -117,8 +116,8 @@ fun CategoriesScreen() {
     if (deleting != null) {
         Dialog(onCloseRequest = { editing = null }, title = "Delete category ${deleting?.fullname()}") {
             Card(modifier = Modifier.fillMaxSize()) {
-                Box(modifier = Modifier.fillMaxWidth().padding(Constants.Size.Medium.dp)) {
-                    Column(verticalArrangement = Arrangement.spacedBy(Constants.Size.Medium.dp)) {
+                Box(modifier = Modifier.fillMaxWidth().padding(AppDimensions.Default.padding.medium)) {
+                    Column(verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium)) {
                         FormTitle("Delete category ${deleting?.fullname()}")
 
                         Spacer(modifier = Modifier.fillMaxWidth())
@@ -131,7 +130,10 @@ fun CategoriesScreen() {
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(Constants.Size.Medium.dp, Alignment.End)
+                            horizontalArrangement = Arrangement.spacedBy(
+                                AppDimensions.Default.spacing.medium,
+                                Alignment.End
+                            )
                         ) {
                             Button(
                                 onClick = ::deleteCategory,
@@ -151,8 +153,8 @@ fun CategoriesScreen() {
     }
 
     Column(
-        modifier = Modifier.fillMaxWidth().padding(Constants.Size.Large.dp),
-        verticalArrangement = Arrangement.spacedBy(Constants.Size.Large.dp)
+        modifier = Modifier.fillMaxWidth().padding(AppDimensions.Default.padding.large),
+        verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.large)
     ) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             ScreenTitle("Categories")

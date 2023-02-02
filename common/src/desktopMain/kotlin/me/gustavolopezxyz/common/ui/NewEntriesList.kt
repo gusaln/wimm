@@ -14,13 +14,13 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalDate
-import me.gustavolopezxyz.common.Constants
 import me.gustavolopezxyz.common.data.Account
 import me.gustavolopezxyz.common.data.AccountType
 import me.gustavolopezxyz.common.data.Currency
 import me.gustavolopezxyz.common.ui.core.MoneyText
 import me.gustavolopezxyz.common.ui.core.OutlinedDateTextField
 import me.gustavolopezxyz.common.ui.core.OutlinedDoubleField
+import me.gustavolopezxyz.common.ui.theme.AppDimensions
 
 
 object EntriesListDefault {
@@ -68,16 +68,16 @@ fun NewEntriesListItem(
     var isAccountsDropDownExpanded by remember { mutableStateOf(false) }
 
     Row(
-        horizontalArrangement = Arrangement.spacedBy(Constants.Size.MediumDp),
+        horizontalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(
             modifier = Modifier.weight(1f).padding(EntriesListDefault.rowPadding),
-            verticalArrangement = Arrangement.spacedBy(Constants.Size.SmallDp)
+            verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.small)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth().padding(EntriesListDefault.rowPadding),
-                horizontalArrangement = Arrangement.spacedBy(Constants.Size.SmallDp),
+                horizontalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.small),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 AccountDropdown(
@@ -155,7 +155,8 @@ fun NewEntriesList(
     totals: @Composable() (() -> Unit) = {},
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(Constants.Size.SmallDp)
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.small),
     ) {
         name?.invoke() ?: Text("Entries", style = MaterialTheme.typography.h5)
 

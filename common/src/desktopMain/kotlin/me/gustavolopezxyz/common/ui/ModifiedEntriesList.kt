@@ -15,11 +15,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalDate
-import me.gustavolopezxyz.common.Constants
 import me.gustavolopezxyz.common.data.Account
 import me.gustavolopezxyz.common.data.AccountType
 import me.gustavolopezxyz.common.ui.core.OutlinedDateTextField
 import me.gustavolopezxyz.common.ui.core.OutlinedDoubleField
+import me.gustavolopezxyz.common.ui.theme.AppDimensions
 
 
 @Composable
@@ -32,16 +32,16 @@ fun ModifiedEntriesListItem(
     var isAccountsDropDownExpanded by remember { mutableStateOf(false) }
 
     Row(
-        horizontalArrangement = Arrangement.spacedBy(Constants.Size.MediumDp),
+        horizontalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(
             modifier = Modifier.weight(1f).padding(EntriesListDefault.rowPadding),
-            verticalArrangement = Arrangement.spacedBy(Constants.Size.SmallDp)
+            verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.small)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth().padding(EntriesListDefault.rowPadding),
-                horizontalArrangement = Arrangement.spacedBy(Constants.Size.SmallDp),
+                horizontalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.small),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 AccountDropdown(
@@ -112,16 +112,16 @@ fun ModifiedEntriesListItem(
 fun ModifiedEntriesListDeletedItem(entry: ModifiedEntryDto, onRestore: (ModifiedEntryDto) -> Unit) {
     Row(
         modifier = Modifier.background(color = Color.LightGray),
-        horizontalArrangement = Arrangement.spacedBy(Constants.Size.MediumDp),
+        horizontalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(
             modifier = Modifier.weight(1f).padding(EntriesListDefault.rowPadding),
-            verticalArrangement = Arrangement.spacedBy(Constants.Size.SmallDp)
+            verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.small)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth().padding(EntriesListDefault.rowPadding),
-                horizontalArrangement = Arrangement.spacedBy(Constants.Size.SmallDp),
+                horizontalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.small),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 OutlinedTextField(
@@ -172,7 +172,8 @@ fun ModifiedEntriesList(
     name: @Composable() (() -> Unit)? = null
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(Constants.Size.SmallDp)
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.small)
     ) {
         name?.invoke() ?: Text("Entries", style = MaterialTheme.typography.h5)
 

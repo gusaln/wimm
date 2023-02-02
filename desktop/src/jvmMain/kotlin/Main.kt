@@ -3,6 +3,7 @@ import androidx.compose.ui.window.application
 import me.gustavolopezxyz.common.DesktopApp
 import me.gustavolopezxyz.common.di.initKoin
 import me.gustavolopezxyz.common.services.BackupService
+import me.gustavolopezxyz.common.ui.theme.AppTheme
 import org.koin.java.KoinJavaComponent.get
 
 fun main() = application {
@@ -14,7 +15,9 @@ fun main() = application {
 
     backupService.run()
 
-    Window(onCloseRequest = ::exitApplication, title = "WIMM - Where is my Money?") {
-        DesktopApp()
+    AppTheme(darkTheme = true) {
+        Window(onCloseRequest = ::exitApplication, title = "WIMM - Where is my Money?") {
+            DesktopApp()
+        }
     }
 }

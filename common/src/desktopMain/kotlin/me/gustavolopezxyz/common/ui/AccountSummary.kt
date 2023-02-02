@@ -13,19 +13,21 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.flow.map
-import me.gustavolopezxyz.common.Constants
 import me.gustavolopezxyz.common.data.getCurrency
 import me.gustavolopezxyz.common.data.toEntryForAccount
 import me.gustavolopezxyz.common.db.AccountRepository
 import me.gustavolopezxyz.common.db.EntryRepository
 import me.gustavolopezxyz.common.ext.toSimpleFormat
+import me.gustavolopezxyz.common.ui.core.CardTitle
 import me.gustavolopezxyz.common.ui.core.MoneyText
+import me.gustavolopezxyz.common.ui.core.MoneyTextDefaults
+import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -52,22 +54,28 @@ fun AccountSummary(viewModel: AccountSummaryViewModel) {
 
     Card(modifier = Modifier, elevation = 4.dp) {
         Column(
-            modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(Constants.Size.Medium.dp)
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium)
         ) {
             // Header with account info
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(account.name, style = MaterialTheme.typography.h5)
+            CardTitle(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.small)
+            ) {
+                Text(account.name, modifier = Modifier.weight(1f), overflow = TextOverflow.Ellipsis)
 
                 MoneyText(
                     account.balance,
                     account.getCurrency(),
-                    valueStyle = TextStyle.Default.copy(fontSize = 1.6.em),
+                    commonStyle = MoneyTextDefaults.commonStyle.copy(fontSize = 1.5.em)
                 )
             }
 
+            Divider()
+
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(Constants.Size.Medium.dp)
+                verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium)
             ) {
                 entries.forEach {
                     Row(
@@ -76,11 +84,12 @@ fun AccountSummary(viewModel: AccountSummaryViewModel) {
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         // Description and date
-                        Column(verticalArrangement = Arrangement.spacedBy(Constants.Size.Small.dp)) {
+                        Column(verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.small)) {
                             Text(it.transactionDescription)
 
                             Text(
                                 it.incurredAt.toSimpleFormat(),
+                                color = Color.Gray,
                                 fontSize = MaterialTheme.typography.caption.fontSize
                             )
                         }
@@ -104,7 +113,10 @@ fun AccountSummary(viewModel: AccountSummaryViewModel) {
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(Constants.Size.Large.dp, Alignment.CenterHorizontally)
+                horizontalArrangement = Arrangement.spacedBy(
+                    AppDimensions.Default.spacing.large,
+                    Alignment.CenterHorizontally
+                )
             ) {
                 IconButton(onClick = {}, enabled = page > 1) {
                     Icon(Icons.Default.KeyboardArrowLeft, "prev page")

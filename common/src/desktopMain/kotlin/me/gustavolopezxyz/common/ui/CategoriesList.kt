@@ -25,8 +25,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import me.gustavolopezxyz.common.Constants
 import me.gustavolopezxyz.common.data.CategoryWithParent
+import me.gustavolopezxyz.common.ui.theme.AppDimensions
 
 
 @Composable
@@ -34,7 +34,8 @@ fun CategoriesListCard(
     category: CategoryWithParent, onSelect: (CategoryWithParent) -> Unit, onDelete: (CategoryWithParent) -> Unit
 ) {
     Row(
-        modifier = Modifier.clickable(!category.isLocked) { onSelect(category) }.padding(Constants.Size.Small.dp)
+        modifier = Modifier.clickable(!category.isLocked) { onSelect(category) }
+            .padding(AppDimensions.Default.padding.small)
             .width(300.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
@@ -42,10 +43,9 @@ fun CategoriesListCard(
         Row {
             Icon(Icons.Default.KeyboardArrowRight, "arrow marker")
 
-            Spacer(modifier = Modifier.width(Constants.Size.Medium.dp))
-
             Text(
                 category.fullname(),
+                modifier = Modifier.weight(1f),
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.h6.copy(fontWeight = FontWeight.Normal)
             )
@@ -70,7 +70,7 @@ fun CategoriesList(
     Row {
         Column(
             modifier = Modifier.scrollable(loLoCaScroll, Orientation.Vertical),
-            verticalArrangement = Arrangement.spacedBy(Constants.Size.Large.dp)
+            verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.large)
         ) {
             val iconSize = Modifier.size(20.dp)
 
@@ -78,12 +78,12 @@ fun CategoriesList(
                 // Container of a category subtree
                 Column(modifier = Modifier.fillMaxWidth().width(300.dp)) {
                     Row(
-                        modifier = Modifier.padding(Constants.Size.Small.dp).width(300.dp),
+                        modifier = Modifier.padding(AppDimensions.Default.padding.small).width(300.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(parentCategory.name,
                             modifier = Modifier.clickable(!parentCategory.isLocked) { onSelect(parentCategory) }
-                                .padding(Constants.Size.Small.dp),
+                                .padding(AppDimensions.Default.padding.small),
                             overflow = TextOverflow.Ellipsis,
                             style = MaterialTheme.typography.h6
                         )
@@ -96,7 +96,7 @@ fun CategoriesList(
                     val scroll = rememberScrollState()
                     Row(
                         modifier = Modifier.wrapContentHeight().scrollable(scroll, Orientation.Horizontal),
-                        horizontalArrangement = Arrangement.spacedBy(Constants.Size.Medium.dp)
+                        horizontalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium)
                     ) {
                         byParent[parentCategory.categoryId]?.forEach {
                             CategoriesListCard(it, onSelect, onDelete)

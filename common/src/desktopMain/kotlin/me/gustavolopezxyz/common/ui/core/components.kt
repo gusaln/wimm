@@ -8,17 +8,17 @@ import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.ProvideTextStyle
 import androidx.compose.material.Text
-import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toLocalDateTime
-import me.gustavolopezxyz.common.Constants
 import me.gustavolopezxyz.common.ext.currentTz
+import me.gustavolopezxyz.common.ui.theme.AppDimensions
 
 
 fun Int.minMax(min: Int, max: Int) = when {
@@ -35,6 +35,20 @@ fun ScreenTitle(title: String) {
 @Composable
 fun FormTitle(title: String) {
     Text(title, style = MaterialTheme.typography.h5)
+}
+
+@Composable
+fun CardTitle(
+    modifier: Modifier = Modifier.heightIn(24.dp, 64.dp),
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
+    verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
+    content: @Composable RowScope.() -> Unit
+) {
+    ProvideTextStyle(MaterialTheme.typography.h6) {
+        Row(modifier, horizontalArrangement, verticalAlignment) {
+            content()
+        }
+    }
 }
 
 @Composable
@@ -79,7 +93,8 @@ fun OutlinedDoubleField(
     label: @Composable (() -> Unit)? = null,
     placeholder: @Composable (() -> Unit)? = null,
 ) {
-    val isNegative by remember { mutableStateOf(value < 0) }
+    val valueState by rememberUpdatedState(value)
+    val isNegative by derivedStateOf { valueState < 0 }
 
     OutlinedTextField(
         value = "%.2f".format(value),
@@ -96,17 +111,14 @@ fun OutlinedDoubleField(
         placeholder = placeholder,
         singleLine = true,
         readOnly = readOnly,
-        colors = TextFieldDefaults.outlinedTextFieldColors(
-            textColor = if (isNegative) Color.Red else Color.Unspecified
-        )
     )
 }
 
 @Composable
 fun RegularLayout(menu: @Composable() (() -> Unit)? = null, content: @Composable (() -> Unit)) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(Constants.Size.Large.dp),
-        horizontalArrangement = Arrangement.spacedBy(Constants.Size.Large.dp)
+        modifier = Modifier.fillMaxWidth().padding(AppDimensions.Default.padding.large),
+        horizontalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.large)
     ) {
         Box(modifier = Modifier.weight(1f)) {
             menu?.invoke()

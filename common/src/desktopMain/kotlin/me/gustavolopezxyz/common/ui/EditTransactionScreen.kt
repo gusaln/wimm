@@ -17,9 +17,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.datetime.atTime
-import me.gustavolopezxyz.common.Constants
 import me.gustavolopezxyz.common.data.*
 import me.gustavolopezxyz.common.db.AccountRepository
 import me.gustavolopezxyz.common.db.CategoryRepository
@@ -28,6 +28,7 @@ import me.gustavolopezxyz.common.db.TransactionRepository
 import me.gustavolopezxyz.common.ext.toCurrency
 import me.gustavolopezxyz.common.ext.toMoney
 import me.gustavolopezxyz.common.ui.core.ScreenTitle
+import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import me.gustavolopezxyz.db.SelectEntriesForTransaction
 import org.koin.core.component.KoinComponent
 import org.koin.core.parameter.parametersOf
@@ -103,7 +104,6 @@ class EditTransactionViewModel(val transactionId: Long) : KoinComponent {
     }
 }
 
-@OptIn(DelicateCoroutinesApi::class)
 @Composable
 fun EditTransactionScreen(navController: NavController, transactionId: Long) {
     val viewModel by remember {
@@ -118,7 +118,7 @@ fun EditTransactionScreen(navController: NavController, transactionId: Long) {
     if (transaction == null) {
         Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(Constants.Size.Large.dp),
+            verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.large),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row {
@@ -127,7 +127,7 @@ fun EditTransactionScreen(navController: NavController, transactionId: Long) {
                 }
             }
 
-            Card(modifier = Modifier.widthIn(200.dp, 400.dp).padding(Constants.Size.Medium.dp)) {
+            Card(modifier = Modifier.widthIn(200.dp, 400.dp).padding(AppDimensions.Default.padding.medium)) {
                 Text("Transaction ID $transactionId not found")
             }
         }
@@ -187,9 +187,9 @@ fun EditTransactionScreen(navController: NavController, transactionId: Long) {
             Card(modifier = Modifier.fillMaxSize()) {
                 Column(
                     modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(Constants.Size.Medium.dp)
+                    verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium)
                 ) {
-                    Box(modifier = Modifier.fillMaxWidth().padding(Constants.Size.Medium.dp)) {
+                    Box(modifier = Modifier.fillMaxWidth().padding(AppDimensions.Default.padding.medium)) {
                         Text("Do you really want to delete this transaction?")
                     }
 
@@ -208,8 +208,8 @@ fun EditTransactionScreen(navController: NavController, transactionId: Long) {
     }
 
     Column(
-        modifier = Modifier.fillMaxWidth().verticalScroll(scroll).padding(Constants.Size.Large.dp),
-        verticalArrangement = Arrangement.spacedBy(Constants.Size.Medium.dp)
+        modifier = Modifier.fillMaxWidth().verticalScroll(scroll).padding(AppDimensions.Default.padding.large),
+        verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium)
     ) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             ScreenTitle("Edit transaction")

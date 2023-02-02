@@ -21,7 +21,8 @@ data class Dimensions(
 data class AppDimensions(
     val spacing: Dimensions = Dimensions(8.dp, 16.dp, 24.dp),
     val padding: Dimensions = Dimensions(4.dp, 8.dp, 16.dp),
-    val fieldSpacing: Dp = 12.dp
+    val fieldSpacing: Dp = 12.dp,
+    val topBarHorizontalPadding: Dp = 24.dp,
 ) {
     companion object {
         val Default = AppDimensions()

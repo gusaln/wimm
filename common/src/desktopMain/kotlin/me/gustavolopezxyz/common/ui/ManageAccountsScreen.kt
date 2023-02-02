@@ -26,7 +26,7 @@ import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import org.koin.java.KoinJavaComponent.inject
 
 @Composable
-fun AccountsScreen() {
+fun ManageAccountsScreen() {
     val accountRepository by inject<AccountRepository>(AccountRepository::class.java)
     val accounts by accountRepository.allAsFlow().mapToList().collectAsState(listOf(), Dispatchers.IO)
     val snackbar by inject<SnackbarHostState>(SnackbarHostState::class.java)

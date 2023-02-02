@@ -24,7 +24,7 @@ import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import org.koin.java.KoinJavaComponent.inject
 
 @Composable
-fun CategoriesScreen() {
+fun ManageCategoriesScreen() {
     val categoryRepository by inject<CategoryRepository>(CategoryRepository::class.java)
     val categories by categoryRepository.allAsFlow().mapToList().map { list ->
         list.map { it.toDto() }

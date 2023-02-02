@@ -5,7 +5,10 @@
 package me.gustavolopezxyz.common.ui.core
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.ProvideTextStyle
@@ -18,7 +21,6 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toLocalDateTime
 import me.gustavolopezxyz.common.ext.currentTz
-import me.gustavolopezxyz.common.ui.theme.AppDimensions
 
 
 fun Int.minMax(min: Int, max: Int) = when {
@@ -94,7 +96,6 @@ fun OutlinedDoubleField(
     placeholder: @Composable (() -> Unit)? = null,
 ) {
     val valueState by rememberUpdatedState(value)
-    val isNegative by derivedStateOf { valueState < 0 }
 
     OutlinedTextField(
         value = "%.2f".format(value),
@@ -112,22 +113,6 @@ fun OutlinedDoubleField(
         singleLine = true,
         readOnly = readOnly,
     )
-}
-
-@Composable
-fun RegularLayout(menu: @Composable() (() -> Unit)? = null, content: @Composable (() -> Unit)) {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(AppDimensions.Default.padding.large),
-        horizontalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.large)
-    ) {
-        Box(modifier = Modifier.weight(1f)) {
-            menu?.invoke()
-        }
-
-        Box(modifier = Modifier.weight(5f)) {
-            content()
-        }
-    }
 }
 
 @Preview

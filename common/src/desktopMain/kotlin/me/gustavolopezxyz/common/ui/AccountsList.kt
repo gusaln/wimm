@@ -52,7 +52,7 @@ fun AccountsListCard(account: Account, onSelect: (Account) -> Unit) {
                 account.balance,
                 account.currency.toCurrency(),
                 modifier = Modifier.align(Alignment.End),
-                valueStyle = MaterialTheme.typography.h4.copy(fontWeight = FontWeight.Medium)
+                commonStyle = MaterialTheme.typography.h4
             )
         }
     }

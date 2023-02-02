@@ -32,8 +32,8 @@ class TransactionsListViewModel() : KoinComponent {
     private val transactionRepository: TransactionRepository by inject()
     private val entryRepository: EntryRepository by inject()
 
-    fun getTransactions(page: Long = 1, perPage: Long = 15) =
-        transactionRepository.getAsFlow((page - 1) * perPage, perPage)
+    fun getTransactions(page: Int = 1, perPage: Int = 15) =
+        transactionRepository.getAsFlow(((page - 1) * perPage).toLong(), perPage.toLong())
 
     fun getEntries(transactionIds: Collection<Long>) =
         entryRepository.getAllForTransactionsAsFlow(transactionIds)
@@ -45,8 +45,6 @@ fun TransactionsList(
     entriesByTransaction: Map<Long, List<EntryForTransaction>>,
     onSelect: (MoneyTransaction) -> Unit
 ) {
-
-
     val scroll = rememberScrollState()
 
     Row(modifier = Modifier.fillMaxWidth()) {
@@ -55,7 +53,7 @@ fun TransactionsList(
             verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.large, alignment = Alignment.Top)
         ) {
             transactions.forEach { transaction ->
-                TransactionEntryList(
+                TransactionEntresList(
                     transaction,
                     entriesByTransaction.getOrDefault(transaction.transactionId, emptyList()),
                     onSelect
@@ -67,8 +65,9 @@ fun TransactionsList(
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun TransactionEntryList(
+fun TransactionEntresList(
     transaction: MoneyTransaction,
     entries: List<EntryForTransaction>,
     onSelect: (MoneyTransaction) -> Unit,
@@ -84,9 +83,18 @@ fun TransactionEntryList(
             ) {
                 Text(
                     transaction.description,
-                    modifier = Modifier.weight(1f),
                     overflow = TextOverflow.Ellipsis
                 )
+
+                Chip(
+                    onClick = {},
+                    colors = ChipDefaults.chipColors(Color.Magenta.copy(.5f)),
+                    shape = MaterialTheme.shapes.small
+                ) {
+                    Text("category")
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
 
                 IconButton(onClick = { onSelect(transaction) }) {
                     Icon(Icons.Default.ArrowForward, "edit transaction")

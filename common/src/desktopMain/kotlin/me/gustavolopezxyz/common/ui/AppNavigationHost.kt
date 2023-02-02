@@ -7,35 +7,41 @@ package me.gustavolopezxyz.common.ui
 import androidx.compose.runtime.Composable
 
 sealed class Screen(val route: String) {
-    object Dashboard : Screen("dashboard")
+    object Transactions : Screen("transactions")
+
+    object Balances : Screen("balances")
 
     object EditTransaction : Screen("transactions/{id}/edit") {
         fun withArguments(id: Long): Map<String, String> = mapOf(Pair("id", id.toString()))
     }
 
-    object Accounts : Screen("accounts")
+    object ManageAccounts : Screen("manage_accounts")
 
-    object Categories : Screen("categories")
+    object ManageCategories : Screen("manage_categories")
 }
 
 
 @Composable
 fun AppNavigationHost(navController: NavController) {
     NavigationHost(navController) {
-        composable(Screen.Dashboard.route) {
-            DashboardScreen(navController)
+        composable(Screen.Transactions.route) {
+            TransactionsScreen(navController)
+        }
+
+        composable(Screen.Balances.route) {
+            BalancesScreen(navController)
         }
 
         composable(Screen.EditTransaction.route) {
             EditTransactionScreen(navController, navController.getArgument("id")!!.toLong())
         }
 
-        composable(Screen.Accounts.route) {
-            AccountsScreen()
+        composable(Screen.ManageAccounts.route) {
+            ManageAccountsScreen()
         }
 
-        composable(Screen.Categories.route) {
-            CategoriesScreen()
+        composable(Screen.ManageCategories.route) {
+            ManageCategoriesScreen()
         }
     }.build()
 }

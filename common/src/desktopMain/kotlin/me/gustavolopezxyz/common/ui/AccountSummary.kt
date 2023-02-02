@@ -38,7 +38,7 @@ class AccountSummaryViewModel(private val accountId: Long) : KoinComponent {
         accountRepository.findById(accountId)
     }
 
-    fun getEntries(page: Int = 1, perPage: Int = 15) =
+    fun getEntries(page: Int = 1, perPage: Int = 4) =
         entryRepository.getAllForAccount(accountId, ((page - 1) * perPage).toLong(), perPage.toLong())
 }
 
@@ -46,7 +46,7 @@ class AccountSummaryViewModel(private val accountId: Long) : KoinComponent {
 @Composable
 fun AccountSummary(viewModel: AccountSummaryViewModel) {
     var page by remember { mutableStateOf(1) }
-    var perPage by remember { mutableStateOf(15) }
+    var perPage by remember { mutableStateOf(5) }
 
     val account = viewModel.account
     val entries by viewModel.getEntries(page, perPage).mapToList().map { list -> list.map { it.toEntryForAccount() } }

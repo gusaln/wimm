@@ -8,18 +8,20 @@ import androidx.compose.runtime.Immutable
 import me.gustavolopezxyz.common.ext.toCurrency
 
 @Immutable
-data class Currency constructor(val code: String) {
+data class Currency internal constructor(val code: String, val symbol: String) {
     override fun toString(): String {
         return code
     }
 }
 
-private val currencyRepository: HashMap<String, Currency> = hashMapOf()
+val missingCurrency = Currency("XXX", "?")
+
+private val currencyRepository: HashMap<String, Currency> = hashMapOf(
+    Pair("USD", Currency("USD", "$"))
+)
 
 fun currencyOf(code: String): Currency {
-    val c = code.uppercase().trim()
-
-    return currencyRepository.getOrPut(c) { Currency(c) }
+    return currencyRepository.getOrDefault(code.uppercase().trim(), missingCurrency)
 }
 
 @Immutable

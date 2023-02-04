@@ -7,7 +7,9 @@ package me.gustavolopezxyz.common.ui
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.material.Icon
+import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Clear
@@ -15,7 +17,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import me.gustavolopezxyz.common.data.CategoryWithParent
-import me.gustavolopezxyz.common.ui.core.FormTitle
+import me.gustavolopezxyz.common.ui.common.AppButton
+import me.gustavolopezxyz.common.ui.common.AppTextButton
+import me.gustavolopezxyz.common.ui.common.FormTitle
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 
 @Preview
@@ -106,13 +110,9 @@ fun CreateCategoryForm(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium, Alignment.End)
         ) {
-            Button(onClick = ::handleCreate) {
-                Text("Create")
-            }
+            AppButton(onClick = ::handleCreate, "Create")
 
-            TextButton(onClick = ::handleCancel) {
-                Text("Cancel")
-            }
+            AppTextButton(onClick = ::handleCancel, "Cancel")
         }
     }
 }

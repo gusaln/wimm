@@ -1,11 +1,12 @@
-package me.gustavolopezxyz.common.ui
+/*
+ * Copyright (c) 2023. Gustavo López. All rights reserved.
+ */
+
+package me.gustavolopezxyz.common.data
 
 import kotlinx.datetime.*
-import me.gustavolopezxyz.common.data.Account
-import me.gustavolopezxyz.common.data.Entry
 import me.gustavolopezxyz.common.ext.currentTz
 import me.gustavolopezxyz.db.SelectEntriesForTransaction
-
 
 data class NewEntryDto(
     val id: Long = -Clock.System.now().toEpochMilliseconds(),

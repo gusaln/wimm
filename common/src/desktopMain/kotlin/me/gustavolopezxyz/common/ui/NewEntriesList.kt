@@ -17,9 +17,10 @@ import kotlinx.datetime.LocalDate
 import me.gustavolopezxyz.common.data.Account
 import me.gustavolopezxyz.common.data.AccountType
 import me.gustavolopezxyz.common.data.Currency
-import me.gustavolopezxyz.common.ui.core.MoneyText
-import me.gustavolopezxyz.common.ui.core.OutlinedDateTextField
-import me.gustavolopezxyz.common.ui.core.OutlinedDoubleField
+import me.gustavolopezxyz.common.data.NewEntryDto
+import me.gustavolopezxyz.common.ui.common.MoneyText
+import me.gustavolopezxyz.common.ui.common.OutlinedDateTextField
+import me.gustavolopezxyz.common.ui.common.OutlinedDoubleField
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 
 
@@ -44,7 +45,7 @@ fun TotalListItem(total: String = "Total", totalsByCurrency: Map<Currency, Doubl
                 modifier = Modifier.weight(EntriesListDefault.contentWeight)
                     .padding(EntriesListDefault.rowCellPadding),
                 textAlign = TextAlign.End,
-                style = MaterialTheme.typography.body1
+//                style = MaterialTheme.typography.body1
             )
 
             MoneyText(

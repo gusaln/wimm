@@ -15,15 +15,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import me.gustavolopezxyz.common.data.EntryForTransaction
 import me.gustavolopezxyz.common.data.MoneyTransaction
 import me.gustavolopezxyz.common.db.EntryRepository
 import me.gustavolopezxyz.common.db.TransactionRepository
 import me.gustavolopezxyz.common.ext.toCurrency
 import me.gustavolopezxyz.common.ext.toSimpleFormat
-import me.gustavolopezxyz.common.ui.core.CardTitle
-import me.gustavolopezxyz.common.ui.core.MoneyText
+import me.gustavolopezxyz.common.ui.common.AppDivider
+import me.gustavolopezxyz.common.ui.common.CardTitle
+import me.gustavolopezxyz.common.ui.common.MoneyText
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -33,7 +33,7 @@ class TransactionsListViewModel() : KoinComponent {
     private val entryRepository: EntryRepository by inject()
 
     fun getTransactions(page: Int = 1, perPage: Int = 15) =
-        transactionRepository.getAsFlow(((page - 1) * perPage).toLong(), perPage.toLong())
+        transactionRepository.getAsFlow(((page - 1) * perPage), perPage)
 
     fun getEntries(transactionIds: Collection<Long>) =
         entryRepository.getAllForTransactionsAsFlow(transactionIds)
@@ -72,9 +72,9 @@ fun TransactionEntresList(
     entries: List<EntryForTransaction>,
     onSelect: (MoneyTransaction) -> Unit,
 ) {
-    Card(elevation = 4.dp) {
+    Card() {
         Column(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(AppDimensions.Default.cardPadding),
             verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium)
         ) {
             CardTitle(
@@ -83,15 +83,18 @@ fun TransactionEntresList(
             ) {
                 Text(
                     transaction.description,
-                    overflow = TextOverflow.Ellipsis
+                    modifier = Modifier.weight(1f),
+                    overflow = TextOverflow.Ellipsis,
+                    softWrap = false,
                 )
 
                 Chip(
                     onClick = {},
+                    modifier = Modifier.wrapContentSize(),
                     colors = ChipDefaults.chipColors(Color.Magenta.copy(.5f)),
                     shape = MaterialTheme.shapes.small
                 ) {
-                    Text("category")
+                    Text("category", style = MaterialTheme.typography.caption)
                 }
 
                 Spacer(modifier = Modifier.weight(1f))
@@ -101,7 +104,9 @@ fun TransactionEntresList(
                 }
             }
 
-            Divider()
+
+
+            AppDivider()
 
             entries.forEach { entry ->
                 Row(

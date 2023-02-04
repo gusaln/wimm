@@ -13,9 +13,10 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import me.gustavolopezxyz.common.data.CategoryWithParent
+import me.gustavolopezxyz.common.ui.theme.dropdownSelected
+import me.gustavolopezxyz.common.ui.theme.dropdownUnselected
 
 @Composable
 fun CategoryDropdown(
@@ -38,15 +39,8 @@ fun CategoryDropdown(
             ) {
                 categories.forEach {
                     val isSelected = it.categoryId == value?.categoryId
-                    val style = if (isSelected) {
-                        MaterialTheme.typography.body1.copy(
-                            fontWeight = FontWeight.Bold, color = MaterialTheme.colors.secondary
-                        )
-                    } else {
-                        MaterialTheme.typography.body1.copy(
-                            fontWeight = FontWeight.Normal, color = MaterialTheme.colors.onSurface
-                        )
-                    }
+                    val style =
+                        if (isSelected) MaterialTheme.typography.dropdownSelected else MaterialTheme.typography.dropdownUnselected
 
                     DropdownMenuItem(onClick = {
                         onSelect(it)

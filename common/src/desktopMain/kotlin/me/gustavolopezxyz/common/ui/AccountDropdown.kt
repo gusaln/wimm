@@ -18,10 +18,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import me.gustavolopezxyz.common.data.Account
+import me.gustavolopezxyz.common.ui.theme.dropdownSelected
+import me.gustavolopezxyz.common.ui.theme.dropdownUnselected
 
 @Composable
 fun AccountDropdown(
@@ -46,15 +47,8 @@ fun AccountDropdown(
             ) {
                 accounts.forEach {
                     val isSelected = it.accountId == value?.accountId
-                    val style = if (isSelected) {
-                        MaterialTheme.typography.body1.copy(
-                            fontWeight = FontWeight.Bold, color = MaterialTheme.colors.secondary
-                        )
-                    } else {
-                        MaterialTheme.typography.body1.copy(
-                            fontWeight = FontWeight.Normal, color = MaterialTheme.colors.onSurface
-                        )
-                    }
+                    val style =
+                        if (isSelected) MaterialTheme.typography.dropdownSelected else MaterialTheme.typography.dropdownUnselected
 
                     DropdownMenuItem(onClick = {
                         onClickAccount(it)

@@ -21,13 +21,13 @@ import androidx.compose.ui.unit.dp
 import me.gustavolopezxyz.common.data.Account
 import me.gustavolopezxyz.common.data.AccountType
 import me.gustavolopezxyz.common.ext.toCurrency
-import me.gustavolopezxyz.common.ui.core.MoneyText
+import me.gustavolopezxyz.common.ui.common.MoneyText
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 
 
 @Composable
 fun AccountsListCard(account: Account, onSelect: (Account) -> Unit) {
-    Card(modifier = Modifier.widthIn(200.dp, 350.dp).clickable { onSelect(account) }, elevation = 4.dp) {
+    Card(modifier = Modifier.widthIn(200.dp, 350.dp).clickable { onSelect(account) }) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.small)

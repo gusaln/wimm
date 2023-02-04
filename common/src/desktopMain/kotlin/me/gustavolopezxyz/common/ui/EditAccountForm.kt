@@ -10,14 +10,18 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.*
+import androidx.compose.material.Icon
+import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import me.gustavolopezxyz.common.data.Account
-import me.gustavolopezxyz.common.ui.core.FormTitle
+import me.gustavolopezxyz.common.ui.common.AppButton
+import me.gustavolopezxyz.common.ui.common.AppTextButton
+import me.gustavolopezxyz.common.ui.common.FormTitle
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 
 
@@ -80,13 +84,9 @@ fun EditAccountForm(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium, Alignment.End)
         ) {
-            Button(onClick = onEdit) {
-                Text("Edit")
-            }
+            AppButton(onClick = onEdit, "Edit")
 
-            TextButton(onClick = onCancel) {
-                Text("Cancel")
-            }
+            AppTextButton(onClick = onCancel, "Cancel")
         }
     }
 }

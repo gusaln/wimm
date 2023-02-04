@@ -17,8 +17,9 @@ import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalDate
 import me.gustavolopezxyz.common.data.Account
 import me.gustavolopezxyz.common.data.AccountType
-import me.gustavolopezxyz.common.ui.core.OutlinedDateTextField
-import me.gustavolopezxyz.common.ui.core.OutlinedDoubleField
+import me.gustavolopezxyz.common.data.ModifiedEntryDto
+import me.gustavolopezxyz.common.ui.common.OutlinedDateTextField
+import me.gustavolopezxyz.common.ui.common.OutlinedDoubleField
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 
 

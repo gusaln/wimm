@@ -2,11 +2,10 @@
  * Copyright (c) 2023. Gustavo López. All rights reserved.
  */
 
-package me.gustavolopezxyz.common.ui
+package me.gustavolopezxyz.common.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
 import androidx.compose.material.Card
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
@@ -21,7 +20,11 @@ import me.gustavolopezxyz.common.data.AccountType
 import me.gustavolopezxyz.common.data.Currency
 import me.gustavolopezxyz.common.data.UnknownAccount
 import me.gustavolopezxyz.common.db.AccountRepository
-import me.gustavolopezxyz.common.ui.core.ScreenTitle
+import me.gustavolopezxyz.common.ui.AccountsList
+import me.gustavolopezxyz.common.ui.CreateAccountForm
+import me.gustavolopezxyz.common.ui.EditAccountForm
+import me.gustavolopezxyz.common.ui.common.AppButton
+import me.gustavolopezxyz.common.ui.common.ScreenTitle
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import org.koin.java.KoinJavaComponent.inject
 

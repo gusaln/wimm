@@ -15,12 +15,12 @@ class TransactionRepository : KoinComponent {
     private val db: Database by inject()
     private val queries = db.transactionQueries
 
-    fun get(offset: Long = 0, limit: Long = 15): List<MoneyTransaction> {
-        return queries.selectTransactions(limit, offset).executeAsList()
+    fun get(offset: Int = 0, limit: Int = 15): List<MoneyTransaction> {
+        return queries.selectTransactions(offset = offset.toLong(), limit = limit.toLong()).executeAsList()
     }
 
-    fun getAsFlow(offset: Long = 0, limit: Long = 15) =
-        queries.selectTransactions(offset = offset, limit = limit).asFlow()
+    fun getAsFlow(offset: Int = 0, limit: Int = 15) =
+        queries.selectTransactions(offset = offset.toLong(), limit = limit.toLong()).asFlow()
 
     fun findById(id: Long): MoneyTransaction? {
         return queries.selectById(id).executeAsOneOrNull()

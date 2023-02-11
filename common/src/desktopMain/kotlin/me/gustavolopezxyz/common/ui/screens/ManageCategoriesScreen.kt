@@ -2,7 +2,7 @@
  * Copyright (c) 2023. Gustavo López. All rights reserved.
  */
 
-package me.gustavolopezxyz.common.ui
+package me.gustavolopezxyz.common.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -18,8 +18,13 @@ import me.gustavolopezxyz.common.data.CategoryWithParent
 import me.gustavolopezxyz.common.data.MissingCategory
 import me.gustavolopezxyz.common.data.toDto
 import me.gustavolopezxyz.common.db.CategoryRepository
-import me.gustavolopezxyz.common.ui.core.FormTitle
-import me.gustavolopezxyz.common.ui.core.ScreenTitle
+import me.gustavolopezxyz.common.ui.CategoriesList
+import me.gustavolopezxyz.common.ui.CreateCategoryForm
+import me.gustavolopezxyz.common.ui.EditCategoryForm
+import me.gustavolopezxyz.common.ui.common.AppButton
+import me.gustavolopezxyz.common.ui.common.AppTextButton
+import me.gustavolopezxyz.common.ui.common.FormTitle
+import me.gustavolopezxyz.common.ui.common.ScreenTitle
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import org.koin.java.KoinJavaComponent.inject
 
@@ -135,16 +140,13 @@ fun ManageCategoriesScreen() {
                                 Alignment.End
                             )
                         ) {
-                            Button(
+                            AppButton(
                                 onClick = ::deleteCategory,
-                                colors = ButtonDefaults.buttonColors(MaterialTheme.colors.error)
-                            ) {
-                                Text("Delete")
-                            }
+                                colors = ButtonDefaults.buttonColors(MaterialTheme.colors.error),
+                                text = "Delete"
+                            )
 
-                            TextButton(onClick = { deleting = null }) {
-                                Text("Cancel")
-                            }
+                            AppTextButton(onClick = { deleting = null }, "Cancel")
                         }
                     }
                 }
@@ -157,11 +159,11 @@ fun ManageCategoriesScreen() {
         verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.large)
     ) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            ScreenTitle("Categories")
-
-            Button(onClick = { isCreatingOpen = !isCreatingOpen }) {
-                Text("Create category")
+            ScreenTitle {
+                Text("Categories")
             }
+
+            AppButton(onClick = { isCreatingOpen = !isCreatingOpen }, "Create category")
         }
 
         Spacer(modifier = Modifier.fillMaxWidth())

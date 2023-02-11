@@ -21,7 +21,8 @@ data class Dimensions(
 data class AppDimensions(
     val spacing: Dimensions = Dimensions(8.dp, 16.dp, 24.dp),
     val padding: Dimensions = Dimensions(6.dp, 14.dp, 20.dp),
-    val cardPadding: Dp = 16.dp,
+    val cardPadding: Dp = spacing.medium,
+    val listSpaceBetween: Dp = spacing.medium,
     val fieldSpacing: Dp = 12.dp,
     val topBarHorizontalPadding: Dp = 24.dp,
 ) {

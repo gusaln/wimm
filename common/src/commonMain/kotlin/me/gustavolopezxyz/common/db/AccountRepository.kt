@@ -27,8 +27,8 @@ class AccountRepository : KoinComponent {
         return accountQueries.selectById(ids).executeAsList()
     }
 
-    fun findById(id: Long): Account {
-        return accountQueries.selectById(listOf(id)).executeAsOne()
+    fun findById(id: Long): Account? {
+        return accountQueries.selectById(listOf(id)).executeAsOneOrNull()
     }
 
     fun allAsFlow(): Flow<Query<Account>> {

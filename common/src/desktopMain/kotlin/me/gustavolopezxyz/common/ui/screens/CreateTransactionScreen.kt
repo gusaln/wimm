@@ -2,7 +2,7 @@
  * Copyright (c) 2023. Gustavo López. All rights reserved.
  */
 
-package me.gustavolopezxyz.common.ui
+package me.gustavolopezxyz.common.ui.screens
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -24,6 +24,11 @@ import me.gustavolopezxyz.common.db.AccountRepository
 import me.gustavolopezxyz.common.db.CategoryRepository
 import me.gustavolopezxyz.common.db.EntryRepository
 import me.gustavolopezxyz.common.db.TransactionRepository
+import me.gustavolopezxyz.common.ui.CategoryDropdown
+import me.gustavolopezxyz.common.ui.NewEntriesList
+import me.gustavolopezxyz.common.ui.TotalListItem
+import me.gustavolopezxyz.common.ui.common.AppButton
+import me.gustavolopezxyz.common.ui.common.AppTextButton
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -72,8 +77,6 @@ class CreateTransactionViewModel : KoinComponent {
                 )
             }
         }
-
-        snackbar.showSnackbar("Transaction recorded")
     }
 }
 
@@ -198,10 +201,11 @@ fun CreateTransactionScreen(onCreate: () -> Unit = {}, onCancel: (() -> Unit)? =
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.small, Alignment.End)
         ) {
-            Button(onClick = ::handleCreate) { Text("Create") }
-            TextButton(onClick = ::handleReset) { Text("Reset") }
+            AppButton(onClick = ::handleCreate, "Create")
+
+            AppTextButton(onClick = ::handleReset, "Reset")
             if (onCancel != null) {
-                TextButton(onClick = onCancel) { Text("Cancel") }
+                AppTextButton(onClick = onCancel, "Cancel")
             }
         }
     }

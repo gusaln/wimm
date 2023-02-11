@@ -2,7 +2,7 @@
  * Copyright (c) 2023. Gustavo López. All rights reserved.
  */
 
-package me.gustavolopezxyz.common.ui
+package me.gustavolopezxyz.common.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -22,6 +22,8 @@ class NavController(
 
     // Variable to store the state of the current screen
     var currentScreen: MutableState<NavStackEntry> = mutableStateOf(startDestination)
+
+    fun navigate(route: Route) = navigate(route.route, route.arguments)
 
     // Function to handle the navigation between the screen
     fun navigate(route: String, arguments: Map<String, String>? = null) {
@@ -66,6 +68,7 @@ class NavController(
     }
 }
 
+data class Route(val route: String, val arguments: Map<String, String>? = null)
 
 /**
  * Composable to remember the state of the NavController

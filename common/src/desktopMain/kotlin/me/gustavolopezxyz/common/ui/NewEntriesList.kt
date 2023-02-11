@@ -37,7 +37,10 @@ object EntriesListDefault {
 @Composable
 fun TotalListItem(total: String = "Total", totalsByCurrency: Map<Currency, Double>) {
     totalsByCurrency.forEach {
-        Row(modifier = Modifier.fillMaxWidth().padding(EntriesListDefault.rowPadding)) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(EntriesListDefault.rowPadding),
+            horizontalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium)
+        ) {
             Spacer(Modifier.weight(EntriesListDefault.actionsWeight))
 
             Text(

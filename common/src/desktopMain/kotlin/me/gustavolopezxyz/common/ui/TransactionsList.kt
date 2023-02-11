@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import me.gustavolopezxyz.common.data.EntryForTransaction
 import me.gustavolopezxyz.common.data.MoneyTransaction
+import me.gustavolopezxyz.common.db.CategoryRepository
 import me.gustavolopezxyz.common.db.EntryRepository
 import me.gustavolopezxyz.common.db.TransactionRepository
 import me.gustavolopezxyz.common.ext.toCurrency
@@ -31,12 +32,17 @@ import org.koin.core.component.inject
 class TransactionsListViewModel() : KoinComponent {
     private val transactionRepository: TransactionRepository by inject()
     private val entryRepository: EntryRepository by inject()
+    private val categoryRepository: CategoryRepository by inject()
 
-    fun getTransactions(page: Int = 1, perPage: Int = 15) =
+    fun getTransactionsAsFlow(page: Int = 1, perPage: Int = 15) =
         transactionRepository.getAsFlow(((page - 1) * perPage), perPage)
 
-    fun getEntries(transactionIds: Collection<Long>) =
+    fun getEntriesAsFlow(transactionIds: Collection<Long>) =
         entryRepository.getAllForTransactionsAsFlow(transactionIds)
+
+    fun getEntries(transactionIds: Collection<Long>) = entryRepository.getAllForTransactions(transactionIds)
+
+    fun getCategoriesAsFlow() = categoryRepository.allAsFlow()
 }
 
 @Composable
@@ -103,8 +109,6 @@ fun TransactionEntresList(
                     Icon(Icons.Default.ArrowForward, "edit transaction")
                 }
             }
-
-
 
             AppDivider()
 

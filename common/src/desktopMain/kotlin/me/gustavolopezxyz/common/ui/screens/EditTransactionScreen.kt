@@ -2,7 +2,7 @@
  * Copyright (c) 2023. Gustavo López. All rights reserved.
  */
 
-package me.gustavolopezxyz.common.ui
+package me.gustavolopezxyz.common.ui.screens
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -27,7 +27,14 @@ import me.gustavolopezxyz.common.db.EntryRepository
 import me.gustavolopezxyz.common.db.TransactionRepository
 import me.gustavolopezxyz.common.ext.toCurrency
 import me.gustavolopezxyz.common.ext.toMoney
-import me.gustavolopezxyz.common.ui.core.ScreenTitle
+import me.gustavolopezxyz.common.navigation.NavController
+import me.gustavolopezxyz.common.ui.CategoryDropdown
+import me.gustavolopezxyz.common.ui.ModifiedEntriesList
+import me.gustavolopezxyz.common.ui.NewEntriesList
+import me.gustavolopezxyz.common.ui.TotalListItem
+import me.gustavolopezxyz.common.ui.common.AppButton
+import me.gustavolopezxyz.common.ui.common.AppTextButton
+import me.gustavolopezxyz.common.ui.common.ScreenTitle
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import me.gustavolopezxyz.db.SelectEntriesForTransaction
 import org.koin.core.component.KoinComponent
@@ -122,9 +129,7 @@ fun EditTransactionScreen(navController: NavController, transactionId: Long) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row {
-                Button(onClick = { navController.navigateBack() }) {
-                    Text("Back")
-                }
+                AppButton(onClick = { navController.navigateBack() }, "Back")
             }
 
             Card(modifier = Modifier.widthIn(200.dp, 400.dp).padding(AppDimensions.Default.padding.medium)) {
@@ -199,8 +204,9 @@ fun EditTransactionScreen(navController: NavController, transactionId: Long) {
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
                     ) {
-                        Button(onClick = ::deleteTransaction) { Text("Delete") }
-                        TextButton(onClick = { isConfirmingDelete = false }) { Text("Cancel") }
+                        AppButton(onClick = ::deleteTransaction, "Delete")
+
+                        AppTextButton(onClick = { isConfirmingDelete = false }, "Cancel")
                     }
                 }
             }
@@ -212,11 +218,11 @@ fun EditTransactionScreen(navController: NavController, transactionId: Long) {
         verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium)
     ) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            ScreenTitle("Edit transaction")
-
-            Button(onClick = { isConfirmingDelete = !isConfirmingDelete }) {
-                Text("Delete")
+            ScreenTitle {
+                Text("Edit transaction")
             }
+
+            AppButton(onClick = { isConfirmingDelete = !isConfirmingDelete }, "Delete")
         }
 
         Spacer(modifier = Modifier.fillMaxWidth())
@@ -323,10 +329,8 @@ fun EditTransactionScreen(navController: NavController, transactionId: Long) {
         Row(
             modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
         ) {
-            Button(onClick = ::editRecord) { Text("Edit") }
-            TextButton(onClick = { navController.navigateBack() }) {
-                Text("Go Back")
-            }
+            AppButton(onClick = ::editRecord, "Edit")
+            AppTextButton(onClick = { navController.navigateBack() }, "Go Back")
         }
     }
 }

@@ -4,18 +4,19 @@
 
 package me.gustavolopezxyz.common.ui.common
 
-import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.toLocalDateTime
-import me.gustavolopezxyz.common.ext.currentTz
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import me.gustavolopezxyz.common.ui.theme.titleMedium
 
@@ -91,11 +92,56 @@ internal val ListItemPrimaryTextStyle @Composable get() = MaterialTheme.typograp
 internal val ListItemSecondaryTextStyle @Composable get() = MaterialTheme.typography.caption.copy(color = Color.Gray)
 
 @Composable
+fun AppCard(
+    modifier: Modifier = Modifier,
+    content: @Composable BoxScope.() -> Unit
+) {
+    Card(modifier) {
+        Box(Modifier.padding(AppDimensions.Default.cardPadding)) {
+            content()
+        }
+    }
+}
+
+@Composable
+fun AppChip(
+    color: Color = MaterialTheme.colors.surface,
+    text: @Composable RowScope.() -> Unit
+) {
+    Surface(
+        color = color,
+        contentColor = contentColorFor(color),
+        shape = MaterialTheme.shapes.small
+    ) {
+        Row(Modifier.padding(12.dp, 0.dp)) {
+            text()
+        }
+    }
+}
+
+@Composable
 fun AppList(
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit
 ) {
     Column(modifier, verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium)) {
+        content()
+    }
+}
+
+@Composable
+fun ListItemSpacer() {
+    Spacer(Modifier.height(AppDimensions.Default.listSpaceBetween))
+}
+
+@Composable
+fun AppLazyList(
+    modifier: Modifier = Modifier,
+    spaceBetween: Dp = AppDimensions.Default.listSpaceBetween,
+    state: LazyListState = rememberLazyListState(),
+    content: LazyListScope.() -> Unit
+) {
+    LazyColumn(modifier, state, verticalArrangement = Arrangement.spacedBy(spaceBetween)) {
         content()
     }
 }
@@ -223,12 +269,4 @@ fun OutlinedDoubleField(
         singleLine = true,
         readOnly = readOnly,
     )
-}
-
-@Preview
-@Composable
-fun OutlinedDateTextFieldPreview() {
-    val date = Clock.System.now().toLocalDateTime(currentTz()).date
-
-    OutlinedDateTextField(date, onValueChange = {})
 }

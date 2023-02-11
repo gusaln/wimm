@@ -12,6 +12,7 @@ internal val red400 = Color(0xFFEF5350)
 
 @Immutable
 object AppColors {
-    val positiveMoneyColor: Color = green400
-    val negativeMoneyColor: Color = red400
+    val positiveMoney: Color = green400
+    val negativeMoney: Color = red400
+    val cardBackground: Color = Color(0xFF1E1E1E)
 }

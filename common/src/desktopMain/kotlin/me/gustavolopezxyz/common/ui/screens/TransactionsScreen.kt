@@ -2,7 +2,7 @@
  * Copyright (c) 2023. Gustavo López. All rights reserved.
  */
 
-package me.gustavolopezxyz.common.ui
+package me.gustavolopezxyz.common.ui.screens
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -21,7 +21,12 @@ import me.gustavolopezxyz.common.data.CategoryWithParent
 import me.gustavolopezxyz.common.data.toDto
 import me.gustavolopezxyz.common.data.toEntryForTransaction
 import me.gustavolopezxyz.common.db.CategoryRepository
-import me.gustavolopezxyz.common.ui.core.MenuLayout
+import me.gustavolopezxyz.common.navigation.NavController
+import me.gustavolopezxyz.common.navigation.Screen
+import me.gustavolopezxyz.common.ui.CategoryDropdown
+import me.gustavolopezxyz.common.ui.TransactionsList
+import me.gustavolopezxyz.common.ui.TransactionsListViewModel
+import me.gustavolopezxyz.common.ui.common.MenuLayout
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import org.koin.java.KoinJavaComponent.inject
 
@@ -31,9 +36,10 @@ fun TransactionsScreen(navController: NavController) {
 
     var page by remember { mutableStateOf(1) }
     var perPage by remember { mutableStateOf(10) }
-    val transactions by transactionsListViewModel.getTransactions(page, perPage).mapToList()
+    val transactions by transactionsListViewModel.getTransactionsAsFlow(page, perPage).mapToList()
         .collectAsState(emptyList())
-    val entriesByTransaction by transactionsListViewModel.getEntries(transactions.map { it.transactionId }).mapToList()
+    val entriesByTransaction by transactionsListViewModel.getEntriesAsFlow(transactions.map { it.transactionId })
+        .mapToList()
         .map { list ->
             list.map { it.toEntryForTransaction() }.groupBy { it.transactionId }
         }
@@ -102,8 +108,7 @@ fun TransactionsScreen(navController: NavController) {
 
             TransactionsList(transactions, entriesByTransaction) {
                 navController.navigate(
-                    Screen.EditTransaction.route,
-                    Screen.EditTransaction.withArguments(it.transactionId)
+                    Screen.EditTransaction.route(it.transactionId)
                 )
             }
         }

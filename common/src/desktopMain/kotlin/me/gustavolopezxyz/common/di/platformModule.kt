@@ -8,10 +8,10 @@ import androidx.compose.material.SnackbarHostState
 import me.gustavolopezxyz.common.ConfigFactory
 import me.gustavolopezxyz.common.db.DatabaseFactory
 import me.gustavolopezxyz.common.services.BackupService
-import me.gustavolopezxyz.common.ui.AccountSummaryViewModel
-import me.gustavolopezxyz.common.ui.CreateTransactionViewModel
-import me.gustavolopezxyz.common.ui.EditTransactionViewModel
 import me.gustavolopezxyz.common.ui.TransactionsListViewModel
+import me.gustavolopezxyz.common.ui.screens.AccountSummaryViewModel
+import me.gustavolopezxyz.common.ui.screens.CreateTransactionViewModel
+import me.gustavolopezxyz.common.ui.screens.EditTransactionViewModel
 import org.koin.core.module.Module
 import org.koin.dsl.module
 

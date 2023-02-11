@@ -12,19 +12,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
+import kotlinx.coroutines.launch
 import me.gustavolopezxyz.common.di.initKoin
-import me.gustavolopezxyz.common.ui.AppNavigationHost
-import me.gustavolopezxyz.common.ui.CreateTransactionScreen
-import me.gustavolopezxyz.common.ui.Screen
-import me.gustavolopezxyz.common.ui.rememberNavController
+import me.gustavolopezxyz.common.navigation.AppNavigationHost
+import me.gustavolopezxyz.common.navigation.NavController
+import me.gustavolopezxyz.common.navigation.Screen
+import me.gustavolopezxyz.common.navigation.rememberNavController
+import me.gustavolopezxyz.common.ui.common.AppTextButton
+import me.gustavolopezxyz.common.ui.screens.CreateTransactionScreen
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import org.koin.java.KoinJavaComponent.get
 
 @Composable
 fun DesktopApp() {
-    val navController by rememberNavController(Screen.Transactions.route)
-    val scaffoldState =
-        rememberScaffoldState(snackbarHostState = get(SnackbarHostState::class.java))
+    val navController by rememberNavController(Screen.Overview.route)
+    val scaffoldState = rememberScaffoldState(snackbarHostState = get(SnackbarHostState::class.java))
+    val scope = rememberCoroutineScope()
 
     var isCreateOpen by remember { mutableStateOf(false) }
     if (isCreateOpen) {
@@ -33,11 +36,16 @@ fun DesktopApp() {
             title = "Create a transaction",
             undecorated = true,
         ) {
-            Card(Modifier.fillMaxSize(), shape = RoundedCornerShape(0)) {
-                CreateTransactionScreen(
-                    onCreate = { isCreateOpen = false },
-                    onCancel = { isCreateOpen = false }
-                )
+            Scaffold(scaffoldState = scaffoldState) {
+                Card(Modifier.fillMaxSize(), shape = RoundedCornerShape(0)) {
+                    CreateTransactionScreen(
+                        onCreate = {
+                            isCreateOpen = false
+                            scope.launch { scaffoldState.snackbarHostState.showSnackbar("Transaction recorded") }
+                        },
+                        onCancel = { isCreateOpen = false }
+                    )
+                }
             }
         }
     }
@@ -55,53 +63,37 @@ fun DesktopApp() {
 
                     Spacer(modifier = Modifier.width(42.dp))
 
-                    Text(
-                        "Transactions",
-                        modifier = Modifier
-                            .clickable { navController.navigate(Screen.Transactions.route) }
-                            .padding(AppDimensions.Default.padding.medium * 1.2f, AppDimensions.Default.padding.medium),
-                        style = MaterialTheme.typography.subtitle2
-                    )
+                    NavigationLink(navController, Screen.Overview.route, "Overview")
 
-                    Text(
-                        "Balances",
-                        modifier = Modifier
-                            .clickable { navController.navigate(Screen.Balances.route) }
-                            .padding(AppDimensions.Default.padding.medium * 1.2f, AppDimensions.Default.padding.medium),
-                        style = MaterialTheme.typography.subtitle2
-                    )
+                    NavigationLink(navController, Screen.ManageAccounts.route, "Manage accounts")
 
-                    Text(
-                        "Manage accounts",
-                        modifier = Modifier
-                            .clickable { navController.navigate(Screen.ManageAccounts.route) }
-                            .padding(AppDimensions.Default.padding.medium * 1.2f, AppDimensions.Default.padding.medium),
-                        style = MaterialTheme.typography.subtitle2
-                    )
-
-                    Text(
-                        "Manage categories",
-                        modifier = Modifier
-                            .clickable { navController.navigate(Screen.ManageCategories.route) }
-                            .padding(AppDimensions.Default.padding.medium * 1.2f, AppDimensions.Default.padding.medium),
-                        style = MaterialTheme.typography.subtitle2
-                    )
+                    NavigationLink(navController, Screen.ManageCategories.route, "Manage categories")
 
                     Spacer(modifier = Modifier.weight(1f))
 
-                    TextButton(onClick = { isCreateOpen = true }) {
-                        Icon(Icons.Default.Add, "create transaction")
-
-                        Spacer(modifier = Modifier.width(AppDimensions.Default.padding.large))
-
-                        Text("Create transaction")
-                    }
+                    AppTextButton(
+                        onClick = { isCreateOpen = true },
+                        text = "Create transaction",
+                        icon = { Icon(Icons.Default.Add, "create transaction") })
                 }
             }
         },
     ) {
         AppNavigationHost(navController)
     }
+}
+
+internal val NavigationLinkHorizontalPadding = 18.dp
+
+@Composable
+fun NavigationLink(navController: NavController, route: String, text: String) {
+    Text(
+        text,
+        modifier = Modifier
+            .clickable { navController.navigate(route) }
+            .padding(NavigationLinkHorizontalPadding, AppDimensions.Default.padding.medium),
+        style = MaterialTheme.typography.subtitle2
+    )
 }
 
 @Preview

@@ -30,22 +30,23 @@ class TransactionRepository : KoinComponent {
         return queries.selectByNumber(number).executeAsOneOrNull()
     }
 
-    fun create(categoryId: Long, description: String): Long {
+    fun create(categoryId: Long, description: String, total: Double): Long {
         val number = generateTransactionNumber()
 
-        queries.insertTransaction(number = number, categoryId = categoryId, description = description)
+        queries.insertTransaction(number = number, categoryId = categoryId, description = description, total = total)
 
         return number
     }
 
-    fun update(transaction: MoneyTransaction, categoryId: Long, description: String) =
-        update(transaction.transactionId, categoryId, description)
+    fun update(transaction: MoneyTransaction, categoryId: Long, description: String, total: Double) =
+        update(transaction.transactionId, categoryId, description, total)
 
-    fun update(transactionId: Long, categoryId: Long, description: String) {
+    fun update(transactionId: Long, categoryId: Long, description: String, total: Double) {
         return queries.updateTransaction(
             categoryId = categoryId,
             description = description,
-            transactionId = transactionId
+            transactionId = transactionId,
+            total = total
         )
     }
 

@@ -26,9 +26,11 @@ import me.gustavolopezxyz.common.navigation.NavController
 import me.gustavolopezxyz.common.navigation.Screen
 import me.gustavolopezxyz.common.ui.TransactionsListViewModel
 import me.gustavolopezxyz.common.ui.common.*
+import me.gustavolopezxyz.common.ui.core.MoneyPartitionSummary
 import me.gustavolopezxyz.common.ui.theme.AppColors
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import org.koin.java.KoinJavaComponent.inject
+
 
 @Composable
 fun OverviewScreen(navController: NavController) {
@@ -38,24 +40,57 @@ fun OverviewScreen(navController: NavController) {
     val accountRepository by remember { inject<AccountRepository>(AccountRepository::class.java) }
 
     ContainerLayout {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(
-                AppDimensions.Default.spacing.large, Alignment.CenterHorizontally
-            )
-        ) {
-            Spacer(modifier = Modifier.weight(1f))
+        Column {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(
+                    AppDimensions.Default.spacing.large, Alignment.CenterHorizontally
+                )
+            ) {
+                Spacer(modifier = Modifier.weight(1f))
 
-            TransactionsOverviewCard(transactionsListViewModel, Modifier.fillMaxHeight().weight(3f)) {
-                navController.navigate(Screen.EditTransaction.route(it.transactionId))
+                AccountPartitionSummaryCard(accountRepository, Modifier.weight(6f))
+
+                Spacer(modifier = Modifier.weight(1f))
             }
 
-            AccountsOverviewCard(accountRepository, Modifier.weight(3f).fillMaxHeight()) {
-                navController.navigate(Screen.AccountSummary.route(it.accountId))
-            }
+            Spacer(modifier = Modifier.height(AppDimensions.Default.spacing.extraLarge))
 
-            Spacer(modifier = Modifier.weight(1f))
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(
+                    AppDimensions.Default.spacing.large, Alignment.CenterHorizontally
+                )
+            ) {
+                Spacer(modifier = Modifier.weight(1f))
+
+                TransactionsOverviewCard(transactionsListViewModel, Modifier.fillMaxHeight().weight(3f)) {
+                    navController.navigate(Screen.EditTransaction.route(it.transactionId))
+                }
+
+                AccountsOverviewCard(accountRepository, Modifier.weight(3f).fillMaxHeight()) {
+                    navController.navigate(Screen.AccountSummary.route(it.accountId))
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+            }
         }
     }
+}
+
+val colors = Palette.Green.reversed()
+
+@Composable
+fun AccountPartitionSummaryCard(accountRepository: AccountRepository, modifier: Modifier = Modifier) {
+    val assetAccounts by derivedStateOf {
+        accountRepository.getByType(AccountType.InAssets).sortedByDescending { it.balance }
+    }
+
+    MoneyPartitionSummary(
+        "Owned",
+        currencyOf("USD"),
+        assetAccounts.associateBy({ it.name }, { it.balance }),
+        colors,
+        modifier
+    )
 }
 
 const val TRANSACTIONS_PAGE_SIZE = 15

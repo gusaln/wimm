@@ -4,6 +4,9 @@ SELECT * FROM account;
 selectById:
 SELECT * FROM account WHERE accountId IN ?;
 
+selectByType:
+SELECT * FROM account WHERE type IN ?;
+
 insertAccount:
 INSERT INTO account(type, name, currency)
 VALUES (:type, :name, :currency);

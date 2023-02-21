@@ -13,10 +13,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import me.gustavolopezxyz.common.data.AccountType
 import me.gustavolopezxyz.common.ui.theme.dropdownSelected
@@ -50,20 +46,7 @@ fun AccountTypeDropdown(
                         onClick(it)
                         onExpandedChange(false)
                     }) {
-                        Text(buildAnnotatedString {
-                            append(it.name)
-                            append(" ")
-
-                            withStyle(
-                                SpanStyle(
-                                    color = Color.Gray, fontSize = MaterialTheme.typography.caption.fontSize
-                                )
-                            ) {
-                                append(
-                                    if (it.isDebit()) "(debit)" else "(credit)"
-                                )
-                            }
-                        }, style = style)
+                        Text(it.name, style = style)
                     }
                 }
             }

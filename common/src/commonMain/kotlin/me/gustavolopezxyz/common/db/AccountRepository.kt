@@ -31,6 +31,14 @@ class AccountRepository : KoinComponent {
         return accountQueries.selectById(listOf(id)).executeAsOneOrNull()
     }
 
+    fun getByType(types: Collection<AccountType>): List<Account> {
+        return accountQueries.selectByType(types).executeAsList()
+    }
+
+    fun getByType(type: AccountType): List<Account> {
+        return accountQueries.selectByType(listOf(type)).executeAsList()
+    }
+
     fun allAsFlow(): Flow<Query<Account>> {
         return accountQueries.selectAll().asFlow()
     }

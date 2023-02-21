@@ -4,8 +4,11 @@
 
 package me.gustavolopezxyz.common.data
 
+// Based on the accounting equation:
+// Cash + Envelope + Asset + Receivable = Payable + (Income - Expense)
 enum class AccountType {
     Cash,
+    Envelope,
     Asset,
     Receivable,
 
@@ -13,15 +16,8 @@ enum class AccountType {
     Expense,
     Income;
 
-    fun isDebit(): Boolean = when (this) {
-        Cash,
-        Asset,
-        Receivable,
-        Expense -> true
 
-        Payable,
-        Income -> false
+    companion object {
+        val InAssets: List<AccountType> get() = listOf(Cash, Envelope, Asset, Receivable)
     }
-
-    fun isCredit(): Boolean = !isDebit()
 }

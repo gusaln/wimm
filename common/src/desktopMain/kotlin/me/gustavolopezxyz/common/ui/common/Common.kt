@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalDate
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import me.gustavolopezxyz.common.ui.theme.titleMedium
+import java.text.DecimalFormat
 
 
 fun Int.minMax(min: Int, max: Int) = when {
@@ -106,6 +107,7 @@ fun AppCard(
 @Composable
 fun AppChip(
     color: Color = MaterialTheme.colors.surface,
+    modifier: Modifier = Modifier,
     text: @Composable RowScope.() -> Unit
 ) {
     Surface(
@@ -113,7 +115,7 @@ fun AppChip(
         contentColor = contentColorFor(color),
         shape = MaterialTheme.shapes.small
     ) {
-        Row(Modifier.padding(12.dp, 0.dp)) {
+        Row(modifier.padding(12.dp, 0.dp)) {
             text()
         }
     }
@@ -210,6 +212,8 @@ fun AppListItem(
 fun AppDivider(modifier: Modifier = Modifier) {
     Divider(color = MaterialTheme.colors.background, thickness = 1.dp, modifier = modifier)
 }
+
+val PercentageFormat = DecimalFormat("#0.0 %")
 
 @Composable
 fun OutlinedDateTextField(

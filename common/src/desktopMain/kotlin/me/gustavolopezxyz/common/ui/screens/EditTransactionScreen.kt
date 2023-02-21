@@ -78,7 +78,9 @@ class EditTransactionViewModel(val transactionId: Long) : KoinComponent {
         }
 
         db.transaction {
-            transactionRepository.update(transactionId, categoryId, description.trim())
+            val newTotal = toCreate.asIterable().sumOf { it.amount } + toModify.filter { it.wasEdited }.asIterable()
+                .sumOf { it.amount }
+            transactionRepository.update(transactionId, categoryId, description.trim(), newTotal)
 
             toCreate.forEach {
                 entriesRepository.create(

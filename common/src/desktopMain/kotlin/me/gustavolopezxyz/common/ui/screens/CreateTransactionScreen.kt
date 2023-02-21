@@ -64,7 +64,10 @@ class CreateTransactionViewModel : KoinComponent {
         }
 
         db.transaction {
-            val number = transactionRepository.create(category.categoryId, description.trim())
+            val number = transactionRepository.create(
+                category.categoryId,
+                description.trim(),
+                entries.asIterable().sumOf { it.amount })
             val transactionId = transactionRepository.findByReference(number)!!.transactionId
 
             entries.forEach {
@@ -94,6 +97,8 @@ fun CreateTransactionScreen(onCreate: () -> Unit = {}, onCancel: (() -> Unit)? =
     val entries = remember { mutableStateListOf<NewEntryDto>() }
     var isCategoryDropdownExpanded by remember { mutableStateOf(false) }
 
+    val onCreateHook by rememberUpdatedState(onCreate)
+
     fun handleCreate() {
         if (category == null) {
             scope.launch {
@@ -102,7 +107,7 @@ fun CreateTransactionScreen(onCreate: () -> Unit = {}, onCancel: (() -> Unit)? =
         } else {
             scope.launch {
                 viewModel.createTransaction(description, category!!.toCategory(), entries)
-                onCreate()
+                onCreateHook()
             }
         }
     }

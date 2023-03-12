@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalDate
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import me.gustavolopezxyz.common.ui.theme.titleMedium
+import java.math.RoundingMode
 import java.text.DecimalFormat
 
 
@@ -214,6 +215,9 @@ fun AppDivider(modifier: Modifier = Modifier) {
 }
 
 val PercentageFormat = DecimalFormat("#0.0 %")
+val MoneyAmountFormat = DecimalFormat("#,##0.00").apply {
+    roundingMode = RoundingMode.CEILING
+}
 
 @Composable
 fun OutlinedDateTextField(

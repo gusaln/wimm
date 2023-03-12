@@ -17,7 +17,7 @@ import androidx.compose.ui.text.style.TextAlign
 import me.gustavolopezxyz.common.data.Account
 import me.gustavolopezxyz.common.data.EntryForAccount
 import me.gustavolopezxyz.common.data.getCurrency
-import me.gustavolopezxyz.common.ext.toSimpleFormat
+import me.gustavolopezxyz.common.ext.datetime.toSimpleFormat
 import me.gustavolopezxyz.common.ui.common.*
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 

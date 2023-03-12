@@ -17,7 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.Clock
 import kotlinx.datetime.toLocalDateTime
-import me.gustavolopezxyz.common.ext.currentTz
+import me.gustavolopezxyz.common.ext.datetime.currentTimeZone
 import me.gustavolopezxyz.common.ui.theme.AppTheme
 
 @Preview
@@ -57,7 +57,7 @@ fun AppChipPreview() {
 @Preview
 @Composable
 fun OutlinedDateTextFieldPreview() {
-    val date = Clock.System.now().toLocalDateTime(currentTz()).date
+    val date = Clock.System.now().toLocalDateTime(currentTimeZone()).date
 
     OutlinedDateTextField(date, onValueChange = {})
 }

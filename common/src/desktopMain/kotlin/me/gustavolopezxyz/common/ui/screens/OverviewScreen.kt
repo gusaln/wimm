@@ -124,7 +124,8 @@ fun TransactionsOverviewCard(
             .groupBy { it.transactionId }
     }
 
-    val listState = rememberLazyListStateWithLoadMoreHandler(buffer = 4) {
+    val listState = rememberLazyListState()
+    listState.LaunchOnBottomReachedEffect(buffer = 4) {
         if (transactions.isNotEmpty() && !pagination.isLoading && pagination.itemsLoaded(TRANSACTIONS_PAGE_SIZE) < it.lastVisibleItemIndex + it.buffer + 1) {
             pagination.loadUpToPage(pagination.pagesLoaded + 1)
         }

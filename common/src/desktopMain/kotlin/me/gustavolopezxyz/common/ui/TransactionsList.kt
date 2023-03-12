@@ -15,13 +15,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
+import com.squareup.sqldelight.runtime.coroutines.mapToList
+import kotlinx.coroutines.flow.map
 import me.gustavolopezxyz.common.data.EntryForTransaction
 import me.gustavolopezxyz.common.data.MoneyTransaction
+import me.gustavolopezxyz.common.data.toDto
 import me.gustavolopezxyz.common.db.CategoryRepository
 import me.gustavolopezxyz.common.db.EntryRepository
 import me.gustavolopezxyz.common.db.TransactionRepository
+import me.gustavolopezxyz.common.ext.datetime.toSimpleFormat
 import me.gustavolopezxyz.common.ext.toCurrency
-import me.gustavolopezxyz.common.ext.toSimpleFormat
 import me.gustavolopezxyz.common.ui.common.AppDivider
 import me.gustavolopezxyz.common.ui.common.CardTitle
 import me.gustavolopezxyz.common.ui.common.MoneyText
@@ -43,6 +46,10 @@ class TransactionsListViewModel() : KoinComponent {
     fun getEntries(transactionIds: Collection<Long>) = entryRepository.getAllForTransactions(transactionIds)
 
     fun getCategoriesAsFlow() = categoryRepository.allAsFlow()
+
+    fun getCategoriesMapAsFlow() = getCategoriesAsFlow().mapToList().map { list ->
+        list.map { it.toDto() }.associateBy { it.categoryId }
+    }
 }
 
 @Composable

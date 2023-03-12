@@ -5,7 +5,7 @@
 package me.gustavolopezxyz.common.data
 
 import kotlinx.datetime.*
-import me.gustavolopezxyz.common.ext.currentTz
+import me.gustavolopezxyz.common.ext.datetime.currentTimeZone
 import me.gustavolopezxyz.db.SelectEntriesForTransaction
 
 data class NewEntryDto(
@@ -16,7 +16,7 @@ data class NewEntryDto(
     val recordedAt: LocalDate = incurredAt
 )
 
-fun emptyNewEntryDto() = NewEntryDto(incurredAt = Clock.System.now().toLocalDateTime(currentTz()).date)
+fun emptyNewEntryDto() = NewEntryDto(incurredAt = Clock.System.now().toLocalDateTime(currentTimeZone()).date)
 
 
 data class ModifiedEntryDto(
@@ -60,10 +60,10 @@ data class ModifiedEntryDto(
         accountId = accountId,
         amount = amount,
         incurredAt = incurredAt.atTime(0, 0, 0).toInstant(
-            currentTz()
+            currentTimeZone()
         ),
         recordedAt = recordedAt.atTime(0, 0, 0).toInstant(
-            currentTz()
+            currentTimeZone()
         )
     )
 }
@@ -75,7 +75,7 @@ fun modifiedEntryDto(entry: SelectEntriesForTransaction): ModifiedEntryDto {
         accountName = entry.accountName,
         currency = entry.currency,
         amount = entry.amount,
-        incurredAt = entry.incurredAt.toLocalDateTime(currentTz()).date,
-        recordedAt = entry.recordedAt.toLocalDateTime(currentTz()).date,
+        incurredAt = entry.incurredAt.toLocalDateTime(currentTimeZone()).date,
+        recordedAt = entry.recordedAt.toLocalDateTime(currentTimeZone()).date,
     )
 }

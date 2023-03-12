@@ -4,13 +4,14 @@
 
 package me.gustavolopezxyz.common.db
 
+import com.squareup.sqldelight.Query
 import com.squareup.sqldelight.runtime.coroutines.asFlow
-import kotlinx.datetime.Instant
-import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.toInstant
+import kotlinx.coroutines.flow.Flow
+import kotlinx.datetime.*
 import me.gustavolopezxyz.common.data.Database
 import me.gustavolopezxyz.common.data.Entry
-import me.gustavolopezxyz.common.ext.currentTz
+import me.gustavolopezxyz.common.ext.datetime.currentTimeZone
+import me.gustavolopezxyz.db.SelectEntriesInRange
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -57,8 +58,8 @@ class EntryRepository : KoinComponent {
         transactionId,
         accountId,
         amount,
-        incurredAt.toInstant(currentTz()),
-        recordedAt.toInstant(currentTz()),
+        incurredAt.toInstant(currentTimeZone()),
+        recordedAt.toInstant(currentTimeZone()),
     )
 
     fun create(

@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.*
 import me.gustavolopezxyz.common.Config
 import me.gustavolopezxyz.common.data.Database
-import me.gustavolopezxyz.common.ext.currentTz
+import me.gustavolopezxyz.common.ext.datetime.currentTimeZone
 import org.koin.java.KoinJavaComponent
 import java.io.File
 import kotlin.io.path.Path
@@ -105,7 +105,7 @@ class BackupService(private val config: Config) {
     }
 
     private fun Backup(): Backup {
-        val date = Clock.System.now().toLocalDateTime(currentTz())
+        val date = Clock.System.now().toLocalDateTime(currentTimeZone())
         val backupPath = Path(
             config.backupDirPath,
             "%04d%02d%02d%02d%02d%02d.%d.backup.db".format(

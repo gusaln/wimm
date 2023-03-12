@@ -13,10 +13,13 @@ fun main() = application {
 
     val backupService = get<BackupService>(BackupService::class.java)
 
-    backupService.run()
+    backupService.deleteExcessBackups()
 
     AppTheme(darkTheme = true) {
-        Window(onCloseRequest = ::exitApplication, title = "WIMM - Where is my Money?") {
+        Window(onCloseRequest = {
+            backupService.makeBackup()
+            exitApplication()
+        }, title = "WIMM - Where is my Money?") {
             DesktopApp()
         }
     }

@@ -90,12 +90,16 @@ fun ManageAccountsScreen() {
         modifier = Modifier.fillMaxWidth().padding(AppDimensions.Default.padding.large),
         verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.large)
     ) {
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            ScreenTitle("Accounts")
-
-            Button(onClick = { isCreatingOpen = !isCreatingOpen }) {
-                Text("Create account")
+        Row(modifier = Modifier.fillMaxWidth()) {
+            ScreenTitle {
+                Text("Accounts")
             }
+
+            Spacer(Modifier.weight(1f))
+
+            AppButton(onClick = { isCreatingOpen = !isCreatingOpen }, "Create account")
+            Spacer(Modifier.width(AppDimensions.Default.spacing.medium))
+            AppButton(onClick = { accountRepository.recomputeBalances() }, "Reload balances")
         }
 
         Spacer(modifier = Modifier.fillMaxWidth())

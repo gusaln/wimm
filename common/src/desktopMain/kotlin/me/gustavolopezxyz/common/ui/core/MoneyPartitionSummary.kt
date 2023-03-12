@@ -59,7 +59,7 @@ fun MoneyPartitionSummary(
     modifier: Modifier = Modifier,
     title: @Composable (() -> Unit),
 ) {
-    val amountsEntries = remember { amounts.map { MoneyPartitionEntry(it.key, it.value) } }
+    val amountsEntries by derivedStateOf { amounts.map { MoneyPartitionEntry(it.key, it.value) } }
 
     val included = remember { mutableStateMapOf<String, Boolean>() }
     val filteredTotal by derivedStateOf {
@@ -115,7 +115,7 @@ fun MoneyPartitionSummary(
 
                                 AppChip(
                                     color = colorPalette[index % colorPalette.size],
-                                    modifier = Modifier.width(70.dp),
+                                    modifier = Modifier.width(80.dp),
                                 ) {
                                     Text(
                                         text = PercentageFormat.format(fraction),

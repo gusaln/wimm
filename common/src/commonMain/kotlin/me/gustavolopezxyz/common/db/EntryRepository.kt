@@ -40,6 +40,23 @@ class EntryRepository : KoinComponent {
     fun getAllForAccount(accountId: Long, offset: Long = 0, limit: Long = 15) =
         entryQueries.selectEntriesForAccount(listOf(accountId), offset = offset, limit = limit).asFlow()
 
+    fun getInRangeAsFlow(from: LocalDateTime, to: LocalDateTime): Flow<Query<SelectEntriesInRange>> {
+        return entryQueries.selectEntriesInRange(from.toInstant(currentTimeZone()), to.toInstant(currentTimeZone()))
+            .asFlow()
+    }
+
+//    fun getInRangeAsFlow(range: ClosedRange<LocalDateTime>): Flow<Query<SelectEntriesInRange>> {
+//        return getInRangeAsFlow(range.start, range.endInclusive)
+//    }
+
+    fun getInRangeAsFlow(from: LocalDate, to: LocalDate): Flow<Query<SelectEntriesInRange>> =
+        getInRangeAsFlow(from.atTime(0, 0, 0), to.atTime(23, 59, 59))
+
+    fun getInRangeAsFlow(range: ClosedRange<LocalDate>): Flow<Query<SelectEntriesInRange>> {
+        return getInRangeAsFlow(range.start, range.endInclusive)
+    }
+
+
     fun create(entry: Entry) = create(
         entry.transactionId,
         entry.accountId,

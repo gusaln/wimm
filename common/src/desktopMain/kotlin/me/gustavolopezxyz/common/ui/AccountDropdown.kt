@@ -21,6 +21,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import me.gustavolopezxyz.common.data.Account
+import me.gustavolopezxyz.common.ui.common.MoneyAmountFormat
 import me.gustavolopezxyz.common.ui.theme.dropdownSelected
 import me.gustavolopezxyz.common.ui.theme.dropdownUnselected
 
@@ -61,7 +62,7 @@ fun AccountDropdown(
                             withStyle(
                                 SpanStyle(color = Color.Gray, fontSize = MaterialTheme.typography.caption.fontSize)
                             ) {
-                                append("[${it.type.name}; ${it.currency}]")
+                                append("[${it.type.name}; ${it.currency} ${MoneyAmountFormat.format(it.balance)}]")
                             }
                         }, style = style)
                     }

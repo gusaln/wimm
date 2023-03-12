@@ -8,19 +8,29 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.flow.*
+import kotlinx.datetime.*
 import me.gustavolopezxyz.common.data.*
 import me.gustavolopezxyz.common.db.AccountRepository
+import me.gustavolopezxyz.common.db.CategoryRepository
+import me.gustavolopezxyz.common.db.EntryRepository
+import me.gustavolopezxyz.common.ext.datetime.*
 import me.gustavolopezxyz.common.ext.toCurrency
 import me.gustavolopezxyz.common.navigation.NavController
 import me.gustavolopezxyz.common.navigation.Screen
@@ -29,15 +39,22 @@ import me.gustavolopezxyz.common.ui.common.*
 import me.gustavolopezxyz.common.ui.core.MoneyPartitionSummary
 import me.gustavolopezxyz.common.ui.theme.AppColors
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
+import me.gustavolopezxyz.common.ui.theme.dropdownSelected
+import me.gustavolopezxyz.common.ui.theme.dropdownUnselected
+import me.gustavolopezxyz.db.SelectEntriesInRange
 import org.koin.java.KoinJavaComponent.inject
-
+import kotlin.math.absoluteValue
 
 @Composable
 fun OverviewScreen(navController: NavController) {
     val transactionsListViewModel by remember {
         inject<TransactionsListViewModel>(TransactionsListViewModel::class.java)
     }
+    val entryRepository by remember { inject<EntryRepository>(EntryRepository::class.java) }
+    val categoryRepository by remember { inject<CategoryRepository>(CategoryRepository::class.java) }
     val accountRepository by remember { inject<AccountRepository>(AccountRepository::class.java) }
+
+    var summary by remember { mutableStateOf(SummaryType.Owned) }
 
     ContainerLayout {
         Column {
@@ -46,52 +63,177 @@ fun OverviewScreen(navController: NavController) {
                     AppDimensions.Default.spacing.large, Alignment.CenterHorizontally
                 )
             ) {
-                Spacer(modifier = Modifier.weight(1f))
-
-                AccountPartitionSummaryCard(accountRepository, Modifier.weight(6f))
-
-                Spacer(modifier = Modifier.weight(1f))
-            }
-
-            Spacer(modifier = Modifier.height(AppDimensions.Default.spacing.extraLarge))
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(
-                    AppDimensions.Default.spacing.large, Alignment.CenterHorizontally
-                )
-            ) {
-                Spacer(modifier = Modifier.weight(1f))
-
-                TransactionsOverviewCard(transactionsListViewModel, Modifier.fillMaxHeight().weight(3f)) {
+                TransactionsOverviewCard(transactionsListViewModel, Modifier.fillMaxHeight().weight(1f)) {
                     navController.navigate(Screen.EditTransaction.route(it.transactionId))
                 }
 
-                AccountsOverviewCard(accountRepository, Modifier.weight(3f).fillMaxHeight()) {
-                    navController.navigate(Screen.AccountSummary.route(it.accountId))
-                }
+                when (summary) {
+                    SummaryType.Owned -> {
+                        AccountPartitionSummaryCard(accountRepository, Modifier.weight(2f)) {
+                            SummaryTypeDropdown(summary, onClick = { summary = it })
+                        }
+                    }
 
-                Spacer(modifier = Modifier.weight(1f))
+                    SummaryType.Expenses -> {
+                        ExpensesSummaryCard(categoryRepository, entryRepository, Modifier.weight(2f)) {
+                            SummaryTypeDropdown(summary, onClick = { summary = it })
+                        }
+                    }
+                }
             }
         }
     }
 }
 
-val colors = Palette.Green.reversed()
+enum class SummaryType {
+    Owned,
+    Expenses;
+
+    override fun toString(): String {
+        return when (this) {
+            Owned -> "Owned"
+
+            Expenses -> "Expenses"
+        }
+    }
+}
 
 @Composable
-fun AccountPartitionSummaryCard(accountRepository: AccountRepository, modifier: Modifier = Modifier) {
-    val assetAccounts by derivedStateOf {
-        accountRepository.getByType(AccountType.InAssets).sortedByDescending { it.balance }
+fun SummaryTypeDropdown(
+    value: SummaryType,
+    onClick: (value: SummaryType) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box {
+        Row(modifier = modifier) {
+            TextButton(onClick = { expanded = true }, enabled = !expanded) {
+                Text(value.toString(), style = TextStyle(fontSize = 1.1.em))
+                Spacer(Modifier.width(8.dp))
+                Icon(
+                    imageVector = Icons.Filled.ArrowDropDown,
+                    contentDescription = "dropdown icon",
+                )
+            }
+
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier.widthIn(200.dp, 450.dp)
+            ) {
+                SummaryType.values().forEach {
+                    val isSelected = it == value
+                    val style =
+                        if (isSelected) MaterialTheme.typography.dropdownSelected else MaterialTheme.typography.dropdownUnselected
+
+                    DropdownMenuItem(onClick = {
+                        onClick(it)
+                        expanded = false
+                    }) {
+                        Text(it.name, style = style)
+                    }
+                }
+            }
+        }
+    }
+}
+
+val expensesColors = listOfNotNull(
+    Palette.Colors["red800"],
+    Palette.Colors["red600"],
+    Palette.Colors["red400"],
+    Palette.Colors["red200"],
+    Palette.Colors["orange800"],
+    Palette.Colors["orange600"],
+    Palette.Colors["orange400"],
+    Palette.Colors["orange200"],
+    Palette.Colors["yellow800"],
+    Palette.Colors["yellow600"],
+    Palette.Colors["yellow400"],
+    Palette.Colors["yellow200"],
+)
+
+@Composable
+fun ExpensesSummaryCard(
+    categoryRepository: CategoryRepository,
+    entryRepository: EntryRepository,
+    modifier: Modifier = Modifier,
+    actions: @Composable RowScope.() -> Unit
+) {
+    var month by remember { mutableStateOf(nowLocalDateTime().date) }
+
+    val categories by categoryRepository.allAsFlow().mapToList().map { list ->
+        list.map { it.toDto() }.associateBy { it.categoryId }
+    }.collectAsState(emptyMap())
+
+    var expenses by remember { mutableStateOf(emptyList<SelectEntriesInRange>()) }
+    LaunchedEffect(month) {
+        entryRepository.getInRangeAsFlow(month.startOfMonth().rangeToEndOfMonth()).mapToList()
+            .map { list ->
+                list.filter { it.amount < 0 }.sortedBy { it.amount }
+            }.collect {
+                expenses = it
+            }
     }
 
     MoneyPartitionSummary(
-        "Owned",
+        currencyOf("USD"),
+        expenses.groupBy {
+            categories.getOrDefault(
+                it.transactionCategoryId,
+                MissingCategory.toDto()
+            ).fullname()
+        }.mapValues { entry -> entry.value.sumOf { it.amount } },
+        expensesColors,
+        modifier
+    ) {
+        AppListTitle(verticalAlignment = Alignment.Top) {
+            actions()
+
+            Spacer(Modifier.weight(1f))
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.small),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(month.month.toString())
+
+                IconButton(onClick = { month = month.prevMonth() }) {
+                    Icon(Icons.Default.KeyboardArrowLeft, "prev month")
+                }
+
+                IconButton(onClick = { month = month.nextMonth() }) {
+                    Icon(Icons.Default.KeyboardArrowRight, "next month")
+                }
+            }
+        }
+    }
+}
+
+val assetColors = Palette.Green.reversed()
+
+@Composable
+fun AccountPartitionSummaryCard(
+    accountRepository: AccountRepository,
+    modifier: Modifier = Modifier,
+    actions: @Composable RowScope.() -> Unit
+) {
+    val assetAccounts by derivedStateOf {
+        accountRepository.getByType(AccountType.InAssets).filter { it.balance.absoluteValue > 0.01 }
+            .sortedByDescending { it.balance }
+    }
+
+    MoneyPartitionSummary(
         currencyOf("USD"),
         assetAccounts.associateBy({ it.name }, { it.balance }),
-        colors,
+        assetColors,
         modifier
-    )
+    ) {
+        AppListTitle(verticalAlignment = Alignment.Top, content = actions)
+    }
 }
+
 
 const val TRANSACTIONS_PAGE_SIZE = 15
 
@@ -101,9 +243,7 @@ fun TransactionsOverviewCard(
     modifier: Modifier,
     onClickTransaction: (MoneyTransaction) -> Unit
 ) {
-    val categoriesById by viewModel.getCategoriesAsFlow().mapToList().map { list ->
-        list.map { it.toDto() }.associateBy { it.categoryId }
-    }.collectAsState(emptyMap())
+    val categoriesById by viewModel.getCategoriesMapAsFlow().collectAsState(emptyMap())
 
     val pagination = rememberLazyPaginationState<MoneyTransaction>()
     LaunchedEffect(pagination.pagesLoaded) {
@@ -147,15 +287,10 @@ fun TransactionsOverviewCard(
     ) {
         AppListItem(
             secondaryText = {
-                Surface(color = MaterialTheme.colors.secondary, shape = MaterialTheme.shapes.small) {
-                    Box(Modifier.padding(12.dp, 0.dp)) {
-                        Text(
-                            categoriesById.getOrDefault(it.categoryId, MissingCategory.toDto()).fullname(),
-                            color = MaterialTheme.colors.onSecondary,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    }
-                }
+                Text(
+                    categoriesById.getOrDefault(it.categoryId, MissingCategory.toDto()).fullname(),
+                    overflow = TextOverflow.Ellipsis,
+                )
             },
             action = {
                 IconButton(
@@ -166,7 +301,9 @@ fun TransactionsOverviewCard(
                 }
             }
         ) {
-            Text(it.description, overflow = TextOverflow.Ellipsis)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(it.description, overflow = TextOverflow.Ellipsis)
+            }
         }
 
         ListItemSpacer()
@@ -174,43 +311,21 @@ fun TransactionsOverviewCard(
         entriesByTransaction.getOrDefault(it.transactionId, emptyList()).forEach { entry ->
             AppListItem(
                 modifier = Modifier.padding(start = 12.dp),
+                secondaryText = {
+                    Text(entry.incurredAt.toSimpleFormat())
+                },
                 action = {
                     MoneyText(entry.amount, entry.currency.toCurrency())
                 }
             ) {
                 Text(entry.accountName, overflow = TextOverflow.Ellipsis)
             }
+
+            Spacer(Modifier.height(12.dp))
         }
     }
 }
 
-@Composable
-fun AccountsOverviewCard(
-    accountRepository: AccountRepository,
-    modifier: Modifier,
-    onAccountSelect: (Account) -> Unit
-) {
-    val accounts by accountRepository.allAsFlow().mapToList().collectAsState(emptyList())
-
-    OverviewListCard(
-        modifier = modifier,
-        title = "Accounts",
-        items = accounts,
-    ) {
-        AppListItem(action = {
-            MoneyText(it.balance, it.getCurrency())
-
-            IconButton(
-                onClick = { onAccountSelect(it) },
-                modifier = Modifier.wrapContentSize()
-            ) {
-                Icon(Icons.Default.ArrowForward, "edit transaction", Modifier.size(16.dp))
-            }
-        }) {
-            Text(it.name)
-        }
-    }
-}
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

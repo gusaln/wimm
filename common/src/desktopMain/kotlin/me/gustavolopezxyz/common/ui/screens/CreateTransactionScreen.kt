@@ -43,14 +43,20 @@ class CreateTransactionViewModel : KoinComponent {
     val snackbar: SnackbarHostState by inject()
 
     @Composable
-    fun getAccounts() = accountRepository.allAsFlow().mapToList().collectAsState(emptyList())
+    fun getAccounts() =
+        accountRepository.allAsFlow().mapToList().map { list -> list.sortedBy { it.name } }.collectAsState(emptyList())
 
     @Composable
     fun getCategories() = categoryRepository.allAsFlow().mapToList().map { list ->
         list.map { it.toDto() }.sortedBy { it.fullname() }
     }.collectAsState(emptyList())
 
-    suspend fun createTransaction(description: String, category: Category, entries: List<NewEntryDto>) {
+    suspend fun createTransaction(
+        description: String,
+        details: String,
+        category: Category,
+        entries: List<NewEntryDto>
+    ) {
         if (description.trim().isEmpty()) {
             snackbar.showSnackbar("You need a description")
 
@@ -66,8 +72,10 @@ class CreateTransactionViewModel : KoinComponent {
         db.transaction {
             val number = transactionRepository.create(
                 category.categoryId,
-                description.trim(),
-                entries.asIterable().sumOf { it.amount })
+                description,
+                details,
+                entries.asIterable().sumOf { it.amount }
+            )
             val transactionId = transactionRepository.findByReference(number)!!.transactionId
 
             entries.forEach {
@@ -93,8 +101,9 @@ fun CreateTransactionScreen(onCreate: () -> Unit = {}, onCancel: (() -> Unit)? =
     val categories by viewModel.getCategories()
 
     var description by remember { mutableStateOf("") }
+    var details by remember { mutableStateOf("") }
     var category by remember { mutableStateOf<CategoryWithParent?>(null) }
-    val entries = remember { mutableStateListOf<NewEntryDto>() }
+    val entries = remember { mutableStateListOf(emptyNewEntryDto()) }
     var isCategoryDropdownExpanded by remember { mutableStateOf(false) }
 
     val onCreateHook by rememberUpdatedState(onCreate)
@@ -106,7 +115,7 @@ fun CreateTransactionScreen(onCreate: () -> Unit = {}, onCancel: (() -> Unit)? =
             }
         } else {
             scope.launch {
-                viewModel.createTransaction(description, category!!.toCategory(), entries)
+                viewModel.createTransaction(description, details, category!!.toCategory(), entries)
                 onCreateHook()
             }
         }
@@ -127,11 +136,24 @@ fun CreateTransactionScreen(onCreate: () -> Unit = {}, onCancel: (() -> Unit)? =
         verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium)
     ) {
         Text("Create a transaction", style = MaterialTheme.typography.h5)
+
         OutlinedTextField(modifier = Modifier.fillMaxWidth(),
             value = description,
-            onValueChange = { description = it },
+            onValueChange = { description = if (it.isNotEmpty()) it.trimStart() else it },
             label = { Text("Description") },
             placeholder = { Text("To what end the money was moved? (Beer night, Salary, Bonus)") })
+
+        Spacer(modifier = Modifier.fillMaxWidth())
+
+        OutlinedTextField(
+            modifier = Modifier.fillMaxWidth(),
+            value = details,
+            onValueChange = { details = it.trimStart() },
+            label = { Text("Details (optional)") },
+            placeholder = { Text("10 in beer, 10 taxi, etc..") },
+            singleLine = false,
+            maxLines = 4
+        )
 
         Spacer(modifier = Modifier.fillMaxWidth())
 

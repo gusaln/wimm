@@ -37,7 +37,7 @@ actual class DatabaseFactory(private val config: Config) {
     private fun getLastMigration(): Int {
         val lastMigrationFile = getLastMigrationFile()
 
-        if (lastMigrationFile.isFile && lastMigrationFile.canRead()) return lastMigrationFile.readText().toInt()
+        if (lastMigrationFile.isFile && lastMigrationFile.canRead()) return lastMigrationFile.readText().trim().toInt()
 
         return Database.Schema.version
     }

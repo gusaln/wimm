@@ -17,7 +17,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.datetime.atTime
 import me.gustavolopezxyz.common.data.*
@@ -41,19 +43,24 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.parameter.parametersOf
 import org.koin.java.KoinJavaComponent.inject
 
-class EditTransactionViewModel(val transactionId: Long) : KoinComponent {
+class EditTransactionViewModel(private val transactionId: Long) : KoinComponent {
     private val db by inject<Database>(Database::class.java)
     private val accountRepository by inject<AccountRepository>(AccountRepository::class.java)
-    private val categoriesRepository by inject<CategoryRepository>(CategoryRepository::class.java)
+    private val categoryRepository by inject<CategoryRepository>(CategoryRepository::class.java)
     private val transactionRepository by inject<TransactionRepository>(TransactionRepository::class.java)
     private val entriesRepository by inject<EntryRepository>(EntryRepository::class.java)
     val snackbar by inject<SnackbarHostState>(SnackbarHostState::class.java)
 
     fun getTransaction() = transactionRepository.findById(transactionId)
 
-    fun getAccounts() = accountRepository.getAll()
+    @Composable
+    fun getAccounts() =
+        accountRepository.allAsFlow().mapToList().map { list -> list.sortedBy { it.name } }.collectAsState(emptyList())
 
-    fun getCategories() = categoriesRepository.getAll()
+    @Composable
+    fun getCategories() = categoryRepository.allAsFlow().mapToList().map { list ->
+        list.map { it.toDto() }.sortedBy { it.fullname() }
+    }.collectAsState(emptyList())
 
     fun getEntries() = entriesRepository.getAllForTransaction(transactionId)
 
@@ -61,6 +68,7 @@ class EditTransactionViewModel(val transactionId: Long) : KoinComponent {
         transactionId: Long,
         categoryId: Long,
         description: String,
+        details: String? = null,
         entryMap: Map<Long, SelectEntriesForTransaction>,
         toCreate: Collection<NewEntryDto>,
         toModify: Collection<ModifiedEntryDto>,
@@ -78,9 +86,15 @@ class EditTransactionViewModel(val transactionId: Long) : KoinComponent {
         }
 
         db.transaction {
-            val newTotal = toCreate.asIterable().sumOf { it.amount } + toModify.filter { it.wasEdited }.asIterable()
+            val newTotal = toCreate.asIterable().sumOf { it.amount } + toModify.filter { !it.toDelete }.asIterable()
                 .sumOf { it.amount }
-            transactionRepository.update(transactionId, categoryId, description.trim(), newTotal)
+            transactionRepository.update(
+                transactionId,
+                categoryId,
+                description,
+                details,
+                newTotal
+            )
 
             toCreate.forEach {
                 entriesRepository.create(
@@ -142,8 +156,8 @@ fun EditTransactionScreen(navController: NavController, transactionId: Long) {
         return
     }
 
-    val accounts = remember { viewModel.getAccounts() }
-    val categories = remember { viewModel.getCategories().map { it.toDto() } }
+    val accounts by viewModel.getAccounts()
+    val categories by viewModel.getCategories()
     val entryMap = remember {
         viewModel.getEntries().associateBy { it.entryId }
     }
@@ -156,8 +170,12 @@ fun EditTransactionScreen(navController: NavController, transactionId: Long) {
     }
 
     var description by remember { mutableStateOf(transaction!!.description) }
+    var details by remember { mutableStateOf(transaction!!.details ?: "") }
     var category by remember {
-        mutableStateOf(categories.first { it.categoryId == transaction!!.categoryId })
+        mutableStateOf(categories.firstOrNull { it.categoryId == transaction!!.categoryId } ?: MissingCategory.toDto())
+    }
+    LaunchedEffect(categories) {
+        category = categories.firstOrNull { it.categoryId == transaction!!.categoryId } ?: MissingCategory.toDto()
     }
 
     val scroll = rememberScrollState()
@@ -167,7 +185,7 @@ fun EditTransactionScreen(navController: NavController, transactionId: Long) {
     fun editRecord() {
         scope.launch(Dispatchers.IO) {
             viewModel.editTransaction(
-                transaction!!.transactionId, category.categoryId, description, entryMap, toCreate, toModify
+                transaction!!.transactionId, category.categoryId, description, details, entryMap, toCreate, toModify
             )
 
             launch { viewModel.snackbar.showSnackbar("Transaction modified") }
@@ -226,15 +244,28 @@ fun EditTransactionScreen(navController: NavController, transactionId: Long) {
 
             AppButton(onClick = { isConfirmingDelete = !isConfirmingDelete }, "Delete")
         }
-
         Spacer(modifier = Modifier.fillMaxWidth())
 
-        OutlinedTextField(modifier = Modifier.fillMaxWidth(),
+        OutlinedTextField(
+            modifier = Modifier.fillMaxWidth(),
             value = description,
-            onValueChange = { description = it },
+            onValueChange = { description = it.trimStart() },
             label = { Text("Description") },
-            placeholder = { Text("Awesome savings account") })
+            placeholder = { Text("Awesome savings account") },
+            singleLine = true,
+            maxLines = 1
+        )
+        Spacer(modifier = Modifier.fillMaxWidth())
 
+        OutlinedTextField(
+            modifier = Modifier.fillMaxWidth(),
+            value = details,
+            onValueChange = { details = it.trimStart() },
+            label = { Text("Details (optional)") },
+            placeholder = { Text("10 in beer, 10 taxi, etc..") },
+            singleLine = false,
+            maxLines = 4
+        )
         Spacer(modifier = Modifier.fillMaxWidth())
 
         CategoryDropdown(
@@ -258,7 +289,6 @@ fun EditTransactionScreen(navController: NavController, transactionId: Long) {
                 })
             }
         }
-
         Spacer(modifier = Modifier.fillMaxWidth())
 
         ModifiedEntriesList(

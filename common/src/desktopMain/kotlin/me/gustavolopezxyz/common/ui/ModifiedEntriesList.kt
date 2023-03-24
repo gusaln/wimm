@@ -48,7 +48,7 @@ fun ModifiedEntriesListItem(
                 AccountDropdown(
                     expanded = isAccountsDropDownExpanded,
                     onExpandedChange = { isAccountsDropDownExpanded = it },
-                    value = accounts.first { it.accountId == entry.accountId },
+                    value = accounts.firstOrNull { it.accountId == entry.accountId },
                     onClick = { onEdit(entry.changeAccount(it)) },
                     accounts = accounts,
                     modifier = Modifier.weight(1f),

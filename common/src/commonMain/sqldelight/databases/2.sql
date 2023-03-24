@@ -1,0 +1,1 @@
+ALTER TABLE moneyTransaction ADD COLUMN details TEXT DEFAULT NULL;

@@ -41,10 +41,19 @@ fun MoneyPartitionSummary(
     title: String,
     currency: Currency,
     amounts: Map<String, Double>,
+    descending: Boolean = true,
+    sortBy: ((MoneyPartitionEntry) -> Double)? = null,
     colorPalette: List<Color> = AccountPartitionSummaryDefaultColors.value,
     modifier: Modifier = Modifier,
 ) {
-    MoneyPartitionSummary(currency, amounts, colorPalette, modifier) {
+    MoneyPartitionSummary(
+        currency = currency,
+        amounts = amounts,
+        descending = descending,
+        sortBy = sortBy,
+        colorPalette = colorPalette,
+        modifier = modifier
+    ) {
         AppListTitle(title)
     }
 }
@@ -55,11 +64,23 @@ data class MoneyPartitionEntry(val name: String, val amount: Double)
 fun MoneyPartitionSummary(
     currency: Currency,
     amounts: Map<String, Double>,
+    descending: Boolean = true,
+    sortBy: ((MoneyPartitionEntry) -> Double)? = null,
     colorPalette: List<Color> = AccountPartitionSummaryDefaultColors.value,
     modifier: Modifier = Modifier,
     title: @Composable (() -> Unit),
 ) {
-    val amountsEntries by derivedStateOf { amounts.map { MoneyPartitionEntry(it.key, it.value) } }
+    val amountsEntries by derivedStateOf {
+        amounts.map { MoneyPartitionEntry(it.key, it.value) }.run {
+            if (sortBy != null) {
+                this.sortedBy(sortBy)
+            } else if (descending) {
+                this.sortedByDescending { it.amount }
+            } else {
+                this.sortedBy { it.amount }
+            }
+        }
+    }
 
     val included = remember { mutableStateMapOf<String, Boolean>() }
     val filteredTotal by derivedStateOf {

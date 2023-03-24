@@ -144,6 +144,69 @@ fun SummaryTypeDropdown(
     }
 }
 
+internal val assetColors = Palette.Green.reversed()
+
+@Composable
+fun AccountPartitionSummaryCard(
+    accountRepository: AccountRepository,
+    modifier: Modifier = Modifier,
+    actions: @Composable RowScope.() -> Unit
+) {
+    var includeEnvelopes by remember { mutableStateOf(true) }
+    val assetAccounts by derivedStateOf {
+        accountRepository.getByType(AccountType.InAssets)
+            .filter { it.balance > 0.00 }
+            .filter {
+                includeEnvelopes || it.type != AccountType.Envelope
+            }
+            .sortedByDescending { it.balance }
+    }
+
+    MoneyPartitionSummary(
+        currency = currencyOf("USD"),
+        amounts = assetAccounts.associateBy({ it.name }, { it.balance }),
+        colorPalette = assetColors,
+        modifier = modifier
+    ) {
+        AppListTitle(verticalAlignment = Alignment.Top) {
+            actions()
+
+            Spacer(Modifier.weight(1.0f))
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.small),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(includeEnvelopes, onCheckedChange = { includeEnvelopes = it })
+
+                Text("Include envelopes")
+            }
+        }
+    }
+}
+
+
+internal val debtColors = Palette.Orange.reversed()
+
+@Composable
+fun DebtPartitionSummaryCard(
+    accountRepository: AccountRepository, modifier: Modifier = Modifier, actions: @Composable RowScope.() -> Unit
+) {
+    val assetAccounts by derivedStateOf {
+        accountRepository.getByType(AccountType.InAssets).filter { it.balance < 0.00 }.sortedBy { it.balance }
+    }
+
+    MoneyPartitionSummary(
+        currency = currencyOf("USD"),
+        amounts = assetAccounts.associateBy({ it.name }, { it.balance }),
+        colorPalette = debtColors,
+        modifier = modifier
+    ) {
+        AppListTitle(verticalAlignment = Alignment.Top, content = actions)
+    }
+}
+
+
 val expensesColors = listOfNotNull(
     Palette.Colors["red800"],
     Palette.Colors["red600"],
@@ -214,50 +277,6 @@ fun ExpensesSummaryCard(
                 }
             }
         }
-    }
-}
-
-internal val assetColors = Palette.Green.reversed()
-
-@Composable
-fun AccountPartitionSummaryCard(
-    accountRepository: AccountRepository,
-    modifier: Modifier = Modifier,
-    actions: @Composable RowScope.() -> Unit
-) {
-    val assetAccounts by derivedStateOf {
-        accountRepository.getByType(AccountType.InAssets).filter { it.balance > 0.00 }
-            .sortedByDescending { it.balance }
-    }
-
-    MoneyPartitionSummary(
-        currency = currencyOf("USD"),
-        amounts = assetAccounts.associateBy({ it.name }, { it.balance }),
-        colorPalette = assetColors,
-        modifier = modifier
-    ) {
-        AppListTitle(verticalAlignment = Alignment.Top, content = actions)
-    }
-}
-
-
-internal val debtColors = Palette.Orange.reversed()
-
-@Composable
-fun DebtPartitionSummaryCard(
-    accountRepository: AccountRepository, modifier: Modifier = Modifier, actions: @Composable RowScope.() -> Unit
-) {
-    val assetAccounts by derivedStateOf {
-        accountRepository.getByType(AccountType.InAssets).filter { it.balance < 0.00 }.sortedBy { it.balance }
-    }
-
-    MoneyPartitionSummary(
-        currency = currencyOf("USD"),
-        amounts = assetAccounts.associateBy({ it.name }, { it.balance }),
-        colorPalette = debtColors,
-        modifier = modifier
-    ) {
-        AppListTitle(verticalAlignment = Alignment.Top, content = actions)
     }
 }
 

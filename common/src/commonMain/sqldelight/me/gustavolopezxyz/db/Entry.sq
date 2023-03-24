@@ -15,6 +15,7 @@ SELECT
     entry.*,
     moneyTransaction.categoryId AS transactionCategoryId,
     moneyTransaction.description AS transactionDescription,
+    moneyTransaction.total AS transactionTotal,
     account.name AS accountName,
     account.currency AS currency
 FROM entry

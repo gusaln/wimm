@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -43,7 +42,6 @@ import me.gustavolopezxyz.common.ui.theme.dropdownSelected
 import me.gustavolopezxyz.common.ui.theme.dropdownUnselected
 import me.gustavolopezxyz.db.SelectEntriesInRange
 import org.koin.java.KoinJavaComponent.inject
-import kotlin.math.absoluteValue
 
 @Composable
 fun OverviewScreen(navController: NavController) {
@@ -74,6 +72,12 @@ fun OverviewScreen(navController: NavController) {
                         }
                     }
 
+                    SummaryType.Debt -> {
+                        DebtPartitionSummaryCard(accountRepository, Modifier.weight(2f)) {
+                            SummaryTypeDropdown(summary, onClick = { summary = it })
+                        }
+                    }
+
                     SummaryType.Expenses -> {
                         ExpensesSummaryCard(categoryRepository, entryRepository, Modifier.weight(2f)) {
                             SummaryTypeDropdown(summary, onClick = { summary = it })
@@ -86,12 +90,13 @@ fun OverviewScreen(navController: NavController) {
 }
 
 enum class SummaryType {
-    Owned,
-    Expenses;
+    Owned, Debt, Expenses;
 
     override fun toString(): String {
         return when (this) {
             Owned -> "Owned"
+
+            Debt -> "Debt"
 
             Expenses -> "Expenses"
         }
@@ -211,7 +216,7 @@ fun ExpensesSummaryCard(
     }
 }
 
-val assetColors = Palette.Green.reversed()
+internal val assetColors = Palette.Green.reversed()
 
 @Composable
 fun AccountPartitionSummaryCard(
@@ -220,15 +225,30 @@ fun AccountPartitionSummaryCard(
     actions: @Composable RowScope.() -> Unit
 ) {
     val assetAccounts by derivedStateOf {
-        accountRepository.getByType(AccountType.InAssets).filter { it.balance.absoluteValue > 0.01 }
+        accountRepository.getByType(AccountType.InAssets).filter { it.balance > 0.00 }
             .sortedByDescending { it.balance }
     }
 
     MoneyPartitionSummary(
-        currencyOf("USD"),
-        assetAccounts.associateBy({ it.name }, { it.balance }),
-        assetColors,
-        modifier
+        currencyOf("USD"), assetAccounts.associateBy({ it.name }, { it.balance }), assetColors, modifier
+    ) {
+        AppListTitle(verticalAlignment = Alignment.Top, content = actions)
+    }
+}
+
+
+internal val debtColors = Palette.Orange.reversed()
+
+@Composable
+fun DebtPartitionSummaryCard(
+    accountRepository: AccountRepository, modifier: Modifier = Modifier, actions: @Composable RowScope.() -> Unit
+) {
+    val assetAccounts by derivedStateOf {
+        accountRepository.getByType(AccountType.InAssets).filter { it.balance < 0.00 }.sortedBy { it.balance }
+    }
+
+    MoneyPartitionSummary(
+        currencyOf("USD"), assetAccounts.associateBy({ it.name }, { it.balance }), debtColors, modifier
     ) {
         AppListTitle(verticalAlignment = Alignment.Top, content = actions)
     }
@@ -239,9 +259,7 @@ const val TRANSACTIONS_PAGE_SIZE = 15
 
 @Composable
 fun TransactionsOverviewCard(
-    viewModel: TransactionsListViewModel,
-    modifier: Modifier,
-    onClickTransaction: (MoneyTransaction) -> Unit
+    viewModel: TransactionsListViewModel, modifier: Modifier, onClickTransaction: (MoneyTransaction) -> Unit
 ) {
     val categoriesById by viewModel.getCategoriesMapAsFlow().collectAsState(emptyMap())
 
@@ -362,44 +380,5 @@ fun <T> OverviewLazyListCard(
                 }
             }
         }
-    }
-}
-
-
-@Composable
-fun <T> OverviewListCard(
-    modifier: Modifier,
-    title: String,
-    items: List<T>,
-    empty: @Composable (() -> Unit)? = null,
-    footer: @Composable (() -> Unit)? = null,
-    item: @Composable ((item: T) -> Unit)
-) {
-    val scroll = rememberScrollState()
-
-    Box(modifier) {
-        Card(modifier = Modifier.fillMaxHeight().fillMaxWidth().verticalScroll(scroll)) {
-            AppList(modifier = Modifier.padding(AppDimensions.Default.cardPadding)) {
-                AppListTitle(title)
-
-                if (empty != null && items.isEmpty()) {
-                    empty.invoke()
-                }
-
-                items.forEach {
-                    item(it)
-
-                    AppDivider(modifier = Modifier.fillMaxWidth())
-                }
-
-                footer?.invoke()
-            }
-        }
-
-        VerticalScrollbar(
-            rememberScrollbarAdapter(scroll),
-            Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
-            style = LocalScrollbarStyle.current.copy(shape = RoundedCornerShape(100))
-        )
     }
 }

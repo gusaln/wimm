@@ -183,15 +183,16 @@ fun ExpensesSummaryCard(
     }
 
     MoneyPartitionSummary(
-        currencyOf("USD"),
-        expenses.groupBy {
+        currency = currencyOf("USD"),
+        amounts = expenses.groupBy {
             categories.getOrDefault(
                 it.transactionCategoryId,
                 MissingCategory.toDto()
             ).fullname()
         }.mapValues { entry -> entry.value.sumOf { it.amount } },
-        expensesColors,
-        modifier
+        descending = false,
+        colorPalette = expensesColors,
+        modifier = modifier
     ) {
         AppListTitle(verticalAlignment = Alignment.Top) {
             actions()
@@ -230,7 +231,10 @@ fun AccountPartitionSummaryCard(
     }
 
     MoneyPartitionSummary(
-        currencyOf("USD"), assetAccounts.associateBy({ it.name }, { it.balance }), assetColors, modifier
+        currency = currencyOf("USD"),
+        amounts = assetAccounts.associateBy({ it.name }, { it.balance }),
+        colorPalette = assetColors,
+        modifier = modifier
     ) {
         AppListTitle(verticalAlignment = Alignment.Top, content = actions)
     }
@@ -248,7 +252,10 @@ fun DebtPartitionSummaryCard(
     }
 
     MoneyPartitionSummary(
-        currencyOf("USD"), assetAccounts.associateBy({ it.name }, { it.balance }), debtColors, modifier
+        currency = currencyOf("USD"),
+        amounts = assetAccounts.associateBy({ it.name }, { it.balance }),
+        colorPalette = debtColors,
+        modifier = modifier
     ) {
         AppListTitle(verticalAlignment = Alignment.Top, content = actions)
     }

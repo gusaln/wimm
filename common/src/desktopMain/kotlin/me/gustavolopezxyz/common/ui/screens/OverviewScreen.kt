@@ -176,7 +176,7 @@ fun ExpensesSummaryCard(
     LaunchedEffect(month) {
         entryRepository.getInRangeAsFlow(month.startOfMonth().rangeToEndOfMonth()).mapToList()
             .map { list ->
-                list.filter { it.amount < 0 }.sortedBy { it.amount }
+                list.filter { it.amount < 0 && it.transactionTotal < 0 }
             }.collect {
                 expenses = it
             }

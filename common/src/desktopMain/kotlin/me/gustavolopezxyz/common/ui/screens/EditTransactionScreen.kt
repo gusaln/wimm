@@ -4,14 +4,12 @@
 
 package me.gustavolopezxyz.common.ui.screens
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -200,7 +198,6 @@ fun EditTransactionScreen(navController: NavController, transactionId: Long) {
 
     val scroll = rememberScrollState()
     var isConfirmingDelete by remember { mutableStateOf(false) }
-    var isCategoryDropdownExpanded by remember { mutableStateOf(false) }
 
     fun editRecord() {
         scope.launch(Dispatchers.IO) {
@@ -305,26 +302,11 @@ fun EditTransactionScreen(navController: NavController, transactionId: Long) {
         Spacer(modifier = Modifier.fillMaxWidth())
 
         CategoryDropdown(
-            expanded = isCategoryDropdownExpanded,
-            onExpandedChange = { isCategoryDropdownExpanded = it },
+            label = "Category",
             value = category,
             onSelect = { selected -> category = categories.first { it.categoryId == selected.categoryId } },
             categories = categories
-        ) {
-            Row {
-                OutlinedTextField(value = category.fullname(), onValueChange = {}, label = {
-                    Text("Category", modifier = Modifier.clickable(true) {
-                        isCategoryDropdownExpanded = !isCategoryDropdownExpanded
-                    })
-                }, modifier = Modifier.fillMaxWidth(), readOnly = true, trailingIcon = {
-                    Icon(imageVector = Icons.Filled.ArrowDropDown,
-                        contentDescription = "dropdown icon",
-                        modifier = Modifier.clickable(true) {
-                            isCategoryDropdownExpanded = !isCategoryDropdownExpanded
-                        })
-                })
-            }
-        }
+        )
         Spacer(modifier = Modifier.fillMaxWidth())
 
         ModifiedEntriesList(

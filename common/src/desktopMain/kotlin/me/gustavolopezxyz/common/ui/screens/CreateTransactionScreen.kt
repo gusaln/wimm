@@ -4,14 +4,12 @@
 
 package me.gustavolopezxyz.common.ui.screens
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -109,7 +107,6 @@ fun CreateTransactionScreen(onCreate: () -> Unit = {}, onCancel: (() -> Unit)? =
     var category by remember { mutableStateOf<CategoryWithParent?>(null) }
     var incurredAt by remember { mutableStateOf(nowLocalDateTime().date) }
     val entries = remember { mutableStateListOf(emptyNewEntryDto()) }
-    var isCategoryDropdownExpanded by remember { mutableStateOf(false) }
 
     val onCreateHook by rememberUpdatedState(onCreate)
 
@@ -185,33 +182,11 @@ fun CreateTransactionScreen(onCreate: () -> Unit = {}, onCancel: (() -> Unit)? =
         Spacer(modifier = Modifier.fillMaxWidth())
 
         CategoryDropdown(
-            expanded = isCategoryDropdownExpanded,
-            onExpandedChange = { isCategoryDropdownExpanded = it },
+            label = "Category",
             value = category,
             onSelect = { category = it },
             categories = categories
-        ) {
-            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                OutlinedTextField(
-                    value = category?.fullname() ?: "-",
-                    onValueChange = {},
-                    label = {
-                        Text("Category", modifier = Modifier.clickable(true) {
-                            isCategoryDropdownExpanded = !isCategoryDropdownExpanded
-                        })
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    trailingIcon = {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowDropDown,
-                            contentDescription = "dropdown icon",
-                            modifier = Modifier.clickable(true) {
-                                isCategoryDropdownExpanded = !isCategoryDropdownExpanded
-                            }
-                        )
-                    })
-            }
-        }
+        )
 
         Spacer(modifier = Modifier.fillMaxWidth())
 

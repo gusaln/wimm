@@ -1,13 +1,11 @@
 package me.gustavolopezxyz.common.ui
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
@@ -69,8 +67,6 @@ fun NewEntriesListItem(
     onEdit: (NewEntryDto) -> Unit,
     onDelete: (NewEntryDto) -> Unit
 ) {
-    var isAccountsDropDownExpanded by remember { mutableStateOf(false) }
-
     Row(
         horizontalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium),
         verticalAlignment = Alignment.CenterVertically
@@ -85,34 +81,12 @@ fun NewEntriesListItem(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 AccountDropdown(
-                    expanded = isAccountsDropDownExpanded,
-                    onExpandedChange = { isAccountsDropDownExpanded = it },
+                    label = "Account",
                     value = entry.account,
-                    onClick = { onEdit(entry.copy(account = it)) },
+                    onSelect = { onEdit(entry.copy(account = it)) },
                     accounts = accounts,
                     modifier = Modifier.weight(1f),
-                ) {
-                    Row {
-                        OutlinedTextField(
-                            value = entry.account?.name ?: "",
-                            onValueChange = {},
-                            label = {
-                                Text("Account", modifier = Modifier.clickable {
-                                    isAccountsDropDownExpanded = !isAccountsDropDownExpanded
-                                })
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            trailingIcon = {
-                                Icon(imageVector = Icons.Filled.ArrowDropDown,
-                                    contentDescription = "dropdown icon",
-                                    modifier = Modifier.clickable {
-                                        isAccountsDropDownExpanded = !isAccountsDropDownExpanded
-                                    })
-                            },
-                            readOnly = true
-                        )
-                    }
-                }
+                )
 
                 OutlinedDoubleField(
                     value = entry.amount,

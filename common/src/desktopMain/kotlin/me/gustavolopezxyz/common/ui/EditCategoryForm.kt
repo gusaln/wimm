@@ -6,15 +6,11 @@ package me.gustavolopezxyz.common.ui
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -35,7 +31,6 @@ fun EditCategoryForm(
     onCancel: () -> Unit = {}
 ) {
     var parent by remember { mutableStateOf(categories.find { it.categoryId == value.parentCategoryId }) }
-    var isParentDropDownExpanded by remember { mutableStateOf(false) }
 
     Column(
         verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.fieldSpacing)
@@ -52,47 +47,26 @@ fun EditCategoryForm(
         )
 
         CategoryDropdown(
-            expanded = isParentDropDownExpanded,
-            onExpandedChange = { isParentDropDownExpanded = it },
+            label = "Subcategory of",
             value = parent,
             onSelect = { parent = it },
-            categories = categories
-        ) {
-            Row {
-                OutlinedTextField(value = parent?.name ?: "none",
-                    onValueChange = {},
-                    label = {
-                        Text("Subcategory of", modifier = Modifier.clickable(true) {
-                            isParentDropDownExpanded = !isParentDropDownExpanded
-                        })
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    leadingIcon = parent.let {
-                        if (it == null) {
-                            null
-                        } else {
-                            {
-                                Icon(
-                                    imageVector = Icons.Filled.Clear,
-                                    contentDescription = "clear icon",
-                                    modifier = Modifier.clickable(true) {
-                                        parent = null
-                                    }
-                                )
-                            }
+            categories = categories,
+            leadingIcon =
+            if (parent == null) {
+                null
+            } else {
+                {
+                    Icon(
+                        imageVector = Icons.Filled.Clear,
+                        contentDescription = "clear icon",
+                        modifier = Modifier.clickable(true) {
+                            parent = null
                         }
-                    },
-                    trailingIcon = {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowDropDown,
-                            contentDescription = "dropdown icon",
-                            modifier = Modifier.clickable(true) {
-                                isParentDropDownExpanded = !isParentDropDownExpanded
-                            }
-                        )
-                    })
-            }
-        }
+                    )
+                }
+            },
+        )
+        Spacer(modifier = Modifier.fillMaxWidth())
 
         Row(
             modifier = Modifier.fillMaxWidth(),

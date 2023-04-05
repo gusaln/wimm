@@ -11,7 +11,6 @@ import androidx.compose.material.Icon
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -45,8 +44,6 @@ fun CreateCategoryForm(
         onCancel()
     }
 
-    var isParentDropDownExpanded by remember { mutableStateOf(false) }
-
     Column(
         verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.fieldSpacing)
     ) {
@@ -62,48 +59,25 @@ fun CreateCategoryForm(
         )
 
         CategoryDropdown(
-            expanded = isParentDropDownExpanded,
-            onExpandedChange = { isParentDropDownExpanded = it },
+            label = "Subcategory of",
             value = parent,
             onSelect = { parent = it },
-            categories = categories
-        ) {
-            Row {
-                OutlinedTextField(value = parent?.name ?: "none",
-                    onValueChange = {},
-                    label = {
-                        Text("Subcategory of", modifier = Modifier.clickable(true) {
-                            isParentDropDownExpanded = !isParentDropDownExpanded
-                        })
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    leadingIcon = parent.let {
-                        if (it == null) {
-                            null
-                        } else {
-                            {
-                                Icon(
-                                    imageVector = Icons.Filled.Clear,
-                                    contentDescription = "clear icon",
-                                    modifier = Modifier.clickable(true) {
-                                        parent = null
-                                    }
-                                )
-                            }
+            categories = categories,
+            leadingIcon =
+            if (parent == null) {
+                null
+            } else {
+                {
+                    Icon(
+                        imageVector = Icons.Filled.Clear,
+                        contentDescription = "clear icon",
+                        modifier = Modifier.clickable(true) {
+                            parent = null
                         }
-                    },
-                    trailingIcon = {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowDropDown,
-                            contentDescription = "dropdown icon",
-                            modifier = Modifier.clickable(true) {
-                                isParentDropDownExpanded = !isParentDropDownExpanded
-                            }
-                        )
-                    })
-            }
-        }
-
+                    )
+                }
+            },
+        )
         Spacer(modifier = Modifier.fillMaxWidth())
 
         Row(

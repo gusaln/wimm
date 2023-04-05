@@ -2,14 +2,14 @@ package me.gustavolopezxyz.common.ui
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalDate
 import me.gustavolopezxyz.common.data.Account
 import me.gustavolopezxyz.common.data.AccountType
+import me.gustavolopezxyz.common.data.MissingAccount
 import me.gustavolopezxyz.common.data.ModifiedEntryDto
 import me.gustavolopezxyz.common.ui.common.OutlinedDateTextField
 import me.gustavolopezxyz.common.ui.common.OutlinedDoubleField
@@ -30,7 +31,9 @@ fun ModifiedEntriesListItem(
     onEdit: (ModifiedEntryDto) -> Unit,
     onDelete: (ModifiedEntryDto) -> Unit
 ) {
-    var isAccountsDropDownExpanded by remember { mutableStateOf(false) }
+    val account by derivedStateOf {
+        accounts.firstOrNull { it.accountId == entry.accountId } ?: MissingAccount
+    }
 
     Row(
         horizontalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium),
@@ -46,34 +49,12 @@ fun ModifiedEntriesListItem(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 AccountDropdown(
-                    expanded = isAccountsDropDownExpanded,
-                    onExpandedChange = { isAccountsDropDownExpanded = it },
-                    value = accounts.firstOrNull { it.accountId == entry.accountId },
-                    onClick = { onEdit(entry.changeAccount(it)) },
+                    label = "Account",
+                    value = account,
+                    onSelect = { onEdit(entry.changeAccount(it)) },
                     accounts = accounts,
                     modifier = Modifier.weight(1f),
-                ) {
-                    Row {
-                        OutlinedTextField(
-                            value = entry.accountName,
-                            onValueChange = {},
-                            label = {
-                                Text("Account", modifier = Modifier.clickable {
-                                    isAccountsDropDownExpanded = !isAccountsDropDownExpanded
-                                })
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            trailingIcon = {
-                                Icon(imageVector = Icons.Filled.ArrowDropDown,
-                                    contentDescription = "dropdown icon",
-                                    modifier = Modifier.clickable {
-                                        isAccountsDropDownExpanded = !isAccountsDropDownExpanded
-                                    })
-                            },
-                            readOnly = true
-                        )
-                    }
-                }
+                )
 
                 OutlinedDoubleField(
                     value = entry.amount,

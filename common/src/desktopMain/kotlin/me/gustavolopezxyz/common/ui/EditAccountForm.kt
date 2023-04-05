@@ -5,17 +5,13 @@
 package me.gustavolopezxyz.common.ui
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.Icon
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import me.gustavolopezxyz.common.data.Account
@@ -33,8 +29,6 @@ fun EditAccountForm(
     onEdit: () -> Unit,
     onCancel: () -> Unit = {}
 ) {
-    var isTypeDropDownExpanded by remember(onEdit) { mutableStateOf(false) }
-
     Column(
         verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.fieldSpacing)
     ) {
@@ -48,31 +42,10 @@ fun EditAccountForm(
             placeholder = { Text("Awesome savings account") })
 
         AccountTypeDropdown(
-            expanded = isTypeDropDownExpanded,
-            onExpandedChange = { isTypeDropDownExpanded = it },
+            label = "Type",
             value = value.type,
-            onClick = { onValueChange(value.copy(type = it)) },
-        ) {
-            Row {
-                OutlinedTextField(value = value.type.name,
-                    onValueChange = {},
-                    label = {
-                        Text("Type", modifier = Modifier.clickable {
-                            isTypeDropDownExpanded = !isTypeDropDownExpanded
-                        })
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    trailingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.ArrowDropDown,
-                            contentDescription = "dropdown icon",
-                            modifier = Modifier.clickable {
-                                isTypeDropDownExpanded = !isTypeDropDownExpanded
-                            }
-                        )
-                    })
-            }
-        }
+            onSelect = { onValueChange(value.copy(type = it)) },
+        )
 
         OutlinedTextField(modifier = Modifier.fillMaxWidth(),
             value = value.currency,

@@ -5,7 +5,6 @@
 package me.gustavolopezxyz.common.data
 
 import androidx.compose.runtime.Immutable
-import me.gustavolopezxyz.common.ext.toCurrency
 
 @Immutable
 data class Currency internal constructor(val code: String, val symbol: String) {
@@ -26,7 +25,6 @@ fun currencyOf(code: String): Currency {
 
 @Immutable
 data class Money(val currency: Currency, val value: Double) {
-    constructor(currencyCode: String, value: Double) : this(currencyCode.toCurrency(), value)
 
     operator fun plus(other: Money): Money {
         return plus(other.value)
@@ -49,5 +47,9 @@ data class Money(val currency: Currency, val value: Double) {
     operator fun compareTo(other: Number): Int = compareTo(other.toDouble())
 
     operator fun compareTo(other: Double): Int = this.value.compareTo(other)
+
+    override fun toString(): String {
+        return "${currency.symbol} $value"
+    }
 }
 

@@ -5,16 +5,12 @@
 package me.gustavolopezxyz.common.ui
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.Icon
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,8 +47,6 @@ fun CreateAccountForm(
         onCancel()
     }
 
-    var isTypeDropDownExpanded by remember { mutableStateOf(false) }
-
     Column(
         verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.fieldSpacing)
     ) {
@@ -68,31 +62,10 @@ fun CreateAccountForm(
         )
 
         AccountTypeDropdown(
-            expanded = isTypeDropDownExpanded,
-            onExpandedChange = { isTypeDropDownExpanded = it },
+            label = "Type",
             value = type,
-            onClick = { type = it },
-        ) {
-            Row {
-                OutlinedTextField(value = type.name,
-                    onValueChange = {},
-                    label = {
-                        Text("Type", modifier = Modifier.clickable(true) {
-                            isTypeDropDownExpanded = !isTypeDropDownExpanded
-                        })
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    trailingIcon = {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowDropDown,
-                            contentDescription = "dropdown icon",
-                            modifier = Modifier.clickable(true) {
-                                isTypeDropDownExpanded = !isTypeDropDownExpanded
-                            }
-                        )
-                    })
-            }
-        }
+            onSelect = { type = it },
+        )
 
         OutlinedTextField(modifier = Modifier.fillMaxWidth(),
             value = currency,

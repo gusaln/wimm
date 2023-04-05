@@ -7,7 +7,7 @@ SELECT
 FROM entry
 JOIN account USING (accountId)
 JOIN moneyTransaction USING (transactionId)
-ORDER BY incurredAt DESC
+ORDER BY recordedAt DESC
 LIMIT :offset, :limit;
 
 selectEntriesInRange:
@@ -22,8 +22,8 @@ FROM entry
 JOIN account USING (accountId)
 JOIN moneyTransaction USING (transactionId)
 WHERE
-    (incurredAt >= :from AND incurredAt <= :to)
-ORDER BY incurredAt;
+    (recordedAt >= :from AND recordedAt <= :to)
+ORDER BY recordedAt;
 
 selectEntriesForTransaction:
 SELECT
@@ -33,21 +33,22 @@ SELECT
 FROM entry
 JOIN account USING (accountId)
 WHERE transactionId IN ?
-ORDER BY incurredAt DESC;
+ORDER BY recordedAt DESC;
 
 selectEntriesForAccount:
 SELECT
     entry.*,
-    moneyTransaction.description AS transactionDescription
+    moneyTransaction.description AS transactionDescription,
+    moneyTransaction.incurredAt AS transactionIncurredAt
 FROM entry
 JOIN moneyTransaction USING (transactionId)
 WHERE accountId IN ?
-ORDER BY incurredAt DESC
+ORDER BY recordedAt DESC
 LIMIT :offset, :limit;
 
 insertEntry {
-    INSERT INTO entry(accountId, transactionId, amount, incurredAt, recordedAt)
-    VALUES (:accountId, :transactionId, :amount, :incurredAt, :recordedAt);
+    INSERT INTO entry(accountId, transactionId, amount, recordedAt)
+    VALUES (:accountId, :transactionId, :amount, :recordedAt);
 
     UPDATE account
     SET balance = balance + :amount
@@ -58,7 +59,6 @@ updateEntry {
     UPDATE entry
     SET
         amount = amount + :amountDelta,
-        incurredAt = :incurredAt,
         recordedAt = :recordedAt
     WHERE entryId = :entryId;
 
@@ -72,7 +72,6 @@ updateAndMoveEntry {
         SET
             amount = amount + :amountDelta,
             accountId = :accountId,
-            incurredAt = :incurredAt,
             recordedAt = :recordedAt
         WHERE entryId = :entryId;
 

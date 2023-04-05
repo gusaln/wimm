@@ -10,6 +10,7 @@ import me.gustavolopezxyz.common.Config
 import me.gustavolopezxyz.common.data.Account
 import me.gustavolopezxyz.common.data.Database
 import me.gustavolopezxyz.common.data.Entry
+import me.gustavolopezxyz.common.data.MoneyTransaction
 import java.io.File
 
 actual class DatabaseFactory(private val config: Config) {
@@ -22,7 +23,8 @@ actual class DatabaseFactory(private val config: Config) {
         return Database(
             driver,
             accountAdapter = Account.Adapter(EnumColumnAdapter()),
-            entryAdapter = Entry.Adapter(instantColumnAdapter, instantColumnAdapter)
+            entryAdapter = Entry.Adapter(instantColumnAdapter),
+            moneyTransactionAdapter = MoneyTransaction.Adapter(instantColumnAdapter)
         ).also {
             if (File(dbFile).exists()) {
                 Database.Schema.migrate(driver, getLastMigration(), Database.Schema.version)

@@ -1,7 +1,13 @@
 selectTransactions:
 SELECT * FROM moneyTransaction
-ORDER BY transactionId DESC
+ORDER BY incurredAt DESC, transactionId DESC
 LIMIT :offset, :limit;
+
+selectTransactionsInRange:
+SELECT * FROM moneyTransaction
+WHERE
+    (incurredAt >= :after AND incurredAt <= :before)
+ORDER BY incurredAt DESC, transactionId DESC;
 
 selectTransactionsInCategory:
 SELECT moneyTransaction.*
@@ -10,7 +16,7 @@ FROM
     JOIN category ON moneyTransaction.categoryId = category.categoryId
 WHERE
     moneyTransaction.categoryId = :categoryId OR category.parentCategoryId = :categoryId
-ORDER BY transactionId DESC
+ORDER BY incurredAt DESC, transactionId
 LIMIT :offset, :limit;
 
 selectById:
@@ -20,12 +26,12 @@ selectByNumber:
 SELECT * FROM moneyTransaction WHERE number = :number;
 
 insertTransaction:
-INSERT INTO moneyTransaction(number, categoryId, description, details, total)
-VALUES (:number, :categoryId, :description, :details, :total);
+INSERT INTO moneyTransaction(number, categoryId, incurredAt, description, details, total )
+VALUES (:number, :categoryId, :incurredAt, :description, :details, :total);
 
 updateTransaction:
 UPDATE moneyTransaction
-SET categoryId = :categoryId, description = :description, details = :details, total = :total
+SET categoryId = :categoryId, description = :description, details = :details, total = :total, incurredAt = :incurredAt
 WHERE transactionId = :transactionId;
 
 deleteTransaction {

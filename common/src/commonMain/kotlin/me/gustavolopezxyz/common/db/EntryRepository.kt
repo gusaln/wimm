@@ -19,15 +19,6 @@ class EntryRepository : KoinComponent {
     private val db: Database by inject()
     private val entryQueries = db.entryQueries
 
-    fun get(offset: Long = 0, limit: Long = 15) =
-        entryQueries.selectEntries(offset = offset, limit = limit).executeAsList()
-
-    fun getAsFlow(offset: Long = 0, limit: Long = 15) =
-        entryQueries.selectEntries(offset = offset, limit = limit).asFlow()
-
-    fun getAllForTransactionAsFlow(transactionId: Long) =
-        entryQueries.selectEntriesForTransaction(listOf(transactionId)).asFlow()
-
     fun getAllForTransaction(transactionId: Long) =
         entryQueries.selectEntriesForTransaction(listOf(transactionId)).executeAsList()
 
@@ -61,7 +52,6 @@ class EntryRepository : KoinComponent {
         entry.transactionId,
         entry.accountId,
         entry.amount,
-        entry.incurredAt,
         entry.recordedAt
     )
 
@@ -69,13 +59,11 @@ class EntryRepository : KoinComponent {
         transactionId: Long,
         accountId: Long,
         amount: Double,
-        incurredAt: LocalDateTime,
-        recordedAt: LocalDateTime = incurredAt,
+        recordedAt: LocalDateTime,
     ) = create(
         transactionId,
         accountId,
         amount,
-        incurredAt.toInstant(currentTimeZone()),
         recordedAt.toInstant(currentTimeZone()),
     )
 
@@ -83,14 +71,12 @@ class EntryRepository : KoinComponent {
         transactionId: Long,
         accountId: Long,
         amount: Double,
-        incurredAt: Instant,
-        recordedAt: Instant = incurredAt,
+        recordedAt: Instant,
     ) {
         return entryQueries.insertEntry(
             accountId,
             transactionId,
             amount,
-            incurredAt,
             recordedAt,
         )
     }
@@ -100,7 +86,6 @@ class EntryRepository : KoinComponent {
             editAndNoMove(
                 original,
                 modified.amount,
-                modified.incurredAt,
                 modified.recordedAt,
             )
         } else {
@@ -108,7 +93,6 @@ class EntryRepository : KoinComponent {
                 original,
                 modified.accountId,
                 modified.amount,
-                modified.incurredAt,
                 modified.recordedAt,
             )
         }
@@ -117,13 +101,11 @@ class EntryRepository : KoinComponent {
     private fun editAndNoMove(
         entry: Entry,
         amount: Double,
-        incurredAt: Instant,
         recordedAt: Instant
     ) = editAndNoMove(
         entry.entryId,
         entry.accountId,
         (amount - entry.amount),
-        incurredAt,
         recordedAt,
     )
 
@@ -131,14 +113,12 @@ class EntryRepository : KoinComponent {
         entry: Entry,
         accountId: Long,
         amount: Double,
-        incurredAt: Instant,
         recordedAt: Instant
     ) {
         editAndMove(
             entry.entryId,
             accountId,
             (amount - entry.amount),
-            incurredAt,
             recordedAt,
             entry.accountId,
             entry.amount,
@@ -149,14 +129,12 @@ class EntryRepository : KoinComponent {
         entryId: Long,
         accountId: Long,
         amountDelta: Double,
-        incurredAt: Instant,
         recordedAt: Instant,
     ) {
         return entryQueries.updateEntry(
             entryId = entryId,
             accountId = accountId,
             amountDelta = amountDelta,
-            incurredAt = incurredAt,
             recordedAt = recordedAt
         )
     }
@@ -165,7 +143,6 @@ class EntryRepository : KoinComponent {
         entryId: Long,
         accountId: Long,
         amountDelta: Double,
-        incurredAt: Instant,
         recordedAt: Instant,
         originalAccountId: Long,
         originalAmount: Double,
@@ -174,7 +151,6 @@ class EntryRepository : KoinComponent {
             entryId = entryId,
             accountId = accountId,
             amountDelta = amountDelta,
-            incurredAt = incurredAt,
             recordedAt = recordedAt,
             originalAccountId = originalAccountId,
             originalAmount = originalAmount,

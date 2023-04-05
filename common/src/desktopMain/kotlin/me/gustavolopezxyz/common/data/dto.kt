@@ -12,11 +12,10 @@ data class NewEntryDto(
     val id: Long = -Clock.System.now().toEpochMilliseconds(),
     val account: Account? = null,
     val amount: Double = 0.0,
-    val incurredAt: LocalDate,
-    val recordedAt: LocalDate = incurredAt
+    val recordedAt: LocalDate,
 )
 
-fun emptyNewEntryDto() = NewEntryDto(incurredAt = Clock.System.now().toLocalDateTime(currentTimeZone()).date)
+fun emptyNewEntryDto() = NewEntryDto(recordedAt = Clock.System.now().toLocalDateTime(currentTimeZone()).date)
 
 
 data class ModifiedEntryDto(
@@ -25,18 +24,15 @@ data class ModifiedEntryDto(
     val accountName: String,
     val currency: String,
     val amount: Double,
-    val incurredAt: LocalDate,
     val recordedAt: LocalDate,
     val wasEdited: Boolean = false,
     val toDelete: Boolean = false,
 ) {
     fun edit(
         amount: Double = this.amount,
-        incurredAt: LocalDate = this.incurredAt,
         recordedAt: LocalDate = this.recordedAt,
     ) = copy(
         amount = amount,
-        incurredAt = incurredAt,
         recordedAt = recordedAt,
         wasEdited = true,
         toDelete = false,
@@ -59,9 +55,6 @@ data class ModifiedEntryDto(
         transactionId = transactionId,
         accountId = accountId,
         amount = amount,
-        incurredAt = incurredAt.atTime(0, 0, 0).toInstant(
-            currentTimeZone()
-        ),
         recordedAt = recordedAt.atTime(0, 0, 0).toInstant(
             currentTimeZone()
         )
@@ -75,7 +68,6 @@ fun modifiedEntryDto(entry: SelectEntriesForTransaction): ModifiedEntryDto {
         accountName = entry.accountName,
         currency = entry.currency,
         amount = entry.amount,
-        incurredAt = entry.incurredAt.toLocalDateTime(currentTimeZone()).date,
         recordedAt = entry.recordedAt.toLocalDateTime(currentTimeZone()).date,
     )
 }

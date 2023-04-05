@@ -23,7 +23,7 @@ import me.gustavolopezxyz.common.data.toDto
 import me.gustavolopezxyz.common.db.CategoryRepository
 import me.gustavolopezxyz.common.db.EntryRepository
 import me.gustavolopezxyz.common.db.TransactionRepository
-import me.gustavolopezxyz.common.ext.datetime.toSimpleFormat
+import me.gustavolopezxyz.common.ext.datetime.formatDateTime
 import me.gustavolopezxyz.common.ext.toCurrency
 import me.gustavolopezxyz.common.ui.common.AppDivider
 import me.gustavolopezxyz.common.ui.common.CardTitle
@@ -130,7 +130,7 @@ fun TransactionEntresList(
                         Text(entry.accountName)
 
                         Text(
-                            entry.incurredAt.toSimpleFormat(),
+                            entry.recordedAt.formatDateTime(),
                             color = Color.Gray,
                             fontSize = MaterialTheme.typography.caption.fontSize
                         )

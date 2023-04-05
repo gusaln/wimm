@@ -83,20 +83,6 @@ fun ModifiedEntriesListItem(
                 )
 
                 OutlinedDateTextField(modifier = Modifier.weight(1f),
-                    label = { Text("Date that it happened") },
-                    date = entry.incurredAt,
-                    onValueChange = {
-                        onEdit(
-                            entry.edit(
-                                incurredAt = it, recordedAt = when (entry.recordedAt) {
-                                    entry.incurredAt -> it
-                                    else -> entry.recordedAt
-                                }
-                            )
-                        )
-                    })
-
-                OutlinedDateTextField(modifier = Modifier.weight(1f),
                     label = { Text("Date that it appears in the books") },
                     date = entry.recordedAt,
                     onValueChange = { onEdit(entry.edit(recordedAt = it)) })
@@ -139,13 +125,6 @@ fun ModifiedEntriesListDeletedItem(entry: ModifiedEntryDto, onRestore: (Modified
                     modifier = Modifier.weight(1f),
                     label = { Text("Amount") },
                     readOnly = true
-                )
-
-                OutlinedDateTextField(
-                    modifier = Modifier.weight(1f),
-                    label = { Text("Date that it happened") },
-                    date = entry.incurredAt,
-                    onValueChange = {}, readOnly = true
                 )
 
                 OutlinedDateTextField(
@@ -208,7 +187,6 @@ fun ModifiedEntriesListPreview() {
             ac1.name,
             ac1.currency,
             100.0,
-            LocalDate(2023, 1, 13),
             LocalDate(2023, 1, 13)
         ),
         ModifiedEntryDto(
@@ -218,7 +196,6 @@ fun ModifiedEntriesListPreview() {
             ac2.currency,
             -10.0,
             LocalDate(2023, 1, 14),
-            LocalDate(2023, 1, 14),
             wasEdited = true
         ),
         ModifiedEntryDto(
@@ -227,7 +204,6 @@ fun ModifiedEntriesListPreview() {
             ac2.name,
             ac2.currency,
             -10.0,
-            LocalDate(2023, 1, 14),
             LocalDate(2023, 1, 14),
             toDelete = true
         ),

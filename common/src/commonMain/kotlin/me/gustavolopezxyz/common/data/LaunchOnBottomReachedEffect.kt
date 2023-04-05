@@ -4,7 +4,9 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.*
 import kotlinx.coroutines.flow.distinctUntilChanged
 
-data class InfiniteLazyListState(val lastVisibleItemIndex: Int, val buffer: Int)
+data class InfiniteLazyListState(val lastVisibleItemIndex: Int, val buffer: Int) {
+    fun minimumRequiredItemsLoadedCount() = lastVisibleItemIndex + buffer
+}
 
 /**
  * Handles the loading of items in a LazyList

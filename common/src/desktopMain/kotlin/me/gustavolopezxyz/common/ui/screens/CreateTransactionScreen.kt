@@ -18,17 +18,20 @@ import androidx.compose.ui.Modifier
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.datetime.atTime
+import kotlinx.datetime.LocalDate
 import me.gustavolopezxyz.common.data.*
 import me.gustavolopezxyz.common.db.AccountRepository
 import me.gustavolopezxyz.common.db.CategoryRepository
 import me.gustavolopezxyz.common.db.EntryRepository
 import me.gustavolopezxyz.common.db.TransactionRepository
+import me.gustavolopezxyz.common.ext.datetime.atStartOfDay
+import me.gustavolopezxyz.common.ext.datetime.nowLocalDateTime
 import me.gustavolopezxyz.common.ui.CategoryDropdown
 import me.gustavolopezxyz.common.ui.NewEntriesList
 import me.gustavolopezxyz.common.ui.TotalListItem
 import me.gustavolopezxyz.common.ui.common.AppButton
 import me.gustavolopezxyz.common.ui.common.AppTextButton
+import me.gustavolopezxyz.common.ui.common.OutlinedDateTextField
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -55,6 +58,7 @@ class CreateTransactionViewModel : KoinComponent {
         description: String,
         details: String,
         category: Category,
+        incurredAt: LocalDate,
         entries: List<NewEntryDto>
     ) {
         if (description.trim().isEmpty()) {
@@ -72,6 +76,7 @@ class CreateTransactionViewModel : KoinComponent {
         db.transaction {
             val number = transactionRepository.create(
                 category.categoryId,
+                incurredAt.atStartOfDay(),
                 description,
                 details,
                 entries.asIterable().sumOf { it.amount }
@@ -83,8 +88,7 @@ class CreateTransactionViewModel : KoinComponent {
                     transactionId,
                     it.account!!.accountId,
                     it.amount,
-                    it.incurredAt.atTime(0, 0),
-                    it.recordedAt.atTime(0, 0)
+                    it.recordedAt.atStartOfDay()
                 )
             }
         }
@@ -103,10 +107,24 @@ fun CreateTransactionScreen(onCreate: () -> Unit = {}, onCancel: (() -> Unit)? =
     var description by remember { mutableStateOf("") }
     var details by remember { mutableStateOf("") }
     var category by remember { mutableStateOf<CategoryWithParent?>(null) }
+    var incurredAt by remember { mutableStateOf(nowLocalDateTime().date) }
     val entries = remember { mutableStateListOf(emptyNewEntryDto()) }
     var isCategoryDropdownExpanded by remember { mutableStateOf(false) }
 
     val onCreateHook by rememberUpdatedState(onCreate)
+
+    fun handleIncurredAtUpdate(value: LocalDate) {
+        val oldValue = incurredAt
+        incurredAt = value
+
+        scope.launch {
+            entries.forEachIndexed { index, entry ->
+                if (entry.recordedAt == oldValue) {
+                    entries[index] = entry.copy(recordedAt = value)
+                }
+            }
+        }
+    }
 
     fun handleCreate() {
         if (category == null) {
@@ -115,7 +133,7 @@ fun CreateTransactionScreen(onCreate: () -> Unit = {}, onCancel: (() -> Unit)? =
             }
         } else {
             scope.launch {
-                viewModel.createTransaction(description, details, category!!.toCategory(), entries)
+                viewModel.createTransaction(description, details, category!!.toCategory(), incurredAt, entries)
                 onCreateHook()
             }
         }
@@ -142,6 +160,15 @@ fun CreateTransactionScreen(onCreate: () -> Unit = {}, onCancel: (() -> Unit)? =
             onValueChange = { description = if (it.isNotEmpty()) it.trimStart() else it },
             label = { Text("Description") },
             placeholder = { Text("To what end the money was moved? (Beer night, Salary, Bonus)") })
+
+        Spacer(modifier = Modifier.fillMaxWidth())
+
+        OutlinedDateTextField(
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Date of the transaction") },
+            date = incurredAt,
+            onValueChange = { handleIncurredAtUpdate(it) }
+        )
 
         Spacer(modifier = Modifier.fillMaxWidth())
 

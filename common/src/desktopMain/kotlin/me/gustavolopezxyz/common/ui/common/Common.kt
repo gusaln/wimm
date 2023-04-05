@@ -214,6 +214,25 @@ fun AppDivider(modifier: Modifier = Modifier) {
     Divider(color = MaterialTheme.colors.background, thickness = 1.dp, modifier = modifier)
 }
 
+@Composable
+fun AppCheckbox(
+    label: String,
+    checked: Boolean,
+    onCheckedChange: ((Boolean) -> Unit)?,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.small),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Checkbox(checked, onCheckedChange, enabled = enabled)
+
+        Text(label)
+    }
+}
+
 val PercentageFormat = DecimalFormat("#0.0 %")
 val MoneyAmountFormat = DecimalFormat("#,##0.00").apply {
     roundingMode = RoundingMode.CEILING

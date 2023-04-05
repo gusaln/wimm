@@ -10,6 +10,7 @@ import com.squareup.sqldelight.android.AndroidSqliteDriver
 import me.gustavolopezxyz.common.data.Account
 import me.gustavolopezxyz.common.data.Database
 import me.gustavolopezxyz.common.data.Entry
+import me.gustavolopezxyz.common.data.MoneyTransaction
 
 actual class DatabaseFactory(private val context: Context) {
     actual fun create(): Database {
@@ -18,7 +19,8 @@ actual class DatabaseFactory(private val context: Context) {
         return Database(
             AndroidSqliteDriver(Database.Schema, context, "wimm.db"),
             accountAdapter = Account.Adapter(EnumColumnAdapter()),
-            entryAdapter = Entry.Adapter(instantColumnAdapter, instantColumnAdapter)
+            entryAdapter = Entry.Adapter(instantColumnAdapter),
+            moneyTransactionAdapter = MoneyTransaction.Adapter(instantColumnAdapter)
         )
     }
 }

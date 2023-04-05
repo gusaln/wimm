@@ -30,7 +30,6 @@ data class EntryForTransaction(
     val accountName: String,
     val currency: String,
     val amount: Double,
-    val incurredAt: Instant,
     val recordedAt: Instant,
 )
 
@@ -38,8 +37,8 @@ data class EntryForAccount(
     val entryId: Long,
     val transactionId: Long,
     val transactionDescription: String,
+    val transactionIncurredAt: Instant,
     val accountId: Long,
     val amount: Double,
-    val incurredAt: Instant,
     val recordedAt: Instant,
 )

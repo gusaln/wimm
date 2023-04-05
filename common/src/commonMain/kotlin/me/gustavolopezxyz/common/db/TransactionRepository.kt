@@ -6,8 +6,11 @@ package me.gustavolopezxyz.common.db
 
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.toInstant
 import me.gustavolopezxyz.common.data.Database
 import me.gustavolopezxyz.common.data.MoneyTransaction
+import me.gustavolopezxyz.common.ext.datetime.currentTimeZone
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -30,12 +33,19 @@ class TransactionRepository : KoinComponent {
         return queries.selectByNumber(number).executeAsOneOrNull()
     }
 
-    fun create(categoryId: Long, description: String, details: String?, total: Double): Long {
+    fun create(
+        categoryId: Long,
+        incurredAt: LocalDateTime,
+        description: String,
+        details: String?,
+        total: Double
+    ): Long {
         val number = generateTransactionNumber()
 
         queries.insertTransaction(
             number = number,
             categoryId = categoryId,
+            incurredAt = incurredAt.toInstant(currentTimeZone()),
             description = description.trim(),
             details = if (details.isNullOrBlank()) null else details.trim(),
             total = total
@@ -47,15 +57,24 @@ class TransactionRepository : KoinComponent {
     fun update(
         transaction: MoneyTransaction,
         categoryId: Long,
+        incurredAt: LocalDateTime,
         description: String,
         details: String? = null,
         total: Double
     ) =
-        update(transaction.transactionId, categoryId, description, details, total)
+        update(transaction.transactionId, categoryId, incurredAt, description, details, total)
 
-    fun update(transactionId: Long, categoryId: Long, description: String, details: String?, total: Double) {
+    fun update(
+        transactionId: Long,
+        categoryId: Long,
+        incurredAt: LocalDateTime,
+        description: String,
+        details: String?,
+        total: Double
+    ) {
         return queries.updateTransaction(
             categoryId = categoryId,
+            incurredAt = incurredAt.toInstant(currentTimeZone()),
             description = description.trim(),
             details = if (details.isNullOrBlank()) null else details.trim(),
             transactionId = transactionId,

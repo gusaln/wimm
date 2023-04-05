@@ -5,19 +5,29 @@
 package me.gustavolopezxyz.common.data
 
 // Based on the accounting equation:
-// Cash + Envelope + Asset + Receivable = Payable + (Income - Expense)
+// Cash + Envelope + Asset = (Income - Expense)
 enum class AccountType {
     Cash,
     Envelope,
     Asset,
-    Receivable,
 
-    Payable,
     Expense,
     Income;
 
+    val isAsset: Boolean
+        get() = when (this) {
+            Cash,
+            Envelope,
+            Asset -> true
+
+            else -> false
+        }
+
+    val isLiquid: Boolean
+        get() = this == Cash || this == Envelope
 
     companion object {
-        val InAssets: List<AccountType> get() = listOf(Cash, Envelope, Asset, Receivable)
+        val All: List<AccountType> get() = values().toList()
+        val Owned: List<AccountType> get() = values().filter { it.isAsset }.toList()
     }
 }

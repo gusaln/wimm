@@ -21,12 +21,16 @@ import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.atTime
+import kotlinx.datetime.toLocalDateTime
 import me.gustavolopezxyz.common.data.*
 import me.gustavolopezxyz.common.db.AccountRepository
 import me.gustavolopezxyz.common.db.CategoryRepository
 import me.gustavolopezxyz.common.db.EntryRepository
 import me.gustavolopezxyz.common.db.TransactionRepository
+import me.gustavolopezxyz.common.ext.datetime.atStartOfDay
+import me.gustavolopezxyz.common.ext.datetime.currentTimeZone
 import me.gustavolopezxyz.common.ext.toCurrency
 import me.gustavolopezxyz.common.ext.toMoney
 import me.gustavolopezxyz.common.navigation.NavController
@@ -36,6 +40,7 @@ import me.gustavolopezxyz.common.ui.NewEntriesList
 import me.gustavolopezxyz.common.ui.TotalListItem
 import me.gustavolopezxyz.common.ui.common.AppButton
 import me.gustavolopezxyz.common.ui.common.AppTextButton
+import me.gustavolopezxyz.common.ui.common.OutlinedDateTextField
 import me.gustavolopezxyz.common.ui.common.ScreenTitle
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import me.gustavolopezxyz.db.SelectEntriesForTransaction
@@ -67,6 +72,7 @@ class EditTransactionViewModel(private val transactionId: Long) : KoinComponent 
     suspend fun editTransaction(
         transactionId: Long,
         categoryId: Long,
+        incurredAt: LocalDate,
         description: String,
         details: String? = null,
         entryMap: Map<Long, SelectEntriesForTransaction>,
@@ -91,6 +97,7 @@ class EditTransactionViewModel(private val transactionId: Long) : KoinComponent 
             transactionRepository.update(
                 transactionId,
                 categoryId,
+                incurredAt.atStartOfDay(),
                 description,
                 details,
                 newTotal
@@ -101,8 +108,7 @@ class EditTransactionViewModel(private val transactionId: Long) : KoinComponent 
                     transactionId,
                     it.account!!.accountId,
                     it.amount,
-                    it.incurredAt.atTime(0, 0),
-                    it.recordedAt.atTime(0, 0)
+                    it.recordedAt.atTime(0, 0),
                 )
             }
 
@@ -174,8 +180,22 @@ fun EditTransactionScreen(navController: NavController, transactionId: Long) {
     var category by remember {
         mutableStateOf(categories.firstOrNull { it.categoryId == transaction!!.categoryId } ?: MissingCategory.toDto())
     }
+    var incurredAt by remember { mutableStateOf(transaction!!.incurredAt.toLocalDateTime(currentTimeZone()).date) }
     LaunchedEffect(categories) {
         category = categories.firstOrNull { it.categoryId == transaction!!.categoryId } ?: MissingCategory.toDto()
+    }
+
+    fun handleIncurredAtUpdate(value: LocalDate) {
+        val oldValue = incurredAt
+        incurredAt = value
+
+        scope.launch {
+            toModify.forEachIndexed { index, entry ->
+                if (entry.recordedAt == oldValue) {
+                    toModify[index] = entry.copy(recordedAt = value)
+                }
+            }
+        }
     }
 
     val scroll = rememberScrollState()
@@ -185,7 +205,14 @@ fun EditTransactionScreen(navController: NavController, transactionId: Long) {
     fun editRecord() {
         scope.launch(Dispatchers.IO) {
             viewModel.editTransaction(
-                transaction!!.transactionId, category.categoryId, description, details, entryMap, toCreate, toModify
+                transaction!!.transactionId,
+                category.categoryId,
+                incurredAt,
+                description,
+                details,
+                entryMap,
+                toCreate,
+                toModify
             )
 
             launch { viewModel.snackbar.showSnackbar("Transaction modified") }
@@ -255,6 +282,15 @@ fun EditTransactionScreen(navController: NavController, transactionId: Long) {
             singleLine = true,
             maxLines = 1
         )
+        Spacer(modifier = Modifier.fillMaxWidth())
+
+        OutlinedDateTextField(
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Date of the transaction") },
+            date = incurredAt,
+            onValueChange = { handleIncurredAtUpdate(it) }
+        )
+
         Spacer(modifier = Modifier.fillMaxWidth())
 
         OutlinedTextField(

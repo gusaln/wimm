@@ -122,20 +122,6 @@ fun NewEntriesListItem(
                 )
 
                 OutlinedDateTextField(modifier = Modifier.weight(1f),
-                    label = { Text("Date that it happened") },
-                    date = entry.incurredAt,
-                    onValueChange = {
-                        onEdit(
-                            entry.copy(
-                                incurredAt = it, recordedAt = when (entry.recordedAt) {
-                                    entry.incurredAt -> it
-                                    else -> entry.recordedAt
-                                }
-                            )
-                        )
-                    })
-
-                OutlinedDateTextField(modifier = Modifier.weight(1f),
                     label = { Text("Date that it appears in the books") },
                     date = entry.recordedAt,
                     onValueChange = { onEdit(entry.copy(recordedAt = it)) })

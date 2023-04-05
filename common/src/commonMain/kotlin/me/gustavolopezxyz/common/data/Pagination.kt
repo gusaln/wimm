@@ -57,7 +57,7 @@ class LazyPaginationState<T>(pagesLoadedByDefault: Int = 1) {
     /** The loading state. */
     var isLoading by mutableStateOf(false)
 
-    fun itemsLoaded(pageSize: Int) = pagesLoaded * pageSize
+    fun itemsLoadedCount(pageSize: Int) = pagesLoaded * pageSize
 
     /**
      * Updates [pagesLoaded] if needed.

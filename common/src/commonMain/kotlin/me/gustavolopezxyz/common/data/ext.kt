@@ -23,13 +23,6 @@ fun Category.toDto(parentCategoryName: String? = null) = CategoryWithParent(
     this.isLocked
 )
 
-fun SelectAllCategories.toCategory() = Category(
-    this.categoryId,
-    this.parentCategoryId,
-    this.name,
-    this.isLocked
-)
-
 fun SelectAllCategories.toDto() = CategoryWithParent(
     this.categoryId,
     this.parentCategoryId,
@@ -43,7 +36,6 @@ fun SelectEntriesForTransaction.toEntry() = Entry(
     this.transactionId,
     this.accountId,
     this.amount,
-    this.incurredAt,
     this.recordedAt
 )
 
@@ -54,7 +46,6 @@ fun SelectEntriesForTransaction.toEntryForTransaction() = EntryForTransaction(
     this.accountName,
     this.currency,
     this.amount,
-    this.incurredAt,
     this.recordedAt,
 )
 
@@ -62,8 +53,8 @@ fun SelectEntriesForAccount.toEntryForAccount() = EntryForAccount(
     this.entryId,
     this.transactionId,
     this.transactionDescription,
+    this.transactionIncurredAt,
     this.accountId,
     this.amount,
-    this.incurredAt,
     this.recordedAt,
 )

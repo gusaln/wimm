@@ -10,7 +10,7 @@ import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.HoverInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -125,7 +125,7 @@ fun MoneyPartitionSummary(
 
                             AppListItem(
                                 modifier = Modifier
-                                    .selectable(true, onClick = { included[entry.name] = !isIncluded })
+                                    .toggleable(isIncluded, onValueChange = { included[entry.name] = it })
                                     .hoverable(interactionSource, isIncluded)
                             ) {
                                 Text(
@@ -139,7 +139,7 @@ fun MoneyPartitionSummary(
                                     modifier = Modifier.width(80.dp),
                                 ) {
                                     Text(
-                                        text = PercentageFormat.format(fraction),
+                                        text = PercentageFormatter.format(fraction),
                                         style = TextStyle(color = Color.Black)
                                     )
                                 }
@@ -159,9 +159,9 @@ fun MoneyPartitionSummary(
             Row(Modifier.fillMaxWidth().height(10.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 amountsEntries.forEachIndexed { index, acc ->
                     val isIncluded by derivedStateOf { included.getOrDefault(acc.name, true) }
-                    val fraction by derivedStateOf { if (isIncluded) (acc.amount / filteredTotal).toFloat() else 0.0f }
+                    val fraction by derivedStateOf { (acc.amount / filteredTotal).toFloat() }
 
-                    if (fraction > 0f) {
+                    if (isIncluded) {
                         Card(
                             Modifier.weight(fraction).fillMaxHeight().border(
                                 2.dp,

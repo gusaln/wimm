@@ -125,9 +125,10 @@ fun AppChip(
 @Composable
 fun AppList(
     modifier: Modifier = Modifier,
+    verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(AppDimensions.Default.listSpaceBetween),
     content: @Composable ColumnScope.() -> Unit
 ) {
-    Column(modifier, verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium)) {
+    Column(modifier, verticalArrangement = verticalArrangement) {
         content()
     }
 }
@@ -176,10 +177,12 @@ fun AppListTitle(
 @Composable
 fun AppListItem(
     modifier: Modifier = Modifier,
+    horizontalPadding: Dp = ListItemHorizontalPadding,
+    verticalPadding: Dp = ListItemVerticalPadding,
     content: @Composable RowScope.() -> Unit
 ) {
     Row(
-        modifier = modifier.padding(ListItemHorizontalPadding, ListItemVerticalPadding),
+        modifier = modifier.padding(horizontalPadding, verticalPadding),
         horizontalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -190,11 +193,13 @@ fun AppListItem(
 @Composable
 fun AppListItem(
     modifier: Modifier = Modifier,
+    horizontalPadding: Dp = ListItemHorizontalPadding,
+    verticalPadding: Dp = ListItemVerticalPadding,
     secondaryText: @Composable ColumnScope.() -> Unit = {},
     action: @Composable RowScope.() -> Unit,
     text: @Composable ColumnScope.() -> Unit,
 ) {
-    AppListItem(modifier = modifier) {
+    AppListItem(modifier = modifier, horizontalPadding, verticalPadding) {
         Column(Modifier.weight(1f)) {
             ProvideTextStyle(ListItemPrimaryTextStyle) {
                 text()
@@ -233,8 +238,8 @@ fun AppCheckbox(
     }
 }
 
-val PercentageFormat = DecimalFormat("#0.0 %")
-val MoneyAmountFormat = DecimalFormat("#,##0.00").apply {
+val PercentageFormatter = DecimalFormat("#0.0 %")
+val NumberFormatter = DecimalFormat("#,##0.00").apply {
     roundingMode = RoundingMode.CEILING
 }
 

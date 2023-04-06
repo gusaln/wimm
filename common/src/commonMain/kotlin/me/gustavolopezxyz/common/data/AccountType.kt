@@ -10,7 +10,9 @@ enum class AccountType {
     Cash,
     Envelope,
     Asset,
+    Receivable,
 
+    Payable,
     Expense,
     Income;
 

@@ -5,6 +5,8 @@
 package me.gustavolopezxyz.common.data
 
 import androidx.compose.runtime.Immutable
+import java.math.RoundingMode
+import java.text.DecimalFormat
 
 @Immutable
 data class Currency internal constructor(val code: String, val symbol: String) {
@@ -21,6 +23,12 @@ private val currencyRepository: HashMap<String, Currency> = hashMapOf(
 
 fun currencyOf(code: String): Currency {
     return currencyRepository.getOrDefault(code.uppercase().trim(), missingCurrency)
+}
+
+val MoneyAmountFormat = DecimalFormat("#,##0.00").apply {
+    roundingMode = RoundingMode.CEILING
+    positivePrefix = " "
+    negativePrefix = " "
 }
 
 @Immutable
@@ -49,6 +57,9 @@ data class Money(val currency: Currency, val value: Double) {
     operator fun compareTo(other: Double): Int = this.value.compareTo(other)
 
     override fun toString(): String {
+        if (this.value < 0) {
+            return "- ${currency.symbol} ${MoneyAmountFormat.format(this.value)}"
+        }
         return "${currency.symbol} $value"
     }
 }

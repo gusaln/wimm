@@ -16,11 +16,10 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import me.gustavolopezxyz.common.data.Currency
+import me.gustavolopezxyz.common.data.MoneyAmountFormat
 import me.gustavolopezxyz.common.data.currencyOf
 import me.gustavolopezxyz.common.ui.theme.AppTheme
 import me.gustavolopezxyz.common.ui.theme.amount
-import java.math.RoundingMode
-import java.text.DecimalFormat
 
 
 object MoneyTextDefaults {
@@ -67,13 +66,7 @@ data class MoneyTextStyle(
     }
 }
 
-internal val MoneyTextAmountFormat = DecimalFormat("#,##0.00").apply {
-    roundingMode = RoundingMode.CEILING
-    positivePrefix = " "
-    negativePrefix = " "
-}
-
-internal fun formatMoneyTextAmount(amount: Number): String = MoneyTextAmountFormat.format(amount)
+internal fun formatMoneyTextAmount(amount: Number): String = MoneyAmountFormat.format(amount)
 
 @Composable
 fun MoneyText(

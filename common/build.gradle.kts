@@ -21,37 +21,37 @@ kotlin {
                 api(compose.runtime)
                 api(compose.foundation)
                 api(compose.material)
-                api(deps.koin.core)
-                api(deps.koin.test)
+                api(projectLibs.koin.core)
+                api(projectLibs.koin.test)
 
-                implementation(deps.sqldelight.runtime)
-                implementation(deps.sqldelight.coroutineExtensions)
-                implementation(deps.kotlinx.datetime)
+                implementation(projectLibs.sqldelight.runtime)
+                implementation(projectLibs.sqldelight.coroutineExtensions)
+                implementation(projectLibs.kotlinx.datetime)
             }
         }
         val commonTest by getting {
             dependencies {
-                implementation(deps.koin.test)
+                implementation(projectLibs.koin.test)
                 implementation(kotlin("test"))
             }
         }
         val androidMain by getting {
             dependencies {
-                api(deps.android.appcompat)
-                api(deps.android.coreKtx)
-                implementation(deps.sqldelight.androidDriver)
+                api(projectLibs.android.appcompat)
+                api(projectLibs.android.coreKtx)
+                implementation(projectLibs.sqldelight.androidDriver)
             }
         }
         val androidTest by getting {
             dependencies {
-                implementation(deps.android.junit)
-                implementation(deps.sqldelight.androidDriver)
+                implementation(projectLibs.android.junit)
+                implementation(projectLibs.sqldelight.androidDriver)
             }
         }
         val desktopMain by getting {
             dependencies {
                 api(compose.preview)
-                implementation(deps.sqldelight.sqliteDriver)
+                implementation(projectLibs.sqldelight.sqliteDriver)
             }
         }
         val desktopTest by getting

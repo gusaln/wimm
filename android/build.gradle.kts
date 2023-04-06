@@ -12,9 +12,9 @@ repositories {
 }
 
 dependencies {
-    implementation(deps.android.activityCompose)
+    implementation(projectLibs.android.activityCompose)
 
-    with(deps.koin) {
+    with(projectLibs.koin) {
         implementation(core)
         implementation(android)
         implementation(compose)

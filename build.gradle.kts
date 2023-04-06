@@ -8,11 +8,11 @@ buildscript {
     }
 
     dependencies {
-        classpath(gradlePlugins.sqldelight.plugin)
+        classpath(projectLibs.sqldelight.plugin)
     }
 }
 
-allprojects {
+subprojects {
     repositories {
         google()
         mavenCentral()

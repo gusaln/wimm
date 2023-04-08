@@ -7,11 +7,13 @@ package me.gustavolopezxyz.common.di
 import androidx.compose.material.SnackbarHostState
 import me.gustavolopezxyz.common.ConfigFactory
 import me.gustavolopezxyz.common.db.DatabaseFactory
+import me.gustavolopezxyz.common.navigation.NavController
 import me.gustavolopezxyz.common.services.BackupService
 import me.gustavolopezxyz.common.ui.TransactionsListViewModel
 import me.gustavolopezxyz.common.ui.screens.AccountSummaryViewModel
 import me.gustavolopezxyz.common.ui.screens.CreateTransactionViewModel
 import me.gustavolopezxyz.common.ui.screens.EditTransactionViewModel
+import me.gustavolopezxyz.common.ui.screens.ManageAccountsViewModel
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
@@ -39,8 +41,12 @@ actual fun platformModule(): Module = module {
         EditTransactionViewModel(transactionId)
     }
 
-    factory { (accountId: Long) ->
-        AccountSummaryViewModel(accountId)
+    factory { (navController: NavController, accountId: Long) ->
+        AccountSummaryViewModel(navController, accountId)
+    }
+
+    factory { (navController: NavController) ->
+        ManageAccountsViewModel(navController)
     }
 
     factory {

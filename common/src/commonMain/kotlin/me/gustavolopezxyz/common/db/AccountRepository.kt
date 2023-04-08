@@ -11,6 +11,7 @@ import me.gustavolopezxyz.common.data.Account
 import me.gustavolopezxyz.common.data.AccountType
 import me.gustavolopezxyz.common.data.Currency
 import me.gustavolopezxyz.common.data.Database
+import me.gustavolopezxyz.common.ext.toCurrency
 import me.gustavolopezxyz.db.AccountQueries
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -51,19 +52,26 @@ class AccountRepository : KoinComponent {
         original.accountId,
         modified.type,
         modified.name,
-        modified.currency
+        modified.currency.toCurrency()
+    )
+
+    fun update(modified: Account) = update(
+        modified.accountId,
+        modified.type,
+        modified.name,
+        modified.currency.toCurrency()
     )
 
     private fun update(
         accountId: Long,
         type: AccountType,
         name: String,
-        currency: String,
+        currency: Currency,
     ) {
         return accountQueries.updateAccount(
             type = type,
             name = name,
-            currency = currency,
+            currency = currency.code,
             accountId = accountId,
         )
     }

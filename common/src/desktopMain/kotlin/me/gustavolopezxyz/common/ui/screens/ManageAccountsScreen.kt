@@ -20,44 +20,38 @@ import me.gustavolopezxyz.common.data.AccountType
 import me.gustavolopezxyz.common.data.Currency
 import me.gustavolopezxyz.common.data.UnknownAccount
 import me.gustavolopezxyz.common.db.AccountRepository
+import me.gustavolopezxyz.common.navigation.NavController
+import me.gustavolopezxyz.common.navigation.Screen
 import me.gustavolopezxyz.common.ui.AccountsList
 import me.gustavolopezxyz.common.ui.CreateAccountForm
 import me.gustavolopezxyz.common.ui.EditAccountForm
 import me.gustavolopezxyz.common.ui.common.AppButton
 import me.gustavolopezxyz.common.ui.common.ScreenTitle
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
-import org.koin.java.KoinJavaComponent.inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 @Composable
-fun ManageAccountsScreen() {
-    val accountRepository by inject<AccountRepository>(AccountRepository::class.java)
-    val accounts by accountRepository.allAsFlow().mapToList().collectAsState(listOf(), Dispatchers.IO)
-    val snackbar by inject<SnackbarHostState>(SnackbarHostState::class.java)
-
+fun ManageAccountsScreen(viewModel: ManageAccountsViewModel) {
     val scope = rememberCoroutineScope()
-
+    val accounts by viewModel.getAccounts().collectAsState(emptyList(), scope.coroutineContext)
     var isCreatingOpen by remember { mutableStateOf(false) }
-
-    var editing by remember { mutableStateOf<Account?>(null) }
+    var accountBeingEdited by remember { mutableStateOf<Account?>(null) }
 
     fun createAccount(name: String, type: AccountType, currency: Currency) {
         isCreatingOpen = false
 
         scope.launch(Dispatchers.IO) {
-            accountRepository.create(type, name, currency)
-
-            snackbar.showSnackbar("The account was created")
+            viewModel.createAccount(name, type, currency)
         }
     }
 
     fun editAccount() {
-        val modified = editing!!.copy()
-        editing = null
+        val modified = accountBeingEdited!!.copy()
+        accountBeingEdited = null
 
         scope.launch(Dispatchers.IO) {
-            accountRepository.update(accounts.find { it.accountId == modified.accountId }!!, modified)
-
-            snackbar.showSnackbar("The account was modified")
+            viewModel.editAccount(modified)
         }
     }
 
@@ -71,15 +65,15 @@ fun ManageAccountsScreen() {
         }
     }
 
-    if (editing != null) {
-        Dialog(onCloseRequest = { editing = null }, title = "Edit an Account") {
+    if (accountBeingEdited != null) {
+        Dialog(onCloseRequest = { accountBeingEdited = null }, title = "Edit an Account") {
             Card(modifier = Modifier.fillMaxSize()) {
                 Box(modifier = Modifier.fillMaxWidth().padding(AppDimensions.Default.padding.medium)) {
                     EditAccountForm(
-                        value = editing ?: UnknownAccount,
-                        onValueChange = { editing = it },
+                        value = accountBeingEdited ?: UnknownAccount,
+                        onValueChange = { accountBeingEdited = it },
                         onEdit = ::editAccount,
-                        onCancel = { editing = null }
+                        onCancel = { accountBeingEdited = null }
                     )
                 }
             }
@@ -99,11 +93,42 @@ fun ManageAccountsScreen() {
 
             AppButton(onClick = { isCreatingOpen = !isCreatingOpen }, "Create account")
             Spacer(Modifier.width(AppDimensions.Default.spacing.medium))
-            AppButton(onClick = { accountRepository.recomputeBalances() }, "Reload balances")
+            AppButton(onClick = { viewModel.recomputeBalances() }, "Reload balances")
         }
 
         Spacer(modifier = Modifier.fillMaxWidth())
 
-        AccountsList(accounts) { editing = it.copy() }
+        AccountsList(
+            accounts,
+            onSelect = { viewModel.navigateToAccountsSummary(it) },
+            onEdit = { accountBeingEdited = it.copy() }
+        )
+    }
+}
+
+class ManageAccountsViewModel(private val navController: NavController) : KoinComponent {
+    private val snackbar: SnackbarHostState by inject()
+    private val accountRepository: AccountRepository by inject()
+
+    fun getAccounts() = accountRepository.allAsFlow().mapToList()
+
+    suspend fun createAccount(name: String, type: AccountType, currency: Currency) {
+        accountRepository.create(type, name, currency)
+
+        snackbar.showSnackbar("The account was created")
+    }
+
+    suspend fun editAccount(modified: Account) {
+        accountRepository.update(modified)
+
+        snackbar.showSnackbar("The account was modified")
+    }
+
+    fun recomputeBalances() {
+        accountRepository.recomputeBalances()
+    }
+
+    fun navigateToAccountsSummary(account: Account) {
+        navController.navigate(Screen.AccountSummary.route(account.accountId))
     }
 }

@@ -4,16 +4,21 @@
 
 package me.gustavolopezxyz.common.ui
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerIconDefaults
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import me.gustavolopezxyz.common.data.Account
 import me.gustavolopezxyz.common.data.EntryForAccount
 import me.gustavolopezxyz.common.data.getCurrency
@@ -21,25 +26,35 @@ import me.gustavolopezxyz.common.ext.datetime.formatDateTime
 import me.gustavolopezxyz.common.ui.common.*
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun AccountEntriesList(
     account: Account,
     entries: List<EntryForAccount>,
+    isLoading: Boolean,
     isFirstPage: Boolean,
     isLastPage: Boolean,
     onPrevPage: () -> Unit,
-    onNextPage: () -> Unit
+    onNextPage: () -> Unit,
+    onSelectEntry: (EntryForAccount) -> Unit,
 ) {
+    val scroll = rememberScrollState()
+
     Card(modifier = Modifier) {
         Column(
             modifier = Modifier.padding(AppDimensions.Default.cardPadding),
             verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium)
         ) {
-            AppList {
+            AppList(modifier = Modifier.verticalScroll(scroll), verticalArrangement = Arrangement.Top) {
                 AppListTitle("Entries")
+                Spacer(Modifier.height(AppDimensions.Default.listSpaceBetween))
 
                 entries.forEach {
                     AppListItem(
+                        modifier = Modifier.pointerHoverIcon(PointerIconDefaults.Hand).clickable {
+                            onSelectEntry(it)
+                        },
+                        verticalPadding = 20.dp,
                         secondaryText = {
                             Text(it.recordedAt.formatDateTime())
                         },
@@ -54,12 +69,19 @@ fun AccountEntriesList(
                 }
 
                 if (entries.isEmpty()) {
+                    Spacer(Modifier.height(AppDimensions.Default.listSpaceBetween))
                     Text(
-                        "There no more entries",
+                        "There are no more entries",
                         modifier = Modifier.fillMaxWidth(),
                         color = Color.Gray,
                         textAlign = TextAlign.Center
                     )
+                }
+
+                if (isLoading) {
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                        CircularProgressIndicator()
+                    }
                 }
             }
 

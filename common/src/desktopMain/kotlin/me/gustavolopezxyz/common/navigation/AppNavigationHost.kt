@@ -5,7 +5,10 @@
 package me.gustavolopezxyz.common.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import me.gustavolopezxyz.common.ui.screens.*
+import org.koin.core.parameter.parametersOf
+import org.koin.java.KoinJavaComponent.inject
 
 sealed class Screen(val route: String) {
     object Overview : Screen("overview")
@@ -32,7 +35,13 @@ fun AppNavigationHost(navController: NavController) {
         }
 
         composable(Screen.AccountSummary.route) {
-            AccountSummaryScreen(navController, navController.getArgument("id")!!.toLong())
+            val viewModel by remember {
+                inject<AccountSummaryViewModel>(AccountSummaryViewModel::class.java) {
+                    parametersOf(navController, navController.getArgument("id")!!.toLong())
+                }
+            }
+
+            AccountSummaryScreen(viewModel)
         }
 
         composable(Screen.EditTransaction.route) {
@@ -40,7 +49,13 @@ fun AppNavigationHost(navController: NavController) {
         }
 
         composable(Screen.ManageAccounts.route) {
-            ManageAccountsScreen()
+            val viewModel by remember {
+                inject<ManageAccountsViewModel>(ManageAccountsViewModel::class.java) {
+                    parametersOf(navController)
+                }
+            }
+
+            ManageAccountsScreen(viewModel)
         }
 
         composable(Screen.ManageCategories.route) {

@@ -60,7 +60,7 @@ data class Money(val currency: Currency, val value: Double) {
         if (this.value < 0) {
             return "- ${currency.symbol} ${MoneyAmountFormat.format(this.value)}"
         }
-        return "${currency.symbol} $value"
+        return "${currency.symbol} ${MoneyAmountFormat.format(this.value)}"
     }
 }
 

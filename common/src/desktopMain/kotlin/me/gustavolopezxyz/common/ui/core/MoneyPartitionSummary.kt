@@ -10,10 +10,10 @@ import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.HoverInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.selection.toggleable
-import androidx.compose.material.Card
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckBox
+import androidx.compose.material.icons.filled.CheckBoxOutlineBlank
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,14 +26,12 @@ import me.gustavolopezxyz.common.data.*
 import me.gustavolopezxyz.common.ui.common.*
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import me.gustavolopezxyz.common.ui.theme.AppTheme
+import kotlin.math.absoluteValue
 
 internal val AccountPartitionSummaryDefaultColors = lazy {
-    Palette.Colors
-        .asIterable()
-        .filterNot { it.key.startsWith("gray") || it.key.startsWith("zinc") }
+    Palette.Colors.asIterable().filterNot { it.key.startsWith("gray") || it.key.startsWith("zinc") }
         .filter { it.key.endsWith("200") || it.key.endsWith("400") || it.key.endsWith("600") || it.key.endsWith("800") }
-        .sortedByDescending { it.key }
-        .map { it.value }
+        .sortedByDescending { it.key }.map { it.value }
 }
 
 @Composable
@@ -124,10 +122,17 @@ fun MoneyPartitionSummary(
                             }
 
                             AppListItem(
-                                modifier = Modifier
-                                    .toggleable(isIncluded, onValueChange = { included[entry.name] = it })
-                                    .hoverable(interactionSource, isIncluded)
+                                modifier = Modifier.hoverable(interactionSource, isIncluded)
                             ) {
+                                IconToggleButton(checked = isIncluded,
+                                    onCheckedChange = { included[entry.name] = it }) {
+                                    if (isIncluded) {
+                                        Icon(Icons.Default.CheckBox, "checkbox")
+                                    } else {
+                                        Icon(Icons.Default.CheckBoxOutlineBlank, "blank checkbox")
+                                    }
+                                }
+
                                 Text(
                                     text = entry.name,
                                     modifier = Modifier.weight(1f),
@@ -166,10 +171,8 @@ fun MoneyPartitionSummary(
                             Modifier.weight(fraction).fillMaxHeight().border(
                                 2.dp,
                                 if (hoveredName == acc.name) MaterialTheme.colors.onBackground else Color.Unspecified
-                            ),
-                            backgroundColor = colorPalette[index % colorPalette.size]
-                        ) {
-                        }
+                            ), backgroundColor = colorPalette[index % colorPalette.size]
+                        ) {}
                     }
                 }
             }

@@ -21,9 +21,9 @@ import me.gustavolopezxyz.common.navigation.NavController
 import me.gustavolopezxyz.common.navigation.Screen
 import me.gustavolopezxyz.common.ui.TransactionsListViewModel
 import me.gustavolopezxyz.common.ui.common.ContainerLayout
-import me.gustavolopezxyz.common.ui.screens.overviewScreen.AccountPartitionSummaryCard
 import me.gustavolopezxyz.common.ui.screens.overviewScreen.DebtPartitionSummaryCard
 import me.gustavolopezxyz.common.ui.screens.overviewScreen.ExpensesSummaryCard
+import me.gustavolopezxyz.common.ui.screens.overviewScreen.OwnedPartitionSummaryCard
 import me.gustavolopezxyz.common.ui.screens.overviewScreen.TransactionsOverviewCard
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import me.gustavolopezxyz.common.ui.theme.dropdownSelected
@@ -54,7 +54,7 @@ fun OverviewScreen(navController: NavController) {
 
                 when (summary) {
                     SummaryType.Owned -> {
-                        AccountPartitionSummaryCard(accountRepository, Modifier.weight(2f)) {
+                        OwnedPartitionSummaryCard(accountRepository, Modifier.weight(2f)) {
                             SummaryTypeDropdown(summary, onClick = { summary = it })
                         }
                     }
@@ -88,6 +88,10 @@ enum class SummaryType {
             Expenses -> "Expenses"
         }
     }
+
+    companion object {
+        val All: List<SummaryType> get() = listOf(Owned, Debt, Expenses)
+    }
 }
 
 @Composable
@@ -114,7 +118,7 @@ fun SummaryTypeDropdown(
                 onDismissRequest = { expanded = false },
                 modifier = Modifier.widthIn(200.dp, 450.dp)
             ) {
-                SummaryType.values().forEach {
+                SummaryType.All.forEach {
                     val isSelected = it == value
                     val style =
                         if (isSelected) MaterialTheme.typography.dropdownSelected else MaterialTheme.typography.dropdownUnselected

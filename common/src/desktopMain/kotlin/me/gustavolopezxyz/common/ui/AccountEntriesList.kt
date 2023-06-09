@@ -83,14 +83,16 @@ fun AccountEntriesList(
                         CircularProgressIndicator()
                     }
                 }
-            }
 
-            SimplePaginationControl(
-                isPrevEnabled = !isFirstPage,
-                isNextEnabled = !isLastPage,
-                onPrevPage = onPrevPage,
-                onNextPage = onNextPage
-            )
+                Spacer(Modifier.height(AppDimensions.Default.listSpaceBetween))
+
+                SimplePaginationControl(
+                    isPrevEnabled = !isFirstPage,
+                    isNextEnabled = !isLastPage,
+                    onPrevPage = onPrevPage,
+                    onNextPage = onNextPage
+                )
+            }
         }
     }
 }

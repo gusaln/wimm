@@ -23,7 +23,7 @@ import me.gustavolopezxyz.common.ui.theme.AppDimensions
 internal val assetColors = Palette.Green.reversed()
 
 @Composable
-fun AccountPartitionSummaryCard(
+fun OwnedPartitionSummaryCard(
     accountRepository: AccountRepository,
     modifier: Modifier = Modifier,
     actions: @Composable RowScope.() -> Unit

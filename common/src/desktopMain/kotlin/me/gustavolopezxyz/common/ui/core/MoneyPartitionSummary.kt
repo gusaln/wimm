@@ -38,7 +38,8 @@ internal val AccountPartitionSummaryDefaultColors = lazy {
 fun MoneyPartitionSummary(
     title: String,
     currency: Currency,
-    amounts: Map<String, Double>,
+    amounts: List<MoneyPartitionEntry>,
+    fractionByCategory: Boolean = false,
     descending: Boolean = true,
     sortBy: ((MoneyPartitionEntry) -> Double)? = null,
     colorPalette: List<Color> = AccountPartitionSummaryDefaultColors.value,
@@ -48,6 +49,7 @@ fun MoneyPartitionSummary(
         currency = currency,
         amounts = amounts,
         descending = descending,
+        fractionByCategory = fractionByCategory,
         sortBy = sortBy,
         colorPalette = colorPalette,
         modifier = modifier
@@ -56,20 +58,52 @@ fun MoneyPartitionSummary(
     }
 }
 
-data class MoneyPartitionEntry(val name: String, val amount: Double)
-
 @Composable
 fun MoneyPartitionSummary(
     currency: Currency,
-    amounts: Map<String, Double>,
+    amounts: List<MoneyPartitionEntry>,
+    fractionByCategory: Boolean = false,
     descending: Boolean = true,
     sortBy: ((MoneyPartitionEntry) -> Double)? = null,
     colorPalette: List<Color> = AccountPartitionSummaryDefaultColors.value,
     modifier: Modifier = Modifier,
     title: @Composable (() -> Unit),
 ) {
+    MoneyPartitionSummary(
+        currency = currency,
+        amounts = amounts,
+        fractionByCategory = fractionByCategory,
+        descending = descending,
+        sortBy = sortBy,
+        colorSelector = { index, _ -> colorPalette[index % colorPalette.size] },
+        modifier = modifier
+    ) {
+        title()
+    }
+}
+
+/**
+ * @param name Unique name of the entry
+ * @param category Categorizing property of the entry
+ * @param amount Amount of the entry
+ */
+data class MoneyPartitionEntry(val name: String, val category: String, val amount: Double) {
+    constructor(name: String, amount: Double) : this(name, name, amount)
+}
+
+@Composable
+fun MoneyPartitionSummary(
+    currency: Currency,
+    amounts: List<MoneyPartitionEntry>,
+    fractionByCategory: Boolean = false,
+    descending: Boolean = true,
+    sortBy: ((MoneyPartitionEntry) -> Double)? = null,
+    colorSelector: (index: Int, category: String) -> Color,
+    modifier: Modifier = Modifier,
+    title: @Composable (() -> Unit),
+) {
     val amountsEntries by derivedStateOf {
-        amounts.map { MoneyPartitionEntry(it.key, it.value) }.run {
+        amounts.run {
             if (sortBy != null) {
                 this.sortedBy(sortBy)
             } else if (descending) {
@@ -80,11 +114,23 @@ fun MoneyPartitionSummary(
         }
     }
 
+
     val included = remember { mutableStateMapOf<String, Boolean>() }
-    val filteredTotal by derivedStateOf {
-        amountsEntries.asIterable().filter { included.getOrDefault(it.name, true) }.sumOf { it.amount }
+
+    val total by derivedStateOf {
+        amountsEntries.filter { included.getOrDefault(it.name, true) }.sumOf { it.amount }
     }
-    var hoveredName by remember { mutableStateOf<String?>(null) }
+    val absoluteTotal by derivedStateOf {
+        amountsEntries.filter { included.getOrDefault(it.name, true) }.sumOf { it.amount.absoluteValue }
+    }
+    val totalByCategory by derivedStateOf {
+        buildMap<String, Double> {
+            amounts.filter { included.getOrDefault(it.name, true) }.forEach {
+                this[it.category] = this.getOrDefault(it.category, 0.0) + it.amount
+            }
+        }
+    }
+    var hoveredCategory by remember { mutableStateOf<String?>(null) }
 
     AppCard(modifier = modifier) {
         Column {
@@ -94,7 +140,7 @@ fun MoneyPartitionSummary(
             Row {
                 Row(Modifier.weight(1f), Arrangement.Center, Alignment.CenterVertically) {
                     MoneyText(
-                        filteredTotal,
+                        total,
                         currencyOf("USD"),
                         Modifier.fillMaxWidth().align(Alignment.CenterVertically),
                         commonStyle = TextStyle(fontSize = 2.5.em)
@@ -109,13 +155,31 @@ fun MoneyPartitionSummary(
                             val interactionSource = remember { MutableInteractionSource() }
 
                             val isIncluded by derivedStateOf { included.getOrDefault(entry.name, true) }
-                            val fraction by derivedStateOf { if (isIncluded) (entry.amount / filteredTotal).toFloat() else 0.0f }
+                            val fraction by derivedStateOf {
+                                if (!isIncluded) {
+                                    0.0f
+                                } else if (fractionByCategory) {
+                                    (entry.amount / totalByCategory.getOrDefault(
+                                        entry.category,
+                                        1.0
+                                    )).toFloat()
+                                } else {
+                                    (entry.amount / absoluteTotal).toFloat()
+                                }
+//
+//                                if (isIncluded) (entry.amount / totalByCategory.getOrDefault(
+//                                    entry.category,
+//                                    1.0
+//                                )).toFloat() else 0.0f
+                            }
 
                             LaunchedEffect(Unit) {
                                 interactionSource.interactions.collect {
                                     when (it) {
-                                        is HoverInteraction.Enter -> hoveredName = entry.name
-                                        is HoverInteraction.Exit -> if (hoveredName == entry.name) hoveredName = null
+                                        is HoverInteraction.Enter -> hoveredCategory = entry.category
+                                        is HoverInteraction.Exit -> if (hoveredCategory == entry.category) hoveredCategory =
+                                            null
+
                                         else -> {}
                                     }
                                 }
@@ -140,7 +204,7 @@ fun MoneyPartitionSummary(
                                 )
 
                                 AppChip(
-                                    color = colorPalette[index % colorPalette.size],
+                                    color = colorSelector(index, entry.category),
                                     modifier = Modifier.width(80.dp),
                                 ) {
                                     Text(
@@ -162,18 +226,25 @@ fun MoneyPartitionSummary(
 
             // Graphic
             Row(Modifier.fillMaxWidth().height(10.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                amountsEntries.forEachIndexed { index, acc ->
-                    val isIncluded by derivedStateOf { included.getOrDefault(acc.name, true) }
-                    val fraction by derivedStateOf { (acc.amount / filteredTotal).toFloat() }
+                totalByCategory.entries.run {
+//                    if (sortBy != null) {
+//                        this.sortedBy
+//                    }  else
 
-                    if (isIncluded) {
-                        Card(
-                            Modifier.weight(fraction).fillMaxHeight().border(
-                                2.dp,
-                                if (hoveredName == acc.name) MaterialTheme.colors.onBackground else Color.Unspecified
-                            ), backgroundColor = colorPalette[index % colorPalette.size]
-                        ) {}
+                    if (descending) {
+                        this.sortedByDescending { it.value }
+                    } else {
+                        this.sortedBy { it.value }
                     }
+                }.forEachIndexed { index, entry ->
+                    val fraction by derivedStateOf { (entry.value / absoluteTotal).absoluteValue.toFloat() }
+
+                    Card(
+                        Modifier.weight(fraction).fillMaxHeight().border(
+                            2.dp,
+                            if (hoveredCategory == entry.key) MaterialTheme.colors.onBackground else Color.Unspecified
+                        ), backgroundColor = colorSelector(index, entry.key)
+                    ) {}
                 }
             }
         }
@@ -192,6 +263,6 @@ fun MoneyPartitionSummaryPreview() {
     )
 
     AppTheme {
-        MoneyPartitionSummary("Accounts", currencyOf("USD"), accounts.associateBy({ it.name }, { it.balance }))
+        MoneyPartitionSummary("Accounts", currencyOf("USD"), accounts.map { MoneyPartitionEntry(it.name, it.balance) })
     }
 }

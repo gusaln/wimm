@@ -27,6 +27,7 @@ import me.gustavolopezxyz.common.db.CategoryRepository
 import me.gustavolopezxyz.common.db.EntryRepository
 import me.gustavolopezxyz.common.ext.datetime.*
 import me.gustavolopezxyz.common.ui.common.AppListTitle
+import me.gustavolopezxyz.common.ui.core.MoneyPartitionEntry
 import me.gustavolopezxyz.common.ui.core.MoneyPartitionSummary
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import me.gustavolopezxyz.db.SelectEntriesInRange
@@ -76,7 +77,7 @@ fun ExpensesSummaryCard(
                 it.transactionCategoryId,
                 MissingCategory.toDto()
             ).fullname()
-        }.mapValues { entry -> entry.value.sumOf { it.amount } },
+        }.entries.map { entry -> MoneyPartitionEntry(entry.key, entry.value.sumOf { it.amount }) },
         descending = false,
         colorPalette = expensesColors,
         modifier = modifier

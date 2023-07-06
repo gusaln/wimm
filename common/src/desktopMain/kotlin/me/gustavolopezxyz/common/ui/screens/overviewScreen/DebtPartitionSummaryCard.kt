@@ -15,6 +15,7 @@ import me.gustavolopezxyz.common.data.Palette
 import me.gustavolopezxyz.common.data.currencyOf
 import me.gustavolopezxyz.common.db.AccountRepository
 import me.gustavolopezxyz.common.ui.common.AppListTitle
+import me.gustavolopezxyz.common.ui.core.MoneyPartitionEntry
 import me.gustavolopezxyz.common.ui.core.MoneyPartitionSummary
 
 internal val debtColors = Palette.Orange.reversed()
@@ -29,7 +30,8 @@ fun DebtPartitionSummaryCard(
 
     MoneyPartitionSummary(
         currency = currencyOf("USD"),
-        amounts = assetAccounts.associateBy({ it.name }, { it.balance }),
+        amounts = assetAccounts.map { MoneyPartitionEntry(it.name, it.balance) },
+        descending = false,
         colorPalette = debtColors,
         modifier = modifier
     ) {

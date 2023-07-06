@@ -21,10 +21,7 @@ import me.gustavolopezxyz.common.navigation.NavController
 import me.gustavolopezxyz.common.navigation.Screen
 import me.gustavolopezxyz.common.ui.TransactionsListViewModel
 import me.gustavolopezxyz.common.ui.common.ContainerLayout
-import me.gustavolopezxyz.common.ui.screens.overviewScreen.DebtPartitionSummaryCard
-import me.gustavolopezxyz.common.ui.screens.overviewScreen.ExpensesSummaryCard
-import me.gustavolopezxyz.common.ui.screens.overviewScreen.OwnedPartitionSummaryCard
-import me.gustavolopezxyz.common.ui.screens.overviewScreen.TransactionsOverviewCard
+import me.gustavolopezxyz.common.ui.screens.overviewScreen.*
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import me.gustavolopezxyz.common.ui.theme.dropdownSelected
 import me.gustavolopezxyz.common.ui.theme.dropdownUnselected
@@ -39,7 +36,7 @@ fun OverviewScreen(navController: NavController) {
     val categoryRepository by remember { inject<CategoryRepository>(CategoryRepository::class.java) }
     val accountRepository by remember { inject<AccountRepository>(AccountRepository::class.java) }
 
-    var summary by remember { mutableStateOf(SummaryType.Owned) }
+    var summary by remember { mutableStateOf(SummaryType.Balance) }
 
     ContainerLayout {
         Column {
@@ -53,6 +50,12 @@ fun OverviewScreen(navController: NavController) {
                 }
 
                 when (summary) {
+                    SummaryType.Balance -> {
+                        BalancePartitionSummaryCard(accountRepository, Modifier.weight(2f)) {
+                            SummaryTypeDropdown(summary, onClick = { summary = it })
+                        }
+                    }
+
                     SummaryType.Owned -> {
                         OwnedPartitionSummaryCard(accountRepository, Modifier.weight(2f)) {
                             SummaryTypeDropdown(summary, onClick = { summary = it })
@@ -77,10 +80,12 @@ fun OverviewScreen(navController: NavController) {
 }
 
 enum class SummaryType {
-    Owned, Debt, Expenses;
+    Balance, Owned, Debt, Expenses;
 
     override fun toString(): String {
         return when (this) {
+            Balance -> "Balance"
+
             Owned -> "Owned"
 
             Debt -> "Debt"
@@ -90,7 +95,7 @@ enum class SummaryType {
     }
 
     companion object {
-        val All: List<SummaryType> get() = listOf(Owned, Debt, Expenses)
+        val All: List<SummaryType> get() = listOf(Balance, Owned, Debt, Expenses)
     }
 }
 

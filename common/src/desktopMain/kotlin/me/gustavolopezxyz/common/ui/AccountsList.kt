@@ -11,7 +11,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
@@ -100,7 +99,7 @@ fun AccountsList(
     val byType = accounts.groupBy { it.type }
 
     Column(
-        modifier = Modifier.fillMaxWidth().verticalScroll(scroll),
+        modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.large)
     ) {
         byType.forEach { (type, accounts) ->

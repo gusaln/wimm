@@ -32,7 +32,7 @@ import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-class TransactionsListViewModel() : KoinComponent {
+class TransactionsListViewModel : KoinComponent {
     private val transactionRepository: TransactionRepository by inject()
     private val entryRepository: EntryRepository by inject()
     private val categoryRepository: CategoryRepository by inject()
@@ -66,7 +66,7 @@ fun TransactionsList(
             verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.large, alignment = Alignment.Top)
         ) {
             transactions.forEach { transaction ->
-                TransactionEntresList(
+                TransactionEntriesList(
                     transaction,
                     entriesByTransaction.getOrDefault(transaction.transactionId, emptyList()),
                     onSelect
@@ -80,12 +80,12 @@ fun TransactionsList(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun TransactionEntresList(
+fun TransactionEntriesList(
     transaction: MoneyTransaction,
     entries: List<EntryForTransaction>,
     onSelect: (MoneyTransaction) -> Unit,
 ) {
-    Card() {
+    Card {
         Column(
             modifier = Modifier.padding(AppDimensions.Default.cardPadding),
             verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium)

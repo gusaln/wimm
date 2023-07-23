@@ -39,6 +39,11 @@ fun ScreenTitle(content: @Composable RowScope.() -> Unit) {
 }
 
 @Composable
+fun ScreenTitle(title: String) {
+    ScreenTitle { Text(title) }
+}
+
+@Composable
 fun FormTitle(title: String) {
     Text(title, style = MaterialTheme.typography.h5)
 }

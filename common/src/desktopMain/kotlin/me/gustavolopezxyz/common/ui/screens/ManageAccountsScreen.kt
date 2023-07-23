@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.SnackbarHostState
-import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.Dialog
@@ -22,7 +21,7 @@ import me.gustavolopezxyz.common.data.UnknownAccount
 import me.gustavolopezxyz.common.db.AccountRepository
 import me.gustavolopezxyz.common.navigation.NavController
 import me.gustavolopezxyz.common.navigation.Screen
-import me.gustavolopezxyz.common.ui.AccountsList
+import me.gustavolopezxyz.common.ui.AccountsGroupedList
 import me.gustavolopezxyz.common.ui.CreateAccountForm
 import me.gustavolopezxyz.common.ui.EditAccountForm
 import me.gustavolopezxyz.common.ui.common.AppButton
@@ -84,10 +83,9 @@ fun ManageAccountsScreen(viewModel: ManageAccountsViewModel) {
         modifier = Modifier.fillMaxWidth().padding(AppDimensions.Default.padding.large),
         verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.large)
     ) {
+//        Header
         Row(modifier = Modifier.fillMaxWidth()) {
-            ScreenTitle {
-                Text("Accounts")
-            }
+            ScreenTitle("Accounts")
 
             Spacer(Modifier.weight(1f))
 
@@ -98,7 +96,7 @@ fun ManageAccountsScreen(viewModel: ManageAccountsViewModel) {
 
         Spacer(modifier = Modifier.fillMaxWidth())
 
-        AccountsList(
+        AccountsGroupedList(
             accounts,
             onSelect = { viewModel.navigateToAccountsSummary(it) },
             onEdit = { accountBeingEdited = it.copy() }

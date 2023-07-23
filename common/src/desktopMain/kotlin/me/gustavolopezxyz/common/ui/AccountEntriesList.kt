@@ -12,6 +12,8 @@ import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,6 +21,7 @@ import androidx.compose.ui.input.pointer.PointerIconDefaults
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import me.gustavolopezxyz.common.data.Account
 import me.gustavolopezxyz.common.data.EntryForAccount
 import me.gustavolopezxyz.common.data.getCurrency
@@ -38,7 +41,11 @@ fun AccountEntriesList(
     onNextPage: () -> Unit,
     onSelectEntry: (EntryForAccount) -> Unit,
 ) {
+    val scope = rememberCoroutineScope()
     val scroll = rememberScrollState()
+
+    val onNextPageAction = rememberUpdatedState(onNextPage)
+    val onPrevPageAction = rememberUpdatedState(onPrevPage)
 
     Card(modifier = Modifier) {
         Column(
@@ -89,8 +96,14 @@ fun AccountEntriesList(
                 SimplePaginationControl(
                     isPrevEnabled = !isFirstPage,
                     isNextEnabled = !isLastPage,
-                    onPrevPage = onPrevPage,
-                    onNextPage = onNextPage
+                    onPrevPage = {
+                        onPrevPageAction.value.invoke()
+                        scope.launch { scroll.scrollTo(0) }
+                    },
+                    onNextPage = {
+                        onNextPageAction.value.invoke()
+                        scope.launch { scroll.scrollTo(0) }
+                    }
                 )
             }
         }

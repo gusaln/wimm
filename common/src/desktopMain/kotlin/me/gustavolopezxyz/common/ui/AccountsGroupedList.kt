@@ -7,10 +7,8 @@ package me.gustavolopezxyz.common.ui
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
@@ -32,6 +30,47 @@ import me.gustavolopezxyz.common.ui.common.MoneyText
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import me.gustavolopezxyz.common.ui.theme.AppTheme
 
+
+@Composable
+fun AccountsGroupedList(
+    accounts: List<Account>,
+    onSelect: (Account) -> Unit = {},
+    onEdit: ((Account) -> Unit)? = null,
+) {
+    val scroll = rememberScrollState()
+    val byType = accounts.groupBy { it.type }
+
+    Column(
+        modifier = Modifier.verticalScroll(scroll).fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.large)
+    ) {
+        byType.forEach { (type, accounts) ->
+            Text(type.name)
+
+            AccountsList(accounts.sortedBy { it.name }, onSelect, onEdit)
+
+            Spacer(modifier = Modifier.fillMaxWidth())
+        }
+    }
+}
+
+@Composable
+fun AccountsList(
+    accounts: List<Account>,
+    onSelect: (Account) -> Unit = {},
+    onEdit: ((Account) -> Unit)? = null,
+) {
+    accounts.chunked(5).forEach { accountsChunk ->
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(bottom = AppDimensions.Default.listSpaceBetween),
+            horizontalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium)
+        ) {
+            accountsChunk.forEach { account ->
+                AccountsListCard(account, onSelect, onEdit)
+            }
+        }
+    }
+}
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -89,57 +128,12 @@ fun AccountsListCard(
     }
 }
 
-@Composable
-fun AccountsList(
-    accounts: List<Account>,
-    onSelect: (Account) -> Unit = {},
-    onEdit: ((Account) -> Unit)? = null,
-) {
-    val scroll = rememberScrollState()
-    val byType = accounts.groupBy { it.type }
-
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.large)
-    ) {
-        byType.forEach { (type, accounts) ->
-            Text(type.name)
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium)
-            ) {
-                LazyVerticalGrid(
-                    columns = GridCells.Adaptive(minSize = 256.dp),
-                    verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.listSpaceBetween),
-                    horizontalArrangement = Arrangement.spacedBy(AppDimensions.Default.listSpaceBetween),
-                    userScrollEnabled = true
-                ) {
-                    this.items(accounts) { account ->
-                        AccountsListCard(account, onSelect, onEdit)
-                    }
-                }
-//                accounts.forEach {
-//                    AccountsListCard(it, onSelect, onEdit)
-//                }
-
-                if (accounts.isEmpty()) {
-                    Text("No accounts found")
-                }
-            }
-
-            Spacer(modifier = Modifier.fillMaxWidth())
-        }
-
-    }
-}
-
 
 @Preview
 @Composable
-fun AccountsListPreview() {
+fun AccountsGroupedListPreview() {
     AppTheme {
-        AccountsList(
+        AccountsGroupedList(
             listOf(
                 Account(1, AccountType.Cash, "Savings", "USD", 100.0),
                 Account(2, AccountType.Cash, "Checking", "VES", 50.0),

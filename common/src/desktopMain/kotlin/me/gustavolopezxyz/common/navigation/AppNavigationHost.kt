@@ -13,15 +13,15 @@ import org.koin.java.KoinJavaComponent.inject
 sealed class Screen(val route: String) {
     object Overview : Screen("overview")
 
-    object AccountSummary : Screen("accounts/{id}") {
-        fun route(accountId: Long) = Route(this.route, mapOf(Pair("id", accountId.toString())))
-    }
-
     object EditTransaction : Screen("transactions/{id}/edit") {
         fun route(transactionId: Long) = Route(this.route, mapOf(Pair("id", transactionId.toString())))
     }
 
     object ManageAccounts : Screen("manage_accounts")
+
+    object AccountSummary : Screen("accounts/{id}") {
+        fun route(accountId: Long) = Route(this.route, mapOf(Pair("id", accountId.toString())))
+    }
 
     object ManageCategories : Screen("manage_categories")
 }
@@ -32,16 +32,6 @@ fun AppNavigationHost(navController: NavController) {
     NavigationHost(navController) {
         composable(Screen.Overview.route) {
             OverviewScreen(navController)
-        }
-
-        composable(Screen.AccountSummary.route) {
-            val viewModel by remember {
-                inject<AccountSummaryViewModel>(AccountSummaryViewModel::class.java) {
-                    parametersOf(navController, navController.getArgument("id")!!.toLong())
-                }
-            }
-
-            AccountSummaryScreen(viewModel)
         }
 
         composable(Screen.EditTransaction.route) {
@@ -58,8 +48,24 @@ fun AppNavigationHost(navController: NavController) {
             ManageAccountsScreen(viewModel)
         }
 
+        composable(Screen.AccountSummary.route) {
+            val viewModel by remember {
+                inject<AccountSummaryViewModel>(AccountSummaryViewModel::class.java) {
+                    parametersOf(navController, navController.getArgument("id")!!.toLong())
+                }
+            }
+
+            AccountSummaryScreen(viewModel)
+        }
+
         composable(Screen.ManageCategories.route) {
-            ManageCategoriesScreen()
+            val viewModel by remember {
+                inject<ManageCategoriesViewModel>(ManageCategoriesViewModel::class.java) {
+                    parametersOf(navController)
+                }
+            }
+
+            ManageCategoriesScreen(viewModel)
         }
     }.build()
 }

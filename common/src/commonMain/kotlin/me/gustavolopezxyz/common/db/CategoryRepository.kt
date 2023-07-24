@@ -35,8 +35,8 @@ class CategoryRepository : KoinComponent {
         return categoryQueries.insertCategory(parentCategoryId = parentCategoryId, name = name)
     }
 
-    fun update(original: Category, modified: Category) = update(
-        original.categoryId, modified.name, modified.parentCategoryId
+    fun update(modified: Category) = update(
+        modified.categoryId, modified.name, modified.parentCategoryId
     )
 
     private fun update(categoryId: Long, name: String, parentCategoryId: Long? = null) {

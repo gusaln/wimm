@@ -5,150 +5,77 @@
 package me.gustavolopezxyz.common.ui.screens
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Card
+import androidx.compose.material.SnackbarHostState
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.Dialog
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import me.gustavolopezxyz.common.data.Category
 import me.gustavolopezxyz.common.data.CategoryWithParent
 import me.gustavolopezxyz.common.data.MissingCategory
 import me.gustavolopezxyz.common.data.toDto
 import me.gustavolopezxyz.common.db.CategoryRepository
-import me.gustavolopezxyz.common.ui.CategoriesList
+import me.gustavolopezxyz.common.navigation.NavController
+import me.gustavolopezxyz.common.ui.CategoriesGroupedList
 import me.gustavolopezxyz.common.ui.CreateCategoryForm
 import me.gustavolopezxyz.common.ui.EditCategoryForm
 import me.gustavolopezxyz.common.ui.common.AppButton
-import me.gustavolopezxyz.common.ui.common.AppTextButton
-import me.gustavolopezxyz.common.ui.common.FormTitle
 import me.gustavolopezxyz.common.ui.common.ScreenTitle
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
-import org.koin.java.KoinJavaComponent.inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 @Composable
-fun ManageCategoriesScreen() {
-    val categoryRepository by inject<CategoryRepository>(CategoryRepository::class.java)
-    val categories by categoryRepository.allAsFlow().mapToList().map { list ->
-        list.map { it.toDto() }
-    }.collectAsState(emptyList(), Dispatchers.IO)
-    val snackbar by inject<SnackbarHostState>(SnackbarHostState::class.java)
-
+fun ManageCategoriesScreen(viewModel: ManageCategoriesViewModel) {
     val scope = rememberCoroutineScope()
-
+    val categories by viewModel.getCategories().map { list -> list.map { it.toDto() } }
+        .collectAsState(emptyList(), scope.coroutineContext)
     var isCreatingOpen by remember { mutableStateOf(false) }
-    var editing by remember { mutableStateOf<CategoryWithParent?>(null) }
-    var deleting by remember { mutableStateOf<CategoryWithParent?>(null) }
+    var categoryBeingEdited by remember { mutableStateOf<CategoryWithParent?>(null) }
 
     fun createCategory(name: String, parentCategoryId: Long?) {
         isCreatingOpen = false
 
         scope.launch(Dispatchers.IO) {
-            categoryRepository.create(name, parentCategoryId)
-
-            snackbar.showSnackbar("The category was created")
+            viewModel.createCategory(name, parentCategoryId)
         }
     }
 
     fun editCategory() {
-        val modified = editing!!.toCategory()
-        editing = null
+        val modified = categoryBeingEdited!!.copy()
+        categoryBeingEdited = null
 
         scope.launch(Dispatchers.IO) {
-            categoryRepository.update(
-                categories.find { it.categoryId == modified.categoryId }?.toCategory()!!, modified
-            )
-
-            snackbar.showSnackbar("The category was modified")
-        }
-    }
-
-    fun deleteCategory() {
-        val category = deleting!!.toCategory()
-        deleting = null
-
-        if (categoryRepository.countTransactions(category.categoryId) > 0) {
-            scope.launch {
-                snackbar.showSnackbar("The category ${category.name} has transactions and can't be deleted")
-            }
-
-            return
-        }
-
-        if (categoryRepository.countChildren(category.categoryId) > 0) {
-            scope.launch {
-                snackbar.showSnackbar("The category ${category.name} has children and can't be deleted")
-            }
-
-            return
-        }
-
-        scope.launch(Dispatchers.IO) {
-            categoryRepository.delete(category.categoryId)
-
-            snackbar.showSnackbar("The category ${category.name} was deleted")
+            viewModel.editCategory(modified.toCategory())
         }
     }
 
     if (isCreatingOpen) {
-        Dialog(onCloseRequest = { isCreatingOpen = false }, title = "Create a Category") {
-            Card(modifier = Modifier.fillMaxSize()) {
+        Dialog(onCloseRequest = { isCreatingOpen = false }, title = "Create an Category") {
+            Card(modifier = Modifier.fillMaxSize(), shape = RoundedCornerShape(0)) {
                 Box(modifier = Modifier.fillMaxWidth().padding(AppDimensions.Default.padding.medium)) {
-                    CreateCategoryForm(categories = categories.filter { it.parentCategoryId == null },
-                        onCreate = ::createCategory,
-                        onCancel = { isCreatingOpen = false })
+                    CreateCategoryForm(categories = categories, ::createCategory, onCancel = { isCreatingOpen = false })
                 }
             }
         }
     }
 
-    if (editing != null) {
-        Dialog(onCloseRequest = { editing = null }, title = "Edit category ${editing?.name}") {
+    if (categoryBeingEdited != null) {
+        Dialog(onCloseRequest = { categoryBeingEdited = null }, title = "Edit a Category") {
             Card(modifier = Modifier.fillMaxSize()) {
                 Box(modifier = Modifier.fillMaxWidth().padding(AppDimensions.Default.padding.medium)) {
-                    EditCategoryForm(categories = categories.filter { it.parentCategoryId == null },
-                        value = categories.find { it.categoryId == editing?.categoryId } ?: MissingCategory.toDto(),
-                        onValueChange = { editing = it },
+                    EditCategoryForm(
+                        categories = categories,
+                        value = categoryBeingEdited ?: MissingCategory.toDto(),
+                        onValueChange = { categoryBeingEdited = it },
                         onEdit = ::editCategory,
-                        onCancel = { editing = null })
-                }
-            }
-        }
-    }
-
-    if (deleting != null) {
-        Dialog(onCloseRequest = { editing = null }, title = "Delete category ${deleting?.fullname()}") {
-            Card(modifier = Modifier.fillMaxSize()) {
-                Box(modifier = Modifier.fillMaxWidth().padding(AppDimensions.Default.padding.medium)) {
-                    Column(verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium)) {
-                        FormTitle("Delete category ${deleting?.fullname()}")
-
-                        Spacer(modifier = Modifier.fillMaxWidth())
-
-                        Text("Do you really wish to delete the category ${deleting?.fullname()}?")
-
-                        Spacer(modifier = Modifier.fillMaxWidth())
-
-                        Spacer(modifier = Modifier.fillMaxWidth())
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(
-                                AppDimensions.Default.spacing.medium,
-                                Alignment.End
-                            )
-                        ) {
-                            AppButton(
-                                onClick = ::deleteCategory,
-                                colors = ButtonDefaults.buttonColors(MaterialTheme.colors.error),
-                                text = "Delete"
-                            )
-
-                            AppTextButton(onClick = { deleting = null }, "Cancel")
-                        }
-                    }
+                        onCancel = { categoryBeingEdited = null }
+                    )
                 }
             }
         }
@@ -158,16 +85,43 @@ fun ManageCategoriesScreen() {
         modifier = Modifier.fillMaxWidth().padding(AppDimensions.Default.padding.large),
         verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.large)
     ) {
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            ScreenTitle {
-                Text("Categories")
-            }
+//        Header
+        Row(modifier = Modifier.fillMaxWidth()) {
+            ScreenTitle("Categories")
+
+            Spacer(Modifier.weight(1f))
 
             AppButton(onClick = { isCreatingOpen = !isCreatingOpen }, "Create category")
         }
 
         Spacer(modifier = Modifier.fillMaxWidth())
 
-        CategoriesList(categories = categories, onSelect = { editing = it.copy() }, onDelete = { deleting = it.copy() })
+        CategoriesGroupedList(
+            categories,
+            onSelect = { viewModel.navigateToCategoriesSummary(it) },
+            onEdit = { categoryBeingEdited = it.copy() }
+        )
+    }
+}
+
+class ManageCategoriesViewModel(private val navController: NavController) : KoinComponent {
+    private val snackbar: SnackbarHostState by inject()
+    private val categoryRepository: CategoryRepository by inject()
+
+    fun getCategories() = categoryRepository.allAsFlow().mapToList()
+
+    suspend fun createCategory(name: String, parentCategoryId: Long?) {
+        categoryRepository.create(name, parentCategoryId)
+
+        snackbar.showSnackbar("The category was created")
+    }
+
+    suspend fun editCategory(modified: Category) {
+        categoryRepository.update(modified)
+
+        snackbar.showSnackbar("The category was modified")
+    }
+
+    fun navigateToCategoriesSummary(category: CategoryWithParent) {
     }
 }

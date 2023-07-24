@@ -18,6 +18,8 @@ class NavController(
     private val startDestination: NavStackEntry,
     private var backStackScreens: MutableSet<NavStackEntry> = mutableSetOf()
 ) {
+    constructor(startDestination: Screen) : this(startDestination.route)
+
     constructor(startDestination: String) : this(NavStackEntry(startDestination))
 
     // Variable to store the state of the current screen
@@ -78,8 +80,6 @@ data class Route(val route: String, val arguments: Map<String, String>? = null)
  * @see NavController
  */
 @Composable
-fun rememberNavController(
-    startDestination: String
-): MutableState<NavController> = rememberSaveable {
-    mutableStateOf(NavController(startDestination))
+fun rememberNavController(navController: NavController): MutableState<NavController> = rememberSaveable {
+    mutableStateOf(navController)
 }

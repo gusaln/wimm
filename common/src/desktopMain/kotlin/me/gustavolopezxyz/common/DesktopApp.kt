@@ -25,7 +25,7 @@ import org.koin.java.KoinJavaComponent.get
 
 @Composable
 fun DesktopApp() {
-    val navController by rememberNavController(Screen.Overview.route)
+    val navController by rememberNavController(get(NavController::class.java))
     val scaffoldState = rememberScaffoldState(snackbarHostState = get(SnackbarHostState::class.java))
     val scope = rememberCoroutineScope()
 

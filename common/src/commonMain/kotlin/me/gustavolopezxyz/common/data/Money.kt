@@ -15,14 +15,14 @@ data class Currency internal constructor(val code: String, val symbol: String) {
     }
 }
 
-val missingCurrency = Currency("XXX", "?")
+val MissingCurrency = Currency("XXX", "?")
 
 private val currencyRepository: HashMap<String, Currency> = hashMapOf(
     Pair("USD", Currency("USD", "$"))
 )
 
 fun currencyOf(code: String): Currency {
-    return currencyRepository.getOrDefault(code.uppercase().trim(), missingCurrency)
+    return currencyRepository.getOrDefault(code.uppercase().trim(), MissingCurrency)
 }
 
 val MoneyAmountFormat = DecimalFormat("#,##0.00").apply {

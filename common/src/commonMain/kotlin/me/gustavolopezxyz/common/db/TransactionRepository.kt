@@ -8,6 +8,7 @@ import com.squareup.sqldelight.runtime.coroutines.asFlow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toInstant
+import me.gustavolopezxyz.common.data.Currency
 import me.gustavolopezxyz.common.data.Database
 import me.gustavolopezxyz.common.data.MoneyTransaction
 import me.gustavolopezxyz.common.ext.datetime.currentTimeZone
@@ -38,6 +39,7 @@ class TransactionRepository : KoinComponent {
         incurredAt: LocalDateTime,
         description: String,
         details: String?,
+        currency: Currency,
         total: Double
     ): Long {
         val number = generateTransactionNumber()
@@ -48,6 +50,7 @@ class TransactionRepository : KoinComponent {
             incurredAt = incurredAt.toInstant(currentTimeZone()),
             description = description.trim(),
             details = if (details.isNullOrBlank()) null else details.trim(),
+            currency = currency.code,
             total = total
         )
 
@@ -60,9 +63,10 @@ class TransactionRepository : KoinComponent {
         incurredAt: LocalDateTime,
         description: String,
         details: String? = null,
+        currency: Currency,
         total: Double
     ) =
-        update(transaction.transactionId, categoryId, incurredAt, description, details, total)
+        update(transaction.transactionId, categoryId, incurredAt, description, details, currency, total)
 
     fun update(
         transactionId: Long,
@@ -70,6 +74,7 @@ class TransactionRepository : KoinComponent {
         incurredAt: LocalDateTime,
         description: String,
         details: String?,
+        currency: Currency,
         total: Double
     ) {
         return queries.updateTransaction(
@@ -78,6 +83,7 @@ class TransactionRepository : KoinComponent {
             description = description.trim(),
             details = if (details.isNullOrBlank()) null else details.trim(),
             transactionId = transactionId,
+            currency = currency.code,
             total = total
         )
     }

@@ -47,91 +47,6 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.parameter.parametersOf
 import org.koin.java.KoinJavaComponent.inject
 
-class EditTransactionViewModel(private val transactionId: Long) : KoinComponent {
-    private val db by inject<Database>(Database::class.java)
-    private val accountRepository by inject<AccountRepository>(AccountRepository::class.java)
-    private val categoryRepository by inject<CategoryRepository>(CategoryRepository::class.java)
-    private val transactionRepository by inject<TransactionRepository>(TransactionRepository::class.java)
-    private val entriesRepository by inject<EntryRepository>(EntryRepository::class.java)
-    val snackbar by inject<SnackbarHostState>(SnackbarHostState::class.java)
-
-    fun getTransaction() = transactionRepository.findById(transactionId)
-
-    @Composable
-    fun getAccounts() =
-        accountRepository.allAsFlow().mapToList().map { list -> list.sortedBy { it.name } }.collectAsState(emptyList())
-
-    @Composable
-    fun getCategories() = categoryRepository.allAsFlow().mapToList().map { list ->
-        list.map { it.toDto() }.sortedBy { it.fullname() }
-    }.collectAsState(emptyList())
-
-    fun getEntries() = entriesRepository.getAllForTransaction(transactionId)
-
-    suspend fun editTransaction(
-        transactionId: Long,
-        categoryId: Long,
-        incurredAt: LocalDate,
-        description: String,
-        details: String? = null,
-        entryMap: Map<Long, SelectEntriesForTransaction>,
-        toCreate: Collection<NewEntryDto>,
-        toModify: Collection<ModifiedEntryDto>,
-    ) {
-        if (description.trim().isEmpty()) {
-            snackbar.showSnackbar("You need a description")
-
-            return
-        }
-
-        if ((toModify.count { !it.toDelete } + toCreate.size) < 1) {
-            snackbar.showSnackbar("You need at least one entry")
-
-            return
-        }
-
-        db.transaction {
-            val newTotal = toCreate.asIterable().sumOf { it.amount } + toModify.filter { !it.toDelete }.asIterable()
-                .sumOf { it.amount }
-            transactionRepository.update(
-                transactionId,
-                categoryId,
-                incurredAt.atStartOfDay(),
-                description,
-                details,
-                newTotal
-            )
-
-            toCreate.forEach {
-                entriesRepository.create(
-                    transactionId,
-                    it.account!!.accountId,
-                    it.amount,
-                    it.recordedAt.atTime(0, 0),
-                )
-            }
-
-            toModify.filter { it.toDelete }.forEach {
-                val entry = entryMap.getValue(it.id)
-                entriesRepository.delete(entry.entryId, entry.accountId, entry.amount)
-            }
-
-            toModify.filter { it.wasEdited }.forEach {
-                val original = entryMap.getValue(it.id)
-
-                entriesRepository.edit(
-                    original.toEntry(),
-                    it.toEntry(original.transactionId),
-                )
-            }
-        }
-    }
-
-    fun deleteTransaction(transactionId: Long) {
-        transactionRepository.delete(transactionId)
-    }
-}
-
 @Composable
 fun EditTransactionScreen(navController: NavController, transactionId: Long) {
     val viewModel by remember {
@@ -208,6 +123,7 @@ fun EditTransactionScreen(navController: NavController, transactionId: Long) {
                 incurredAt,
                 description,
                 details,
+                transaction!!.currency.toCurrency(),
                 entryMap,
                 toCreate,
                 toModify
@@ -388,4 +304,89 @@ fun EditTransactionScreen(navController: NavController, transactionId: Long) {
     }
 }
 
+class EditTransactionViewModel(private val transactionId: Long) : KoinComponent {
+    private val db by inject<Database>(Database::class.java)
+    private val accountRepository by inject<AccountRepository>(AccountRepository::class.java)
+    private val categoryRepository by inject<CategoryRepository>(CategoryRepository::class.java)
+    private val transactionRepository by inject<TransactionRepository>(TransactionRepository::class.java)
+    private val entriesRepository by inject<EntryRepository>(EntryRepository::class.java)
+    val snackbar by inject<SnackbarHostState>(SnackbarHostState::class.java)
 
+    fun getTransaction() = transactionRepository.findById(transactionId)
+
+    @Composable
+    fun getAccounts() =
+        accountRepository.allAsFlow().mapToList().map { list -> list.sortedBy { it.name } }.collectAsState(emptyList())
+
+    @Composable
+    fun getCategories() = categoryRepository.allAsFlow().mapToList().map { list ->
+        list.map { it.toDto() }.sortedBy { it.fullname() }
+    }.collectAsState(emptyList())
+
+    fun getEntries() = entriesRepository.getAllForTransaction(transactionId)
+
+    suspend fun editTransaction(
+        transactionId: Long,
+        categoryId: Long,
+        incurredAt: LocalDate,
+        description: String,
+        details: String? = null,
+        currency: Currency,
+        entryMap: Map<Long, SelectEntriesForTransaction>,
+        toCreate: Collection<NewEntryDto>,
+        toModify: Collection<ModifiedEntryDto>,
+    ) {
+        if (description.trim().isEmpty()) {
+            snackbar.showSnackbar("You need a description")
+
+            return
+        }
+
+        if ((toModify.count { !it.toDelete } + toCreate.size) < 1) {
+            snackbar.showSnackbar("You need at least one entry")
+
+            return
+        }
+
+        db.transaction {
+            val newTotal = toCreate.asIterable().sumOf { it.amount } + toModify.filter { !it.toDelete }.asIterable()
+                .sumOf { it.amount }
+            transactionRepository.update(
+                transactionId,
+                categoryId,
+                incurredAt.atStartOfDay(),
+                description,
+                details,
+                currency,
+                newTotal
+            )
+
+            toCreate.forEach {
+                entriesRepository.create(
+                    transactionId,
+                    it.account!!.accountId,
+                    it.amount,
+                    it.recordedAt.atTime(0, 0),
+                )
+            }
+
+            toModify.filter { it.toDelete }.forEach {
+                val entry = entryMap.getValue(it.id)
+                entriesRepository.delete(entry.entryId, entry.accountId, entry.amount)
+            }
+
+            toModify.filter { it.wasEdited }.forEach {
+                val original = entryMap.getValue(it.id)
+
+                entriesRepository.edit(
+                    original.toEntry(),
+                    it.toEntry(original.transactionId),
+                )
+            }
+        }
+    }
+
+    fun deleteTransaction(transactionId: Long) {
+        transactionRepository.delete(transactionId)
+    }
+}

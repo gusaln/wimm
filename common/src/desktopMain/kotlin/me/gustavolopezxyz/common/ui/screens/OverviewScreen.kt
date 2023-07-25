@@ -73,6 +73,12 @@ fun OverviewScreen(navController: NavController) {
                             SummaryTypeDropdown(summary, onClick = { summary = it })
                         }
                     }
+
+                    SummaryType.Incomes -> {
+                        IncomesSummaryCard(categoryRepository, entryRepository, Modifier.weight(2f)) {
+                            SummaryTypeDropdown(summary, onClick = { summary = it })
+                        }
+                    }
                 }
             }
         }
@@ -80,7 +86,7 @@ fun OverviewScreen(navController: NavController) {
 }
 
 enum class SummaryType {
-    Balance, Owned, Debt, Expenses;
+    Balance, Owned, Debt, Expenses, Incomes;
 
     override fun toString(): String {
         return when (this) {
@@ -91,11 +97,13 @@ enum class SummaryType {
             Debt -> "Debt"
 
             Expenses -> "Expenses"
+
+            Incomes -> "Incomes"
         }
     }
 
     companion object {
-        val All: List<SummaryType> get() = listOf(Balance, Owned, Debt, Expenses)
+        val All: List<SummaryType> get() = listOf(Balance, Owned, Debt, Expenses, Incomes)
     }
 }
 

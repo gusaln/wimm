@@ -19,27 +19,32 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIconDefaults
 import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import me.gustavolopezxyz.common.data.CategoryWithParent
-import me.gustavolopezxyz.common.data.EntryForCategory
+import me.gustavolopezxyz.common.data.MoneyTransaction
+import me.gustavolopezxyz.common.data.toMoneyTransaction
 import me.gustavolopezxyz.common.ext.datetime.formatDateTime
 import me.gustavolopezxyz.common.ext.toCurrency
 import me.gustavolopezxyz.common.ui.common.*
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
+import me.gustavolopezxyz.common.ui.theme.AppTypography
+import me.gustavolopezxyz.db.SelectTransactionsInCategoryInRange
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun CategoryEntriesList(
+fun CategoryTransactionsList(
     category: CategoryWithParent,
-    entries: List<EntryForCategory>,
+    transactions: List<SelectTransactionsInCategoryInRange>,
     isLoading: Boolean,
     isFirstPage: Boolean,
     isLastPage: Boolean,
     onPrevPage: () -> Unit,
     onNextPage: () -> Unit,
-    onSelectEntry: (EntryForCategory) -> Unit,
+    onSelectEntry: (MoneyTransaction) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     val scroll = rememberScrollState()
@@ -56,26 +61,34 @@ fun CategoryEntriesList(
                 AppListTitle("Entries")
                 Spacer(Modifier.height(AppDimensions.Default.listSpaceBetween))
 
-                entries.forEach {
+                transactions.forEach {
                     AppListItem(
                         modifier = Modifier.pointerHoverIcon(PointerIconDefaults.Hand).clickable {
-                            onSelectEntry(it)
+                            onSelectEntry(it.toMoneyTransaction())
                         },
                         verticalPadding = 20.dp,
                         secondaryText = {
-                            Text(it.recordedAt.formatDateTime())
+                            Text(it.incurredAt.formatDateTime())
                         },
                         action = {
-                            MoneyText(it.amount, it.accountCurrency.toCurrency())
+                            MoneyText(it.total, it.currency.toCurrency())
                         }
                     ) {
-                        Text("${it.transactionDescription} - ${it.entryId.toString(16).padStart(5, '0')}")
+                        Text(buildAnnotatedString {
+                            append(it.description)
+
+                            if (it.categoryId != category.categoryId) {
+                                withStyle(AppTypography.body2.toSpanStyle().copy(color = Color.Gray)) {
+                                    append(" [${it.categoryName}]")
+                                }
+                            }
+                        })
                     }
 
                     AppDivider(modifier = Modifier.fillMaxWidth())
                 }
 
-                if (entries.isEmpty()) {
+                if (transactions.isEmpty()) {
                     Spacer(Modifier.height(AppDimensions.Default.listSpaceBetween))
                     Text(
                         "There are no more entries",

@@ -51,6 +51,10 @@ actual fun platformModule(): Module = module {
         AccountSummaryViewModel(navController, accountId)
     }
 
+    factory { (categoryId: Long, month: Int, year: Int) ->
+        CategoriesMonthlySummaryViewModel(categoryId, month, year)
+    }
+
     factory { (navController: NavController) ->
         ManageCategoriesViewModel(navController)
     }

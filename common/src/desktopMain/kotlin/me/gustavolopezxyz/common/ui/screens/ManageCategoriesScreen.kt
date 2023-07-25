@@ -21,6 +21,7 @@ import me.gustavolopezxyz.common.data.MissingCategory
 import me.gustavolopezxyz.common.data.toDto
 import me.gustavolopezxyz.common.db.CategoryRepository
 import me.gustavolopezxyz.common.navigation.NavController
+import me.gustavolopezxyz.common.navigation.Screen
 import me.gustavolopezxyz.common.ui.CategoriesGroupedList
 import me.gustavolopezxyz.common.ui.CreateCategoryForm
 import me.gustavolopezxyz.common.ui.EditCategoryForm
@@ -123,5 +124,6 @@ class ManageCategoriesViewModel(private val navController: NavController) : Koin
     }
 
     fun navigateToCategoriesSummary(category: CategoryWithParent) {
+        navController.navigate(Screen.CategoryMonthlySummary.route(category.categoryId))
     }
 }

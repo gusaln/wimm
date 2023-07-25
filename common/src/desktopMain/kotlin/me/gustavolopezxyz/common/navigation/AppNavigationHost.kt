@@ -6,6 +6,7 @@ package me.gustavolopezxyz.common.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import me.gustavolopezxyz.common.ext.datetime.nowLocalDateTime
 import me.gustavolopezxyz.common.ui.screens.*
 import org.koin.core.parameter.parametersOf
 import org.koin.java.KoinJavaComponent.inject
@@ -24,6 +25,25 @@ sealed class Screen(val route: String) {
     }
 
     object ManageCategories : Screen("manage_categories")
+
+    object CategoryMonthlySummary : Screen("categories/{id}/year-month") {
+        fun route(categoryId: Long): Route {
+            val now = nowLocalDateTime()
+
+            return route(categoryId, now.year, now.monthNumber)
+        }
+
+        fun route(categoryId: Long, year: Int, month: Int): Route {
+            return Route(
+                this.route,
+                mapOf(
+                    Pair("id", categoryId.toString()),
+                    Pair("year", year.toString()),
+                    Pair("month", month.toString())
+                )
+            )
+        }
+    }
 }
 
 
@@ -66,6 +86,20 @@ fun AppNavigationHost(navController: NavController) {
             }
 
             ManageCategoriesScreen(viewModel)
+        }
+
+        composable(Screen.CategoryMonthlySummary.route) {
+            val viewModel by remember {
+                inject<CategoriesMonthlySummaryViewModel>(CategoriesMonthlySummaryViewModel::class.java) {
+                    parametersOf(
+                        navController.getArgument("id")!!.toLong(),
+                        navController.getArgument("year")!!.toLong(),
+                        navController.getArgument("month")!!.toLong()
+                    )
+                }
+            }
+
+            CategoriesMonthlySummaryScreen(viewModel)
         }
     }.build()
 }

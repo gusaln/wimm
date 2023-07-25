@@ -26,7 +26,7 @@ sealed class Screen(val route: String) {
 
     object ManageCategories : Screen("manage_categories")
 
-    object CategoryMonthlySummary : Screen("categories/{id}/year-month") {
+    object CategoryMonthlySummary : Screen("categories/{id}?year={year}&month={month}") {
         fun route(categoryId: Long): Route {
             val now = nowLocalDateTime()
 
@@ -93,8 +93,8 @@ fun AppNavigationHost(navController: NavController) {
                 inject<CategoriesMonthlySummaryViewModel>(CategoriesMonthlySummaryViewModel::class.java) {
                     parametersOf(
                         navController.getArgument("id")!!.toLong(),
-                        navController.getArgument("year")!!.toLong(),
-                        navController.getArgument("month")!!.toLong()
+                        navController.getArgument("year")!!.toInt(),
+                        navController.getArgument("month")!!.toInt()
                     )
                 }
             }

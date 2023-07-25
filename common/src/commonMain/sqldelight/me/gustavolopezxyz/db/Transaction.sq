@@ -13,11 +13,20 @@ selectTransactionsInCategory:
 SELECT moneyTransaction.*
 FROM
     moneyTransaction
-    JOIN category ON moneyTransaction.categoryId = category.categoryId
+    JOIN category USING (categoryId)
 WHERE
     moneyTransaction.categoryId = :categoryId OR category.parentCategoryId = :categoryId
 ORDER BY incurredAt DESC, transactionId
 LIMIT :offset, :limit;
+
+selectTransactionsInCategoryInRange:
+SELECT
+    moneyTransaction.*,
+    category.name AS categoryName
+FROM moneyTransaction
+JOIN category USING (categoryId)
+WHERE (moneyTransaction.categoryId = :categoryId OR category.parentCategoryId = :categoryId) AND (incurredAt >= :from AND incurredAt <= :to)
+ORDER BY incurredAt DESC;
 
 selectById:
 SELECT * FROM moneyTransaction WHERE transactionId = :transactionId;

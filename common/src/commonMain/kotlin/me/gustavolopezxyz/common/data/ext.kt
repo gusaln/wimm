@@ -7,6 +7,7 @@ package me.gustavolopezxyz.common.data
 import me.gustavolopezxyz.db.SelectAllCategories
 import me.gustavolopezxyz.db.SelectEntriesForAccount
 import me.gustavolopezxyz.db.SelectEntriesForTransaction
+import me.gustavolopezxyz.db.SelectTransactionsInCategoryInRange
 
 
 val UnknownAccount = Account(-1, AccountType.Cash, "Unknown", "XXX", 0.0)
@@ -57,4 +58,15 @@ fun SelectEntriesForAccount.toEntryForAccount() = EntryForAccount(
     this.accountId,
     this.amount,
     this.recordedAt,
+)
+
+fun SelectTransactionsInCategoryInRange.toMoneyTransaction() = MoneyTransaction(
+    this.transactionId,
+    this.categoryId,
+    this.number,
+    this.incurredAt,
+    this.description,
+    this.details,
+    this.currency,
+    this.total
 )

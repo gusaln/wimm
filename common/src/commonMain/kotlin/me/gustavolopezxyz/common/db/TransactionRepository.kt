@@ -4,7 +4,9 @@
 
 package me.gustavolopezxyz.common.db
 
+import com.squareup.sqldelight.Query
 import com.squareup.sqldelight.runtime.coroutines.asFlow
+import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toInstant
@@ -12,6 +14,7 @@ import me.gustavolopezxyz.common.data.Currency
 import me.gustavolopezxyz.common.data.Database
 import me.gustavolopezxyz.common.data.MoneyTransaction
 import me.gustavolopezxyz.common.ext.datetime.currentTimeZone
+import me.gustavolopezxyz.db.SelectTransactionsInCategoryInRange
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -25,6 +28,17 @@ class TransactionRepository : KoinComponent {
 
     fun getAsFlow(offset: Int = 0, limit: Int = 15) =
         queries.selectTransactions(offset = offset.toLong(), limit = limit.toLong()).asFlow()
+
+    fun getAllForCategoryInPeriodAsFlow(
+        categoryId: Long,
+        from: LocalDateTime,
+        to: LocalDateTime
+    ): Flow<Query<SelectTransactionsInCategoryInRange>> =
+        queries.selectTransactionsInCategoryInRange(
+            categoryId,
+            from.toInstant(currentTimeZone()),
+            to.toInstant(currentTimeZone())
+        ).asFlow()
 
     fun findById(id: Long): MoneyTransaction? {
         return queries.selectById(id).executeAsOneOrNull()

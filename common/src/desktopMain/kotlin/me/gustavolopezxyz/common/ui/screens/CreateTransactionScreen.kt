@@ -57,6 +57,7 @@ class CreateTransactionViewModel : KoinComponent {
         details: String,
         category: Category,
         incurredAt: LocalDate,
+        currency: Currency,
         entries: List<NewEntryDto>
     ) {
         if (description.trim().isEmpty()) {
@@ -77,6 +78,7 @@ class CreateTransactionViewModel : KoinComponent {
                 incurredAt.atStartOfDay(),
                 description,
                 details,
+                currency,
                 entries.asIterable().sumOf { it.amount }
             )
             val transactionId = transactionRepository.findByReference(number)!!.transactionId
@@ -130,7 +132,14 @@ fun CreateTransactionScreen(onCreate: () -> Unit = {}, onCancel: (() -> Unit)? =
             }
         } else {
             scope.launch {
-                viewModel.createTransaction(description, details, category!!.toCategory(), incurredAt, entries)
+                viewModel.createTransaction(
+                    description,
+                    details,
+                    category!!.toCategory(),
+                    incurredAt,
+                    entries.firstOrNull()?.account?.getCurrency() ?: MissingCurrency,
+                    entries
+                )
                 onCreateHook()
             }
         }

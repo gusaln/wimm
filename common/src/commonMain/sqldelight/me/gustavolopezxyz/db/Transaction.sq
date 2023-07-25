@@ -26,12 +26,12 @@ selectByNumber:
 SELECT * FROM moneyTransaction WHERE number = :number;
 
 insertTransaction:
-INSERT INTO moneyTransaction(number, categoryId, incurredAt, description, details, total )
-VALUES (:number, :categoryId, :incurredAt, :description, :details, :total);
+INSERT INTO moneyTransaction(number, categoryId, incurredAt, description, details, currency, total)
+VALUES (:number, :categoryId, :incurredAt, :description, :details, :currency, :total);
 
 updateTransaction:
 UPDATE moneyTransaction
-SET categoryId = :categoryId, description = :description, details = :details, total = :total, incurredAt = :incurredAt
+SET categoryId = :categoryId, incurredAt = :incurredAt, description = :description, details = :details, currency = :currency, total = :total
 WHERE transactionId = :transactionId;
 
 deleteTransaction {

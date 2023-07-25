@@ -69,7 +69,7 @@ fun CategoriesMonthlySummaryScreen(viewModel: CategoriesMonthlySummaryViewModel)
                 Spacer(Modifier.width(AppDimensions.Default.padding.extraLarge))
 
                 Text(
-                    "${month.month.name} summary of ${viewModel.category.fullname()}",
+                    "Summary of ${viewModel.category.fullname()}: ${month.month.name}",
                     modifier = Modifier.weight(1f),
                 )
             }

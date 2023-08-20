@@ -19,18 +19,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.flow.map
-import me.gustavolopezxyz.common.data.MissingCategory
-import me.gustavolopezxyz.common.data.Palette
-import me.gustavolopezxyz.common.data.currencyOf
-import me.gustavolopezxyz.common.data.toDto
+import me.gustavolopezxyz.common.data.*
 import me.gustavolopezxyz.common.db.CategoryRepository
-import me.gustavolopezxyz.common.db.EntryRepository
+import me.gustavolopezxyz.common.db.TransactionRepository
 import me.gustavolopezxyz.common.ext.datetime.*
 import me.gustavolopezxyz.common.ui.common.AppListTitle
 import me.gustavolopezxyz.common.ui.core.MoneyPartitionEntry
 import me.gustavolopezxyz.common.ui.core.MoneyPartitionSummary
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
-import me.gustavolopezxyz.db.SelectEntriesInRange
 
 internal val incomesColors = listOfNotNull(
     Palette.Colors["green800"],
@@ -50,7 +46,7 @@ internal val incomesColors = listOfNotNull(
 @Composable
 fun IncomesSummaryCard(
     categoryRepository: CategoryRepository,
-    entryRepository: EntryRepository,
+    transactionRepository: TransactionRepository,
     modifier: Modifier = Modifier,
     actions: @Composable RowScope.() -> Unit
 ) {
@@ -60,11 +56,12 @@ fun IncomesSummaryCard(
         list.map { it.toDto() }.associateBy { it.categoryId }
     }.collectAsState(emptyMap())
 
-    var incomes by remember { mutableStateOf(emptyList<SelectEntriesInRange>()) }
+    var incomes by remember { mutableStateOf(emptyList<MoneyTransaction>()) }
     LaunchedEffect(month) {
-        entryRepository.getInRangeAsFlow(month.startOfMonth().rangeToEndOfMonth()).mapToList()
+        transactionRepository.getInPeriodAsFlow(month.startOfMonth().atStartOfDay(), month.endOfMonth().atEndOfDay())
+            .mapToList()
             .map { list ->
-                list.filter { it.transactionTotal > 0 }
+                list.filter { it.total > 0 }
             }.collect {
                 incomes = it
             }
@@ -74,10 +71,10 @@ fun IncomesSummaryCard(
         currency = currencyOf("USD"),
         amounts = incomes.groupBy {
             categories.getOrDefault(
-                it.transactionCategoryId,
+                it.categoryId,
                 MissingCategory.toDto()
             ).fullname()
-        }.entries.map { entry -> MoneyPartitionEntry(entry.key, entry.value.sumOf { it.amount }) },
+        }.entries.map { entry -> MoneyPartitionEntry(entry.key, entry.value.sumOf { it.total }) },
         descending = false,
         colorPalette = incomesColors,
         modifier = modifier

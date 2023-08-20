@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import me.gustavolopezxyz.common.db.AccountRepository
 import me.gustavolopezxyz.common.db.CategoryRepository
-import me.gustavolopezxyz.common.db.EntryRepository
+import me.gustavolopezxyz.common.db.TransactionRepository
 import me.gustavolopezxyz.common.navigation.NavController
 import me.gustavolopezxyz.common.navigation.Screen
 import me.gustavolopezxyz.common.ui.TransactionsListViewModel
@@ -32,7 +32,7 @@ fun OverviewScreen(navController: NavController) {
     val transactionsListViewModel by remember {
         inject<TransactionsListViewModel>(TransactionsListViewModel::class.java)
     }
-    val entryRepository by remember { inject<EntryRepository>(EntryRepository::class.java) }
+    val transactionRepository by remember { inject<TransactionRepository>(TransactionRepository::class.java) }
     val categoryRepository by remember { inject<CategoryRepository>(CategoryRepository::class.java) }
     val accountRepository by remember { inject<AccountRepository>(AccountRepository::class.java) }
 
@@ -69,13 +69,13 @@ fun OverviewScreen(navController: NavController) {
                     }
 
                     SummaryType.Expenses -> {
-                        ExpensesSummaryCard(categoryRepository, entryRepository, Modifier.weight(2f)) {
+                        ExpensesSummaryCard(categoryRepository, transactionRepository, Modifier.weight(2f)) {
                             SummaryTypeDropdown(summary, onClick = { summary = it })
                         }
                     }
 
                     SummaryType.Incomes -> {
-                        IncomesSummaryCard(categoryRepository, entryRepository, Modifier.weight(2f)) {
+                        IncomesSummaryCard(categoryRepository, transactionRepository, Modifier.weight(2f)) {
                             SummaryTypeDropdown(summary, onClick = { summary = it })
                         }
                     }

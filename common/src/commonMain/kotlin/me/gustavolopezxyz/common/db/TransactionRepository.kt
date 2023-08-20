@@ -29,6 +29,15 @@ class TransactionRepository : KoinComponent {
     fun getAsFlow(offset: Int = 0, limit: Int = 15) =
         queries.selectTransactions(offset = offset.toLong(), limit = limit.toLong()).asFlow()
 
+    fun getInPeriodAsFlow(
+        from: LocalDateTime,
+        to: LocalDateTime
+    ): Flow<Query<MoneyTransaction>> =
+        queries.selectTransactionsInRange(
+            from.toInstant(currentTimeZone()),
+            to.toInstant(currentTimeZone())
+        ).asFlow()
+
     fun getAllForCategoryInPeriodAsFlow(
         categoryId: Long,
         from: LocalDateTime,

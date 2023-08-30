@@ -17,7 +17,8 @@ import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.squareup.sqldelight.runtime.coroutines.mapToList
+import app.cash.sqldelight.coroutines.mapToList
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import me.gustavolopezxyz.common.data.*
 import me.gustavolopezxyz.common.db.CategoryRepository
@@ -52,14 +53,14 @@ fun IncomesSummaryCard(
 ) {
     var month by remember { mutableStateOf(nowLocalDateTime().date) }
 
-    val categories by categoryRepository.allAsFlow().mapToList().map { list ->
+    val categories by categoryRepository.allAsFlow().mapToList(Dispatchers.IO).map { list ->
         list.map { it.toDto() }.associateBy { it.categoryId }
     }.collectAsState(emptyMap())
 
     var incomes by remember { mutableStateOf(emptyList<MoneyTransaction>()) }
     LaunchedEffect(month) {
         transactionRepository.getInPeriodAsFlow(month.startOfMonth().atStartOfDay(), month.endOfMonth().atEndOfDay())
-            .mapToList()
+            .mapToList(Dispatchers.IO)
             .map { list ->
                 list.filter { it.total > 0 }
             }.collect {

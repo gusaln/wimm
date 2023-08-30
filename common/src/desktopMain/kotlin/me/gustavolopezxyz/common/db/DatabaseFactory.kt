@@ -4,8 +4,8 @@
 
 package me.gustavolopezxyz.common.db
 
-import com.squareup.sqldelight.EnumColumnAdapter
-import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
+import app.cash.sqldelight.EnumColumnAdapter
+import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import me.gustavolopezxyz.common.Config
 import me.gustavolopezxyz.common.data.Account
 import me.gustavolopezxyz.common.data.Database
@@ -36,10 +36,10 @@ actual class DatabaseFactory(private val config: Config) {
         }
     }
 
-    private fun getLastMigration(): Int {
+    private fun getLastMigration(): Long {
         val lastMigrationFile = getLastMigrationFile()
 
-        if (lastMigrationFile.isFile && lastMigrationFile.canRead()) return lastMigrationFile.readText().trim().toInt()
+        if (lastMigrationFile.isFile && lastMigrationFile.canRead()) return lastMigrationFile.readText().trim().toLong()
 
         return Database.Schema.version
     }

@@ -21,7 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.PointerIconDefaults
+import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
 import me.gustavolopezxyz.common.data.CategoryWithParent
@@ -81,7 +81,7 @@ fun CategoriesListCard(
 ) {
     Card(
         modifier = Modifier.widthIn(200.dp, 350.dp).clickable { onSelect(category) }.pointerHoverIcon(
-            PointerIconDefaults.Hand
+            PointerIcon.Hand
         )
     ) {
         Column(

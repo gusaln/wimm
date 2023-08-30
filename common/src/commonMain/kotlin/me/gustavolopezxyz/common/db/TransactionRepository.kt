@@ -4,8 +4,8 @@
 
 package me.gustavolopezxyz.common.db
 
-import com.squareup.sqldelight.Query
-import com.squareup.sqldelight.runtime.coroutines.asFlow
+import app.cash.sqldelight.Query
+import app.cash.sqldelight.coroutines.asFlow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime

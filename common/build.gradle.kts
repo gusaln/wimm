@@ -2,7 +2,7 @@ plugins {
     kotlin("multiplatform")
     id("org.jetbrains.compose")
     id("com.android.library")
-    id("com.squareup.sqldelight")
+    id("app.cash.sqldelight")
 }
 
 group = "me.gustavolopezxyz"
@@ -73,11 +73,15 @@ android {
 }
 
 sqldelight {
-    database("Database") {
-        packageName = "me.gustavolopezxyz.common.data"
-        schemaOutputDirectory = file("me.gustavolopezxyz.common.data")
-        migrationOutputDirectory = file("src/commonMain/sqldelight/databases")
-        deriveSchemaFromMigrations = true
-        verifyMigrations = true
+    databases {
+        create("Database") {
+            packageName.set("me.gustavolopezxyz.common.data")
+            schemaOutputDirectory.set(file("me.gustavolopezxyz.common.data"))
+            migrationOutputDirectory.set(file("src/commonMain/sqldelight/databases"))
+            deriveSchemaFromMigrations.set(true)
+            verifyMigrations.set(true)
+
+            dialect(projectLibs.sqldelight.dialects.sqlite)
+        }
     }
 }

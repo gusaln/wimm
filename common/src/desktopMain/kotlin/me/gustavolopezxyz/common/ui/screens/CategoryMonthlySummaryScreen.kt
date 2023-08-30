@@ -11,7 +11,8 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.squareup.sqldelight.runtime.coroutines.mapToList
+import app.cash.sqldelight.coroutines.mapToList
+import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.LocalDateTime
 import me.gustavolopezxyz.common.data.MissingCurrency
 import me.gustavolopezxyz.common.data.MoneyTransaction
@@ -148,7 +149,7 @@ class CategoriesMonthlySummaryViewModel(val categoryId: Long) :
     @Composable
     fun getTransactions(scope: CoroutineContext): State<List<SelectTransactionsInCategoryInRange>> {
         return transactionRepository.getAllForCategoryInPeriodAsFlow(categoryId, startOfPeriod.value, endOfPeriod)
-            .mapToList()
+            .mapToList(Dispatchers.IO)
             .collectAsState(emptyList(), scope)
     }
 

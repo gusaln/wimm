@@ -11,7 +11,7 @@ import androidx.compose.material.SnackbarHostState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.Dialog
-import com.squareup.sqldelight.runtime.coroutines.mapToList
+import app.cash.sqldelight.coroutines.mapToList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.gustavolopezxyz.common.data.Account
@@ -108,7 +108,7 @@ class ManageAccountsViewModel(private val navController: NavController) : KoinCo
     private val snackbar: SnackbarHostState by inject()
     private val accountRepository: AccountRepository by inject()
 
-    fun getAccounts() = accountRepository.allAsFlow().mapToList()
+    fun getAccounts() = accountRepository.allAsFlow().mapToList(Dispatchers.IO)
 
     suspend fun createAccount(name: String, type: AccountType, currency: Currency) {
         accountRepository.create(type, name, currency)

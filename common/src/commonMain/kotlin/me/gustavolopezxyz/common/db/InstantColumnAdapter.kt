@@ -4,7 +4,7 @@
 
 package me.gustavolopezxyz.common.db
 
-import com.squareup.sqldelight.ColumnAdapter
+import app.cash.sqldelight.ColumnAdapter
 import kotlinx.datetime.Instant
 
 class InstantColumnAdapter : ColumnAdapter<Instant, Long> {

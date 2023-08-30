@@ -13,7 +13,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.squareup.sqldelight.runtime.coroutines.mapToList
+import app.cash.sqldelight.coroutines.mapToList
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
@@ -45,10 +46,11 @@ class CreateTransactionViewModel : KoinComponent {
 
     @Composable
     fun getAccounts() =
-        accountRepository.allAsFlow().mapToList().map { list -> list.sortedBy { it.name } }.collectAsState(emptyList())
+        accountRepository.allAsFlow().mapToList(Dispatchers.IO).map { list -> list.sortedBy { it.name } }
+            .collectAsState(emptyList())
 
     @Composable
-    fun getCategories() = categoryRepository.allAsFlow().mapToList().map { list ->
+    fun getCategories() = categoryRepository.allAsFlow().mapToList(Dispatchers.IO).map { list ->
         list.map { it.toDto() }.sortedBy { it.fullname() }
     }.collectAsState(emptyList())
 

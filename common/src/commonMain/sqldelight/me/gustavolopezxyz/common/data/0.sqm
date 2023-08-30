@@ -1,3 +1,4 @@
+import kotlin.Boolean;
 import kotlinx.datetime.Instant;
 import me.gustavolopezxyz.common.data.AccountType;
 

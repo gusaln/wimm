@@ -4,7 +4,7 @@
 
 package me.gustavolopezxyz.common.db
 
-import com.squareup.sqldelight.runtime.coroutines.asFlow
+import app.cash.sqldelight.coroutines.asFlow
 import me.gustavolopezxyz.common.data.Category
 import me.gustavolopezxyz.common.data.Database
 import me.gustavolopezxyz.db.CategoryQueries

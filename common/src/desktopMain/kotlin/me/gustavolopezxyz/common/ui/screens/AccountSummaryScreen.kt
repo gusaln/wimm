@@ -11,7 +11,8 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.squareup.sqldelight.runtime.coroutines.mapToList
+import app.cash.sqldelight.coroutines.mapToList
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import me.gustavolopezxyz.common.data.EntryForAccount
 import me.gustavolopezxyz.common.data.getCurrency
@@ -48,7 +49,7 @@ fun AccountSummaryScreen(viewModel: AccountSummaryViewModel) {
 
     val account by remember(viewModel.accountId.toString()) { derivedStateOf { viewModel.account!! } }
     var page by remember { mutableStateOf(1) }
-    val entries by viewModel.getEntries(page, ACCOUNT_SUMMARY_PAGE_SIZE).mapToList()
+    val entries by viewModel.getEntries(page, ACCOUNT_SUMMARY_PAGE_SIZE).mapToList(Dispatchers.IO)
         .map { list -> list.map { it.toEntryForAccount() } }
         .collectAsState(emptyList())
     LaunchedEffect(entries) {

@@ -11,7 +11,7 @@ import androidx.compose.material.SnackbarHostState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.Dialog
-import com.squareup.sqldelight.runtime.coroutines.mapToList
+import app.cash.sqldelight.coroutines.mapToList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -109,7 +109,7 @@ class ManageCategoriesViewModel(private val navController: NavController) : Koin
     private val snackbar: SnackbarHostState by inject()
     private val categoryRepository: CategoryRepository by inject()
 
-    fun getCategories() = categoryRepository.allAsFlow().mapToList()
+    fun getCategories() = categoryRepository.allAsFlow().mapToList(Dispatchers.IO)
 
     suspend fun createCategory(name: String, parentCategoryId: Long?) {
         categoryRepository.create(name, parentCategoryId)

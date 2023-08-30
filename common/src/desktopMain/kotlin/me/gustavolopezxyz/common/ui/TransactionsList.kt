@@ -15,7 +15,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
-import com.squareup.sqldelight.runtime.coroutines.mapToList
+import app.cash.sqldelight.coroutines.mapToList
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import me.gustavolopezxyz.common.data.EntryForTransaction
 import me.gustavolopezxyz.common.data.MoneyTransaction
@@ -47,7 +48,7 @@ class TransactionsListViewModel : KoinComponent {
 
     fun getCategoriesAsFlow() = categoryRepository.allAsFlow()
 
-    fun getCategoriesMapAsFlow() = getCategoriesAsFlow().mapToList().map { list ->
+    fun getCategoriesMapAsFlow() = getCategoriesAsFlow().mapToList(Dispatchers.IO).map { list ->
         list.map { it.toDto() }.associateBy { it.categoryId }
     }
 }

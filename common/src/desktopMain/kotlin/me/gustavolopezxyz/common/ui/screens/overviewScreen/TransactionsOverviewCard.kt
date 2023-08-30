@@ -18,7 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.squareup.sqldelight.runtime.coroutines.mapToList
+import app.cash.sqldelight.coroutines.mapToList
+import kotlinx.coroutines.Dispatchers
 import me.gustavolopezxyz.common.data.*
 import me.gustavolopezxyz.common.ext.datetime.formatDate
 import me.gustavolopezxyz.common.ext.datetime.formatDateTime
@@ -43,7 +44,7 @@ fun TransactionsOverviewCard(
     LaunchedEffect(pagination.pagesLoaded) {
         pagination.isLoading = true
         viewModel.getTransactionsAsFlow(1, pagination.itemsLoadedCount(TRANSACTIONS_PAGE_SIZE))
-            .mapToList()
+            .mapToList(Dispatchers.IO)
             .collect {
                 pagination.items = it
                 pagination.isLoading = false

@@ -17,7 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.PointerIconDefaults
+import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -81,7 +81,7 @@ fun AccountsListCard(
 ) {
     Card(
         modifier = Modifier.widthIn(200.dp, 350.dp).clickable { onSelect(account) }.pointerHoverIcon(
-            PointerIconDefaults.Hand
+            PointerIcon.Hand
         )
     ) {
         Column(

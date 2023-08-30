@@ -15,7 +15,8 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.squareup.sqldelight.runtime.coroutines.mapToList
+import app.cash.sqldelight.coroutines.mapToList
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import me.gustavolopezxyz.common.data.CategoryWithParent
 import me.gustavolopezxyz.common.data.toDto
@@ -36,17 +37,17 @@ fun TransactionsScreen(navController: NavController) {
 
     var page by remember { mutableStateOf(1) }
     var perPage by remember { mutableStateOf(10) }
-    val transactions by transactionsListViewModel.getTransactionsAsFlow(page, perPage).mapToList()
+    val transactions by transactionsListViewModel.getTransactionsAsFlow(page, perPage).mapToList(Dispatchers.IO)
         .collectAsState(emptyList())
     val entriesByTransaction by transactionsListViewModel.getEntriesAsFlow(transactions.map { it.transactionId })
-        .mapToList()
+        .mapToList(Dispatchers.IO)
         .map { list ->
             list.map { it.toEntryForTransaction() }.groupBy { it.transactionId }
         }
         .collectAsState(emptyMap())
 
     val categoryRepository by remember { inject<CategoryRepository>(CategoryRepository::class.java) }
-    val categories by categoryRepository.allAsFlow().mapToList().map { list ->
+    val categories by categoryRepository.allAsFlow().mapToList(Dispatchers.IO).map { list ->
         list.map { it.toDto() }.sortedBy { it.fullname() }
     }.collectAsState(emptyList())
     var categoryFilter by remember { mutableStateOf<CategoryWithParent?>(null) }

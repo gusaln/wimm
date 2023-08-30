@@ -1,8 +1,8 @@
 [versions]
-sqlDelight = "1.5.4"
+sqlDelight = "2.0.+"
 
-koinCore = "3.3.2"
-koinAndroid = "3.3.2"
+koinCore = "3.4.3"
+koinAndroid = "3.4.3"
 koinAndroidCompose = "3.4.1"
 kotlinXDatetime = "0.4.0"
 
@@ -14,12 +14,13 @@ androidActivityCompose = "1.6.1"
 androidJUnit = "4.13.2"
 
 [libraries]
-sqldelight-plugin = { module = "com.squareup.sqldelight:gradle-plugin", version.ref = "sqlDelight" }
+sqldelight-plugin = { module = "app.cash.sqldelight:gradle-plugin", version.ref = "sqlDelight" }
 
-sqldelight-runtime = { module = "com.squareup.sqldelight:runtime", version.ref = "sqlDelight" }
-sqldelight-coroutineExtensions = { module = "com.squareup.sqldelight:coroutines-extensions", version.ref = "sqlDelight" }
-sqldelight-androidDriver = { module = "com.squareup.sqldelight:android-driver", version.ref = "sqlDelight" }
-sqldelight-sqliteDriver = { module = "com.squareup.sqldelight:sqlite-driver", version.ref = "sqlDelight" }
+sqldelight-runtime = { module = "app.cash.sqldelight:runtime", version.ref = "sqlDelight" }
+sqldelight-coroutineExtensions = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqlDelight" }
+sqldelight-androidDriver = { module = "app.cash.sqldelight:android-driver", version.ref = "sqlDelight" }
+sqldelight-sqliteDriver = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqlDelight" }
+sqldelight-dialects-sqlite = { module = "app.cash.sqldelight:sqlite-3-24-dialect", version.ref = "sqlDelight" }
 
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koinCore" }
 koin-test = { module = "io.insert-koin:koin-test", version.ref = "koinCore" }
@@ -32,12 +33,12 @@ kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.
 sheetsComposeDialogs-core = { module = "com.maxkeppeler.sheets-compose-dialogs:core", version.ref = "sheetsComposeDialogs" }
 sheetsComposeDialogs-calendar = { module = "com.maxkeppeler.sheets-compose-dialogs:calendar", version.ref = "sheetsComposeDialogs" }
 
+android-activityCompose = { module = "androidx.activity:activity-compose", version.ref = "androidActivityCompose" }
 android-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appCompat" }
 android-coreKtx = { module = "androidx.core:core-ktx", version.ref = "androidCoreKtx" }
-android-activityCompose = { module = "androidx.activity:activity-compose", version.ref = "androidActivityCompose" }
 android-junit = { module = "junit:junit", version.ref = "androidJUnit" }
 
 [bundles]
 
 [plugins]
-#sqldelight = { id = "com.squareup.sqldelight", version.ref = "sqlDelight" }
+#sqldelight = { id = "app.cash.sqldelight", version.ref = "sqlDelight" }

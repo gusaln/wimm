@@ -1,15 +1,3 @@
-selectEntries:
-SELECT
-    entry.*,
-    moneyTransaction.description AS transactionDescription,
-    account.name AS accountName,
-    account.currency AS currency
-FROM entry
-JOIN account USING (accountId)
-JOIN moneyTransaction USING (transactionId)
-ORDER BY recordedAt DESC
-LIMIT :offset, :limit;
-
 selectEntriesInRange:
 SELECT
     entry.*,
@@ -47,8 +35,8 @@ ORDER BY recordedAt DESC
 LIMIT :offset, :limit;
 
 insertEntry {
-    INSERT INTO entry(accountId, transactionId, amount, recordedAt)
-    VALUES (:accountId, :transactionId, :amount, :recordedAt);
+    INSERT INTO entry(accountId, transactionId, amount, recordedAt, reference)
+    VALUES (:accountId, :transactionId, :amount, :recordedAt, :reference);
 
     UPDATE account
     SET balance = balance + :amount
@@ -59,7 +47,8 @@ updateEntry {
     UPDATE entry
     SET
         amount = amount + :amountDelta,
-        recordedAt = :recordedAt
+        recordedAt = :recordedAt,
+        reference = :reference
     WHERE entryId = :entryId;
 
     UPDATE account
@@ -72,7 +61,8 @@ updateAndMoveEntry {
         SET
             amount = amount + :amountDelta,
             accountId = :accountId,
-            recordedAt = :recordedAt
+            recordedAt = :recordedAt,
+            reference = :reference
         WHERE entryId = :entryId;
 
     UPDATE account

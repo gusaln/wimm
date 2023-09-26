@@ -15,7 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogWindow
 import app.cash.sqldelight.coroutines.mapToList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
@@ -149,7 +149,7 @@ fun EditTransactionScreen(navController: NavController, transactionId: Long) {
 
 
     if (isConfirmingDelete) {
-        Dialog(onCloseRequest = { isConfirmingDelete = false }) {
+        DialogWindow(onCloseRequest = { isConfirmingDelete = false }) {
             Card(modifier = Modifier.fillMaxSize()) {
                 Column(
                     modifier = Modifier.fillMaxSize(),
@@ -350,8 +350,7 @@ class EditTransactionViewModel(private val transactionId: Long) : KoinComponent 
         }
 
         db.transaction {
-            val newTotal = toCreate.asIterable().sumOf { it.amount } + toModify.filter { !it.toDelete }.asIterable()
-                .sumOf { it.amount }
+            val newTotal = toCreate.sumOf { it.amount } + toModify.filter { !it.toDelete }.sumOf { it.amount }
             transactionRepository.update(
                 transactionId,
                 categoryId,
@@ -368,6 +367,7 @@ class EditTransactionViewModel(private val transactionId: Long) : KoinComponent 
                     it.account!!.accountId,
                     it.amount,
                     it.recordedAt.atTime(0, 0),
+                    it.reference
                 )
             }
 

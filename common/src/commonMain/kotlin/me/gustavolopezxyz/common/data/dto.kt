@@ -14,10 +14,7 @@ data class CategoryWithParent(
     val isLocked: Boolean,
 ) {
     fun toCategory() = Category(
-        this.categoryId,
-        this.parentCategoryId,
-        this.name,
-        this.isLocked
+        this.categoryId, this.parentCategoryId, this.name, this.isLocked
     )
 
     fun fullname() = if (parentCategoryName != null) "$parentCategoryName / $name" else name
@@ -31,6 +28,7 @@ data class EntryForTransaction(
     val currency: String,
     val amount: Double,
     val recordedAt: Instant,
+    val reference: String?,
 )
 
 data class EntryForAccount(
@@ -41,4 +39,5 @@ data class EntryForAccount(
     val accountId: Long,
     val amount: Double,
     val recordedAt: Instant,
+    val reference: String?,
 )

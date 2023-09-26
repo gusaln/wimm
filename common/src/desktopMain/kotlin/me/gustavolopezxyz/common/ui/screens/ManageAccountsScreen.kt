@@ -10,7 +10,7 @@ import androidx.compose.material.Card
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogWindow
 import app.cash.sqldelight.coroutines.mapToList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -55,7 +55,7 @@ fun ManageAccountsScreen(viewModel: ManageAccountsViewModel) {
     }
 
     if (isCreatingOpen) {
-        Dialog(onCloseRequest = { isCreatingOpen = false }, title = "Create an Account") {
+        DialogWindow(onCloseRequest = { isCreatingOpen = false }, title = "Create an Account") {
             Card(modifier = Modifier.fillMaxSize(), shape = RoundedCornerShape(0)) {
                 Box(modifier = Modifier.fillMaxWidth().padding(AppDimensions.Default.padding.medium)) {
                     CreateAccountForm(::createAccount, onCancel = { isCreatingOpen = false })
@@ -65,7 +65,7 @@ fun ManageAccountsScreen(viewModel: ManageAccountsViewModel) {
     }
 
     if (accountBeingEdited != null) {
-        Dialog(onCloseRequest = { accountBeingEdited = null }, title = "Edit an Account") {
+        DialogWindow(onCloseRequest = { accountBeingEdited = null }, title = "Edit an Account") {
             Card(modifier = Modifier.fillMaxSize()) {
                 Box(modifier = Modifier.fillMaxWidth().padding(AppDimensions.Default.padding.medium)) {
                     EditAccountForm(

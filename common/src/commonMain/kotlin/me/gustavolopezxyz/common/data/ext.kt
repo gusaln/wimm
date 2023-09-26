@@ -37,7 +37,8 @@ fun SelectEntriesForTransaction.toEntry() = Entry(
     this.transactionId,
     this.accountId,
     this.amount,
-    this.recordedAt
+    this.recordedAt,
+    this.reference
 )
 
 fun SelectEntriesForTransaction.toEntryForTransaction() = EntryForTransaction(
@@ -48,6 +49,7 @@ fun SelectEntriesForTransaction.toEntryForTransaction() = EntryForTransaction(
     this.currency,
     this.amount,
     this.recordedAt,
+    this.reference
 )
 
 fun SelectEntriesForAccount.toEntryForAccount() = EntryForAccount(
@@ -58,6 +60,7 @@ fun SelectEntriesForAccount.toEntryForAccount() = EntryForAccount(
     this.accountId,
     this.amount,
     this.recordedAt,
+    this.reference
 )
 
 fun SelectTransactionsInCategoryInRange.toMoneyTransaction() = MoneyTransaction(

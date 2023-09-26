@@ -13,9 +13,12 @@ data class NewEntryDto(
     val account: Account? = null,
     val amount: Double = 0.0,
     val recordedAt: LocalDate,
+    val reference: String? = null,
 )
 
-fun emptyNewEntryDto() = NewEntryDto(recordedAt = Clock.System.now().toLocalDateTime(currentTimeZone()).date)
+fun emptyNewEntryDto(recordedAt: LocalDate) = NewEntryDto(recordedAt = recordedAt)
+
+inline fun emptyNewEntryDto() = emptyNewEntryDto(Clock.System.now().toLocalDateTime(currentTimeZone()).date)
 
 
 data class ModifiedEntryDto(
@@ -25,15 +28,18 @@ data class ModifiedEntryDto(
     val currency: String,
     val amount: Double,
     val recordedAt: LocalDate,
+    val reference: String? = null,
     val wasEdited: Boolean = false,
     val toDelete: Boolean = false,
 ) {
     fun edit(
         amount: Double = this.amount,
         recordedAt: LocalDate = this.recordedAt,
+        reference: String? = this.reference,
     ) = copy(
         amount = amount,
         recordedAt = recordedAt,
+        reference = reference,
         wasEdited = true,
         toDelete = false,
     )
@@ -57,7 +63,8 @@ data class ModifiedEntryDto(
         amount = amount,
         recordedAt = recordedAt.atTime(0, 0, 0).toInstant(
             currentTimeZone()
-        )
+        ),
+        reference = reference
     )
 }
 
@@ -69,5 +76,6 @@ fun modifiedEntryDto(entry: SelectEntriesForTransaction): ModifiedEntryDto {
         currency = entry.currency,
         amount = entry.amount,
         recordedAt = entry.recordedAt.toLocalDateTime(currentTimeZone()).date,
+        reference = entry.reference
     )
 }

@@ -1,47 +1,57 @@
 plugins {
+    kotlin("multiplatform")
     id("org.jetbrains.compose")
     id("com.android.application")
-    kotlin("android")
 }
-
-group = "me.gustavolopezxyz"
-version = "1.0-SNAPSHOT"
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
-dependencies {
-    implementation(projectLibs.android.activityCompose)
+kotlin {
+    androidTarget()
+    sourceSets {
+        val androidMain by getting {
+            dependencies {
+                implementation(projectLibs.android.activityCompose)
 
-    with(projectLibs.koin) {
-        implementation(core)
-        implementation(android)
-        implementation(compose)
-        testImplementation(test)
-        testImplementation(testJUnit4)
+                with(projectLibs.koin) {
+                    implementation(core)
+                    implementation(android)
+                    implementation(compose)
+                }
+
+                implementation(project(":common"))
+            }
+        }
+
+        val androidInstrumentedTest by getting {
+            dependencies {
+                implementation(projectLibs.koin.test)
+                implementation(projectLibs.koin.testJUnit4)
+            }
+        }
     }
-
-    implementation(project(":common"))
 }
 
 android {
-    compileSdk = Versions.androidCompileSdkVersion
-    defaultConfig {
-        minSdk = Versions.androidMinSdkVersion
-        targetSdk = Versions.androidTargetSdkVersion
+    compileSdk = (findProperty("android.compileSdk") as String).toInt()
+    namespace = "me.gustavolopezxyz"
 
+    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
+
+    defaultConfig {
         applicationId = "me.gustavolopezxyz.wimm.android"
+        minSdk = (findProperty("android.minSdk") as String).toInt()
+        targetSdk = (findProperty("android.targetSdk") as String).toInt()
         versionCode = 1
-        versionName = "1.0-SNAPSHOT"
+        versionName = "1.0"
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
-    buildTypes {
-        getByName("release") {
-            isMinifyEnabled = false
-        }
+    kotlin {
+        jvmToolchain(17)
     }
 }

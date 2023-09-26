@@ -41,4 +41,4 @@ android-junit = { module = "junit:junit", version.ref = "androidJUnit" }
 [bundles]
 
 [plugins]
-#sqldelight = { id = "app.cash.sqldelight", version.ref = "sqlDelight" }
+sqldelight = { id = "app.cash.sqldelight", version.ref = "sqlDelight" }

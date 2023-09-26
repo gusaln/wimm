@@ -9,21 +9,27 @@ group = "me.gustavolopezxyz"
 version = "1.0-SNAPSHOT"
 
 kotlin {
-    android()
+    androidTarget()
+
     jvm("desktop") {
         compilations.all {
             kotlinOptions.jvmTarget = "11"
         }
     }
+
     sourceSets {
         val commonMain by getting {
             dependencies {
                 api(compose.runtime)
                 api(compose.foundation)
                 api(compose.material)
+                api(compose.material3)
                 api(compose.materialIconsExtended)
                 api(projectLibs.koin.core)
                 api(projectLibs.koin.test)
+
+                @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
+                implementation(compose.components.resources)
 
                 implementation(projectLibs.sqldelight.runtime)
                 implementation(projectLibs.sqldelight.coroutineExtensions)
@@ -43,7 +49,7 @@ kotlin {
                 implementation(projectLibs.sqldelight.androidDriver)
             }
         }
-        val androidTest by getting {
+        val androidInstrumentedTest by getting {
             dependencies {
                 implementation(projectLibs.android.junit)
                 implementation(projectLibs.sqldelight.androidDriver)
@@ -52,6 +58,7 @@ kotlin {
         val desktopMain by getting {
             dependencies {
                 api(compose.preview)
+                implementation(compose.desktop.common)
                 implementation(projectLibs.sqldelight.sqliteDriver)
             }
         }
@@ -60,15 +67,22 @@ kotlin {
 }
 
 android {
-    compileSdk = Versions.androidCompileSdkVersion
+    compileSdk = (findProperty("android.compileSdk") as String).toInt()
+    namespace = "me.gustavolopezxyz.wimm.common"
+
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
+    sourceSets["main"].res.srcDirs("src/androidMain/res")
+    sourceSets["main"].resources.srcDirs("src/commonMain/resources")
+
     defaultConfig {
-        minSdk = Versions.androidMinSdkVersion
-        targetSdk = Versions.androidTargetSdkVersion
+        minSdk = (findProperty("android.minSdk") as String).toInt()
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+    kotlin {
+        jvmToolchain(17)
     }
 }
 

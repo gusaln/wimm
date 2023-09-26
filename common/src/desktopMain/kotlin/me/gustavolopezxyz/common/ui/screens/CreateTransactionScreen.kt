@@ -90,7 +90,8 @@ class CreateTransactionViewModel : KoinComponent {
                     transactionId,
                     it.account!!.accountId,
                     it.amount,
-                    it.recordedAt.atStartOfDay()
+                    it.recordedAt.atStartOfDay(),
+                    it.reference
                 )
             }
         }
@@ -110,17 +111,17 @@ fun CreateTransactionScreen(onCreate: () -> Unit = {}, onCancel: (() -> Unit)? =
     var details by remember { mutableStateOf("") }
     var category by remember { mutableStateOf<CategoryWithParent?>(null) }
     var incurredAt by remember { mutableStateOf(nowLocalDateTime().date) }
-    val entries = remember { mutableStateListOf(emptyNewEntryDto()) }
+    val entries = remember { mutableStateListOf(emptyNewEntryDto(nowLocalDateTime().date)) }
 
     val onCreateHook by rememberUpdatedState(onCreate)
 
     fun handleIncurredAtUpdate(value: LocalDate) {
-        val oldValue = incurredAt
+        val oldValue = incurredAt.toString()
         incurredAt = value
 
         scope.launch {
             entries.forEachIndexed { index, entry ->
-                if (entry.recordedAt == oldValue) {
+                if (entry.recordedAt.toString() == oldValue) {
                     entries[index] = entry.copy(recordedAt = value)
                 }
             }

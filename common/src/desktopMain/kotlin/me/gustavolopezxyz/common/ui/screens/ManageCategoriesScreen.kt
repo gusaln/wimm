@@ -10,7 +10,7 @@ import androidx.compose.material.Card
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogWindow
 import app.cash.sqldelight.coroutines.mapToList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
@@ -57,7 +57,7 @@ fun ManageCategoriesScreen(viewModel: ManageCategoriesViewModel) {
     }
 
     if (isCreatingOpen) {
-        Dialog(onCloseRequest = { isCreatingOpen = false }, title = "Create an Category") {
+        DialogWindow(onCloseRequest = { isCreatingOpen = false }, title = "Create an Category") {
             Card(modifier = Modifier.fillMaxSize(), shape = RoundedCornerShape(0)) {
                 Box(modifier = Modifier.fillMaxWidth().padding(AppDimensions.Default.padding.medium)) {
                     CreateCategoryForm(categories = categories, ::createCategory, onCancel = { isCreatingOpen = false })
@@ -67,7 +67,7 @@ fun ManageCategoriesScreen(viewModel: ManageCategoriesViewModel) {
     }
 
     if (categoryBeingEdited != null) {
-        Dialog(onCloseRequest = { categoryBeingEdited = null }, title = "Edit a Category") {
+        DialogWindow(onCloseRequest = { categoryBeingEdited = null }, title = "Edit a Category") {
             Card(modifier = Modifier.fillMaxSize()) {
                 Box(modifier = Modifier.fillMaxWidth().padding(AppDimensions.Default.padding.medium)) {
                     EditCategoryForm(

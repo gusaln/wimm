@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
@@ -25,10 +26,7 @@ import me.gustavolopezxyz.common.ext.datetime.formatDate
 import me.gustavolopezxyz.common.ext.datetime.formatDateTime
 import me.gustavolopezxyz.common.ext.toCurrency
 import me.gustavolopezxyz.common.ui.TransactionsListViewModel
-import me.gustavolopezxyz.common.ui.common.AppListItem
-import me.gustavolopezxyz.common.ui.common.AppListTitle
-import me.gustavolopezxyz.common.ui.common.ListItemSpacer
-import me.gustavolopezxyz.common.ui.common.MoneyText
+import me.gustavolopezxyz.common.ui.common.*
 import me.gustavolopezxyz.common.ui.theme.AppColors
 import org.koin.java.KoinJavaComponent
 
@@ -129,7 +127,15 @@ fun TransactionsOverviewCard(
                     MoneyText(entry.amount, entry.currency.toCurrency())
                 }
             ) {
-                Text(entry.accountName, overflow = TextOverflow.Ellipsis)
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.Bottom) {
+                    Text(entry.accountName, overflow = TextOverflow.Ellipsis)
+
+                    if (entry.reference != null) {
+                        AppChip(color = MaterialTheme.colors.secondary) {
+                            Text("ref: ${entry.reference}", style = MaterialTheme.typography.caption)
+                        }
+                    }
+                }
             }
 
             Spacer(Modifier.height(12.dp))

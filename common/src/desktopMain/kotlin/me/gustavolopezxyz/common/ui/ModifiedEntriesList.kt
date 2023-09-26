@@ -6,10 +6,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,6 +19,7 @@ import me.gustavolopezxyz.common.data.Account
 import me.gustavolopezxyz.common.data.AccountType
 import me.gustavolopezxyz.common.data.MissingAccount
 import me.gustavolopezxyz.common.data.ModifiedEntryDto
+import me.gustavolopezxyz.common.ui.common.AppChip
 import me.gustavolopezxyz.common.ui.common.OutlinedDateTextField
 import me.gustavolopezxyz.common.ui.common.OutlinedDoubleField
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
@@ -34,6 +35,8 @@ fun ModifiedEntriesListItem(
     val account by derivedStateOf {
         accounts.firstOrNull { it.accountId == entry.accountId } ?: MissingAccount
     }
+
+    var expanded by remember { mutableStateOf(false) }
 
     Row(
         horizontalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium),
@@ -68,10 +71,39 @@ fun ModifiedEntriesListItem(
                     date = entry.recordedAt,
                     onValueChange = { onEdit(entry.edit(recordedAt = it)) })
             }
+
+            //  Extra information section
+            if (expanded) {
+                OutlinedTextField(
+                    value = entry.reference ?: "",
+                    onValueChange = {
+                        onEdit(entry.edit(reference = it.replace('\n', ' ').trim().ifEmpty { null }))
+                    },
+                    modifier = Modifier.fillMaxWidth().padding(EntriesListDefault.rowPadding),
+                    label = { Text("Reference (optional)") },
+                    maxLines = 1
+                )
+            } else if (entry.reference != null) {
+                Box(modifier = Modifier.padding(EntriesListDefault.rowPadding)) {
+                    AppChip(color = MaterialTheme.colors.secondary) {
+                        Text("ref: ${entry.reference}")
+                    }
+                }
+            }
         }
 
-        IconButton(onClick = { onDelete(entry) }, Modifier.padding(end = 8.dp)) {
-            Icon(Icons.Default.Delete, "delete new entry", Modifier.size(EntriesListDefault.iconSize))
+        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            IconButton(onClick = { onDelete(entry) }) {
+                Icon(Icons.Default.Delete, "delete new entry", Modifier.size(EntriesListDefault.iconSize))
+            }
+
+            IconButton(onClick = { expanded = !expanded }) {
+                Icon(
+                    if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                    "expand",
+                    Modifier.size(EntriesListDefault.iconSize)
+                )
+            }
         }
     }
 }

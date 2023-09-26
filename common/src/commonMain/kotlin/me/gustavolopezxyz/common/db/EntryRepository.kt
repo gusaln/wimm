@@ -60,11 +60,13 @@ class EntryRepository : KoinComponent {
         accountId: Long,
         amount: Double,
         recordedAt: LocalDateTime,
+        reference: String? = null
     ) = create(
         transactionId,
         accountId,
         amount,
         recordedAt.toInstant(currentTimeZone()),
+        reference
     )
 
     fun create(
@@ -72,12 +74,14 @@ class EntryRepository : KoinComponent {
         accountId: Long,
         amount: Double,
         recordedAt: Instant,
+        reference: String? = null
     ) {
         return entryQueries.insertEntry(
             accountId,
             transactionId,
             amount,
             recordedAt,
+            reference
         )
     }
 
@@ -87,6 +91,7 @@ class EntryRepository : KoinComponent {
                 original,
                 modified.amount,
                 modified.recordedAt,
+                modified.reference
             )
         } else {
             editAndMove(
@@ -94,6 +99,7 @@ class EntryRepository : KoinComponent {
                 modified.accountId,
                 modified.amount,
                 modified.recordedAt,
+                modified.reference
             )
         }
     }
@@ -101,19 +107,22 @@ class EntryRepository : KoinComponent {
     private fun editAndNoMove(
         entry: Entry,
         amount: Double,
-        recordedAt: Instant
+        recordedAt: Instant,
+        reference: String? = null
     ) = editAndNoMove(
         entry.entryId,
         entry.accountId,
         (amount - entry.amount),
         recordedAt,
+        reference
     )
 
     private fun editAndMove(
         entry: Entry,
         accountId: Long,
         amount: Double,
-        recordedAt: Instant
+        recordedAt: Instant,
+        reference: String? = null
     ) {
         editAndMove(
             entry.entryId,
@@ -122,6 +131,7 @@ class EntryRepository : KoinComponent {
             recordedAt,
             entry.accountId,
             entry.amount,
+            reference
         )
     }
 
@@ -130,12 +140,16 @@ class EntryRepository : KoinComponent {
         accountId: Long,
         amountDelta: Double,
         recordedAt: Instant,
+        reference: String? = null
     ) {
+        println("entryId=$entryId accountId=$accountId amountDelta=$amountDelta recordedAt=$recordedAt reference=$reference")
+
         return entryQueries.updateEntry(
             entryId = entryId,
             accountId = accountId,
             amountDelta = amountDelta,
-            recordedAt = recordedAt
+            recordedAt = recordedAt,
+            reference = reference
         )
     }
 
@@ -146,6 +160,7 @@ class EntryRepository : KoinComponent {
         recordedAt: Instant,
         originalAccountId: Long,
         originalAmount: Double,
+        reference: String? = null
     ) {
         return entryQueries.updateAndMoveEntry(
             entryId = entryId,
@@ -154,6 +169,7 @@ class EntryRepository : KoinComponent {
             recordedAt = recordedAt,
             originalAccountId = originalAccountId,
             originalAmount = originalAmount,
+            reference = reference
         )
     }
 

@@ -9,9 +9,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -54,21 +54,26 @@ fun AccountDropdown(
                     val style =
                         if (isSelected) MaterialTheme.typography.dropdownSelected else MaterialTheme.typography.dropdownUnselected
 
-                    DropdownMenuItem(onClick = {
-                        onSelectAccount(it)
-                        onExpandedChange(false)
-                    }) {
-                        Text(buildAnnotatedString {
-                            append(it.name)
-                            append(' ')
+                    DropdownMenuItem(
+                        text = {
+                            Text(buildAnnotatedString {
+                                append(it.name)
+                                append(' ')
 
-                            withStyle(
-                                SpanStyle(color = Color.Gray, fontSize = MaterialTheme.typography.caption.fontSize)
-                            ) {
-                                append("[${it.type.name}; ${it.balance.toMoney(it.currency)}]")
-                            }
-                        }, style = style)
-                    }
+                                withStyle(
+                                    SpanStyle(
+                                        color = Color.Gray,
+                                        fontSize = MaterialTheme.typography.bodySmall.fontSize
+                                    )
+                                ) {
+                                    append("[${it.type.name}; ${it.balance.toMoney(it.currency)}]")
+                                }
+                            }, style = style)
+                        },
+                        onClick = {
+                            onSelectAccount(it)
+                            onExpandedChange(false)
+                        })
                 }
             }
         }

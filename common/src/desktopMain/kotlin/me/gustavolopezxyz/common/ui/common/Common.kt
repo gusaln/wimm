@@ -9,16 +9,17 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.*
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalDate
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
-import me.gustavolopezxyz.common.ui.theme.titleMedium
 import java.math.RoundingMode
 import java.text.DecimalFormat
 
@@ -45,7 +46,7 @@ fun ScreenTitle(title: String) {
 
 @Composable
 fun FormTitle(title: String) {
-    Text(title, style = MaterialTheme.typography.h5)
+    Text(title, style = MaterialTheme.typography.headlineSmall)
 }
 
 @Composable
@@ -55,7 +56,7 @@ fun CardTitle(
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
     content: @Composable RowScope.() -> Unit
 ) {
-    ProvideTextStyle(MaterialTheme.typography.h6) {
+    ProvideTextStyle(MaterialTheme.typography.titleLarge) {
         Row(modifier, horizontalArrangement, verticalAlignment) {
             content()
         }
@@ -95,8 +96,8 @@ fun AppTextButton(
 internal val ListItemHorizontalPadding = 16.dp
 internal val ListItemVerticalPadding = 4.dp
 internal val ListItemPrimaryAndSecondaryTextSpace = 8.dp
-internal val ListItemPrimaryTextStyle @Composable get() = MaterialTheme.typography.subtitle1
-internal val ListItemSecondaryTextStyle @Composable get() = MaterialTheme.typography.caption.copy(color = Color.Gray)
+internal val ListItemPrimaryTextStyle @Composable get() = MaterialTheme.typography.bodyLarge
+internal val ListItemSecondaryTextStyle @Composable get() = MaterialTheme.typography.bodySmall.copy(color = Color.Gray)
 
 @Composable
 fun AppCard(
@@ -112,7 +113,7 @@ fun AppCard(
 
 @Composable
 fun AppChip(
-    color: Color = MaterialTheme.colors.surface,
+    color: Color = MaterialTheme.colorScheme.surface,
     modifier: Modifier = Modifier,
     text: @Composable RowScope.() -> Unit
 ) {
@@ -162,7 +163,7 @@ fun AppListTitle(
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
     content: @Composable RowScope.() -> Unit
 ) {
-    ProvideTextStyle(MaterialTheme.typography.subtitle2) {
+    ProvideTextStyle(MaterialTheme.typography.titleSmall) {
         Row(modifier.padding(bottom = 8.dp), horizontalArrangement, verticalAlignment) {
             content()
         }
@@ -221,7 +222,7 @@ fun AppListItem(
 
 @Composable
 fun AppDivider(modifier: Modifier = Modifier) {
-    Divider(color = MaterialTheme.colors.background, thickness = 1.dp, modifier = modifier)
+    Divider(color = MaterialTheme.colorScheme.background, thickness = 1.dp, modifier = modifier)
 }
 
 @Composable

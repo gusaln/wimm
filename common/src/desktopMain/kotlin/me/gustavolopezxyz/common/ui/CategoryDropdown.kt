@@ -9,9 +9,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -47,12 +47,12 @@ fun CategoryDropdown(
                     val style =
                         if (isSelected) MaterialTheme.typography.dropdownSelected else MaterialTheme.typography.dropdownUnselected
 
-                    DropdownMenuItem(onClick = {
+                    DropdownMenuItem(text = {
+                        Text(it.fullname(), style = style)
+                    }, onClick = {
                         onSelect(it)
                         onExpandedChange(false)
-                    }) {
-                        Text(it.fullname(), style = style)
-                    }
+                    })
                 }
             }
         }
@@ -97,19 +97,11 @@ fun CategoryDropdown(
         modifier = modifier,
     ) {
         Row {
-            OutlinedTextField(
-                value = value?.fullname() ?: "",
-                onValueChange = {},
-                label = {
-                    Text(label)
-                },
-                modifier = Modifier.fillMaxWidth()
-                    .onPointerEvent(PointerEventType.Press) {
-                        if (!isExpanded) isExpanded = true
-                    },
-                leadingIcon = leadingIcon,
-                trailingIcon = trailingIconComponent,
-                readOnly = true
+            OutlinedTextField(value = value?.fullname() ?: "", onValueChange = {}, label = {
+                Text(label)
+            }, modifier = Modifier.fillMaxWidth().onPointerEvent(PointerEventType.Press) {
+                if (!isExpanded) isExpanded = true
+            }, leadingIcon = leadingIcon, trailingIcon = trailingIconComponent, readOnly = true
             )
         }
     }

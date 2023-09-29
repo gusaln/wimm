@@ -9,9 +9,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -94,13 +94,15 @@ fun AccountsListCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(buildAnnotatedString {
-                    withStyle(MaterialTheme.typography.h5.toSpanStyle().copy(fontWeight = FontWeight.Normal)) {
+                    withStyle(
+                        MaterialTheme.typography.headlineSmall.toSpanStyle().copy(fontWeight = FontWeight.Normal)
+                    ) {
                         append(account.name)
                     }
 
                     append(' ')
 
-                    withStyle(MaterialTheme.typography.caption.toSpanStyle().copy(color = Color.Gray)) {
+                    withStyle(MaterialTheme.typography.bodySmall.toSpanStyle().copy(color = Color.Gray)) {
                         append("[${account.type.name}]")
                     }
                 })
@@ -122,7 +124,7 @@ fun AccountsListCard(
                 account.balance,
                 account.currency.toCurrency(),
                 modifier = Modifier.align(Alignment.End),
-                commonStyle = MaterialTheme.typography.h4
+                commonStyle = MaterialTheme.typography.headlineMedium
             )
         }
     }

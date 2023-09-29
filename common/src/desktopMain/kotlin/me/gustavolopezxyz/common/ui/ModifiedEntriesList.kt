@@ -3,12 +3,12 @@ package me.gustavolopezxyz.common.ui
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -85,7 +85,7 @@ fun ModifiedEntriesListItem(
                 )
             } else if (entry.reference != null) {
                 Box(modifier = Modifier.padding(EntriesListDefault.rowPadding)) {
-                    AppChip(color = MaterialTheme.colors.secondary) {
+                    AppChip(color = MaterialTheme.colorScheme.secondary) {
                         Text("ref: ${entry.reference}")
                     }
                 }
@@ -168,7 +168,7 @@ fun ModifiedEntriesList(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.small)
     ) {
-        name?.invoke() ?: Text("Entries", style = MaterialTheme.typography.h5)
+        name?.invoke() ?: Text("Entries", style = MaterialTheme.typography.headlineSmall)
 
         if (entries.isEmpty()) {
             Text("No entries left")

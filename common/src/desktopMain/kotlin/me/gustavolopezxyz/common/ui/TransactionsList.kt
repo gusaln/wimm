@@ -7,9 +7,10 @@ package me.gustavolopezxyz.common.ui
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -102,14 +103,15 @@ fun TransactionEntriesList(
                     softWrap = false,
                 )
 
-                Chip(
+                AssistChip(
                     onClick = {},
+                    label = {
+                        Text("category", style = MaterialTheme.typography.bodySmall)
+                    },
                     modifier = Modifier.wrapContentSize(),
-                    colors = ChipDefaults.chipColors(Color.Magenta.copy(.5f)),
+                    colors = AssistChipDefaults.assistChipColors(Color.Magenta.copy(.5f)),
                     shape = MaterialTheme.shapes.small
-                ) {
-                    Text("category", style = MaterialTheme.typography.caption)
-                }
+                )
 
                 Spacer(modifier = Modifier.weight(1f))
 
@@ -133,7 +135,7 @@ fun TransactionEntriesList(
                         Text(
                             entry.recordedAt.formatDateTime(),
                             color = Color.Gray,
-                            fontSize = MaterialTheme.typography.caption.fontSize
+                            fontSize = MaterialTheme.typography.bodySmall.fontSize
                         )
                     }
 

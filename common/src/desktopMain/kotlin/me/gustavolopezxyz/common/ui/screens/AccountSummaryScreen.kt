@@ -5,9 +5,9 @@
 package me.gustavolopezxyz.common.ui.screens
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -27,7 +27,6 @@ import me.gustavolopezxyz.common.ui.common.ContainerLayout
 import me.gustavolopezxyz.common.ui.common.MoneyText
 import me.gustavolopezxyz.common.ui.common.ScreenTitle
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
-import me.gustavolopezxyz.common.ui.theme.displaySmall
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 

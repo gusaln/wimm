@@ -4,7 +4,7 @@
 
 package me.gustavolopezxyz.common.di
 
-import androidx.compose.material.SnackbarHostState
+import androidx.compose.material3.SnackbarHostState
 import me.gustavolopezxyz.common.ConfigFactory
 import me.gustavolopezxyz.common.db.DatabaseFactory
 import me.gustavolopezxyz.common.navigation.NavController

@@ -6,8 +6,8 @@ package me.gustavolopezxyz.common.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.SnackbarHostState
+import androidx.compose.material3.Card
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.DialogWindow

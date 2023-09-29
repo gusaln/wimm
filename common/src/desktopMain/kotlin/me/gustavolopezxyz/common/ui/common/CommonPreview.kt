@@ -8,9 +8,9 @@ import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.Card
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.Card
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,23 +26,23 @@ fun AppChipPreview() {
     AppTheme(true) {
         Card(modifier = Modifier.fillMaxSize()) {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                AppChip() {
+                AppChip {
                     Text("This is a test")
                 }
 
-                AppChip(MaterialTheme.colors.primary) {
+                AppChip(MaterialTheme.colorScheme.primary) {
                     Text("This is a test")
                 }
 
-                AppChip(MaterialTheme.colors.primaryVariant) {
+                AppChip(MaterialTheme.colorScheme.secondary) {
                     Text("This is a test")
                 }
 
-                AppChip(MaterialTheme.colors.secondary) {
+                AppChip(MaterialTheme.colorScheme.tertiary) {
                     Text("This is a test")
                 }
 
-                AppChip(MaterialTheme.colors.secondaryVariant) {
+                AppChip(MaterialTheme.colorScheme.surface) {
                     Text("This is a test")
                 }
 

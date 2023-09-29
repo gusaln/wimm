@@ -4,15 +4,14 @@
 
 package me.gustavolopezxyz.common.ui.screens.overviewScreen
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,7 +26,6 @@ import me.gustavolopezxyz.common.ext.datetime.formatDateTime
 import me.gustavolopezxyz.common.ext.toCurrency
 import me.gustavolopezxyz.common.ui.TransactionsListViewModel
 import me.gustavolopezxyz.common.ui.common.*
-import me.gustavolopezxyz.common.ui.theme.AppColors
 import org.koin.java.KoinJavaComponent
 
 const val TRANSACTIONS_PAGE_SIZE = 15
@@ -71,7 +69,7 @@ fun TransactionsOverviewCard(
         items = transactions,
         isLoading = pagination.isLoading,
         title = {
-            AppListTitle("Transactions", Modifier.background(AppColors.cardBackground).fillMaxWidth())
+            AppListTitle("Transactions", Modifier.fillMaxWidth())
         },
         empty = {
             Row(horizontalArrangement = Arrangement.Center) {
@@ -131,8 +129,8 @@ fun TransactionsOverviewCard(
                     Text(entry.accountName, overflow = TextOverflow.Ellipsis)
 
                     if (entry.reference != null) {
-                        AppChip(color = MaterialTheme.colors.secondary) {
-                            Text("ref: ${entry.reference}", style = MaterialTheme.typography.caption)
+                        AppChip(color = MaterialTheme.colorScheme.secondary) {
+                            Text("ref: ${entry.reference}", style = MaterialTheme.typography.bodySmall)
                         }
                     }
                 }

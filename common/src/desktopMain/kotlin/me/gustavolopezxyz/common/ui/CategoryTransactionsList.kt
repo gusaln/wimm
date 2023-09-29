@@ -8,9 +8,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Card
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Text
+import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
@@ -31,7 +31,6 @@ import me.gustavolopezxyz.common.ext.datetime.formatDateTime
 import me.gustavolopezxyz.common.ext.toCurrency
 import me.gustavolopezxyz.common.ui.common.*
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
-import me.gustavolopezxyz.common.ui.theme.AppTypography
 import me.gustavolopezxyz.db.SelectTransactionsInCategoryInRange
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -78,7 +77,10 @@ fun CategoryTransactionsList(
                             append(it.description)
 
                             if (it.categoryId != category.categoryId) {
-                                withStyle(AppTypography.body2.toSpanStyle().copy(color = Color.Gray)) {
+                                withStyle(
+                                    androidx.compose.material3.MaterialTheme.typography.bodyMedium.toSpanStyle()
+                                        .copy(color = Color.Gray)
+                                ) {
                                     append(" [${it.categoryName}]")
                                 }
                             }

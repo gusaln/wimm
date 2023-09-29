@@ -10,10 +10,10 @@ import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.HoverInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckBox
 import androidx.compose.material.icons.filled.CheckBoxOutlineBlank
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -240,11 +240,16 @@ fun MoneyPartitionSummary(
                     val fraction by derivedStateOf { (entry.value / absoluteTotal).absoluteValue.toFloat() }
 
                     Card(
-                        Modifier.weight(fraction).fillMaxHeight().border(
+                        modifier = Modifier.weight(fraction).fillMaxHeight().border(
                             2.dp,
-                            if (hoveredCategory == entry.key) MaterialTheme.colors.onBackground else Color.Unspecified
-                        ), backgroundColor = colorSelector(index, entry.key)
-                    ) {}
+                            if (hoveredCategory == entry.key) MaterialTheme.colorScheme.onBackground else Color.Unspecified
+                        ),
+                        colors = CardDefaults.cardColors(
+                            containerColor = colorSelector(index, entry.key)
+                        )
+                    ) {
+
+                    }
                 }
             }
         }

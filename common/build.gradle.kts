@@ -30,6 +30,7 @@ kotlin {
 
                 @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
                 implementation(compose.components.resources)
+                implementation(compose.preview)
 
                 implementation(projectLibs.sqldelight.runtime)
                 implementation(projectLibs.sqldelight.coroutineExtensions)

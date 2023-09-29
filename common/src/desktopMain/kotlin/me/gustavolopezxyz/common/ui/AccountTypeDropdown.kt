@@ -9,9 +9,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -29,7 +29,7 @@ fun AccountTypeDropdown(
     onExpandedChange: (Boolean) -> Unit,
     value: AccountType?,
     onSelect: (value: AccountType) -> Unit,
-    types: List<AccountType> = AccountType.values().toList(),
+    types: List<AccountType> = AccountType.entries,
     modifier: Modifier = Modifier,
     anchor: @Composable (() -> Unit),
 ) {
@@ -47,12 +47,10 @@ fun AccountTypeDropdown(
                     val style =
                         if (isSelected) MaterialTheme.typography.dropdownSelected else MaterialTheme.typography.dropdownUnselected
 
-                    DropdownMenuItem(onClick = {
+                    DropdownMenuItem(text = { Text(it.name, style = style) }, onClick = {
                         onSelect(it)
                         onExpandedChange(false)
-                    }) {
-                        Text(it.name, style = style)
-                    }
+                    })
                 }
             }
         }
@@ -65,7 +63,7 @@ fun AccountTypeDropdown(
     label: String,
     value: AccountType?,
     onSelect: (AccountType) -> Unit,
-    types: List<AccountType> = AccountType.values().toList(),
+    types: List<AccountType> = AccountType.entries,
     modifier: Modifier = Modifier,
 ) {
     var isExpanded by remember { mutableStateOf(false) }
@@ -85,24 +83,17 @@ fun AccountTypeDropdown(
         modifier = modifier,
     ) {
         Row {
-            OutlinedTextField(
-                value = value?.name ?: "",
-                onValueChange = {},
-                label = {
-                    Text(label)
-                },
-                modifier = Modifier.fillMaxWidth()
-                    .onPointerEvent(PointerEventType.Press) {
-                        if (!isExpanded) isExpanded = true
-                    },
-                trailingIcon = {
-                    Icon(
-                        imageVector = Icons.Filled.ArrowDropDown,
-                        contentDescription = "dropdown icon",
-                        modifier = Modifier.rotate(animatedIconRotation)
-                    )
-                },
-                readOnly = true
+            OutlinedTextField(value = value?.name ?: "", onValueChange = {}, label = {
+                Text(label)
+            }, modifier = Modifier.fillMaxWidth().onPointerEvent(PointerEventType.Press) {
+                if (!isExpanded) isExpanded = true
+            }, trailingIcon = {
+                Icon(
+                    imageVector = Icons.Filled.ArrowDropDown,
+                    contentDescription = "dropdown icon",
+                    modifier = Modifier.rotate(animatedIconRotation)
+                )
+            }, readOnly = true
             )
         }
     }

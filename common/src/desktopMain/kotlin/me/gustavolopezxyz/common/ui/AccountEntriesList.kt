@@ -8,10 +8,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Card
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
@@ -75,8 +75,8 @@ fun AccountEntriesList(
                             Text(it.transactionDescription)
 
                             if (it.reference != null) {
-                                AppChip(color = MaterialTheme.colors.secondary) {
-                                    Text("ref: ${it.reference}", style = MaterialTheme.typography.caption)
+                                AppChip(color = MaterialTheme.colorScheme.secondary) {
+                                    Text("ref: ${it.reference}", style = MaterialTheme.typography.bodySmall)
                                 }
                             }
                         }

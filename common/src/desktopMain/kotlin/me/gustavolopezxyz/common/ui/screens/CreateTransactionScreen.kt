@@ -7,9 +7,9 @@ package me.gustavolopezxyz.common.ui.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -162,7 +162,7 @@ fun CreateTransactionScreen(onCreate: () -> Unit = {}, onCancel: (() -> Unit)? =
         modifier = Modifier.fillMaxWidth().verticalScroll(scroll).padding(AppDimensions.Default.padding.large),
         verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium)
     ) {
-        Text("Create a transaction", style = MaterialTheme.typography.h5)
+        Text("Create a transaction", style = MaterialTheme.typography.headlineSmall)
 
         OutlinedTextField(modifier = Modifier.fillMaxWidth(),
             value = description,
@@ -215,7 +215,7 @@ fun CreateTransactionScreen(onCreate: () -> Unit = {}, onCancel: (() -> Unit)? =
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Entries", style = MaterialTheme.typography.h5)
+                    Text("Entries", style = MaterialTheme.typography.headlineSmall)
 
                     IconButton(onClick = ::handleAddEntry) {
                         Icon(Icons.Default.Add, "add new entry")

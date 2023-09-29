@@ -8,9 +8,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -242,7 +242,7 @@ fun EditTransactionScreen(navController: NavController, transactionId: Long) {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Modified entries", style = MaterialTheme.typography.h5)
+                    Text("Modified entries", style = MaterialTheme.typography.headlineSmall)
                 }
             }
         )
@@ -260,7 +260,7 @@ fun EditTransactionScreen(navController: NavController, transactionId: Long) {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("New entries", style = MaterialTheme.typography.h5)
+                    Text("New entries", style = MaterialTheme.typography.headlineSmall)
 
                     IconButton(onClick = { toCreate.add(emptyNewEntryDto()) }) {
                         Icon(Icons.Default.Add, "add new entry")

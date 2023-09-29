@@ -4,9 +4,9 @@ import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,10 +23,11 @@ import me.gustavolopezxyz.common.ui.screens.CreateTransactionScreen
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import org.koin.java.KoinJavaComponent.get
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DesktopApp() {
     val navController by rememberNavController(get(NavController::class.java))
-    val scaffoldState = rememberScaffoldState(snackbarHostState = get(SnackbarHostState::class.java))
+    val snackbarHostState = get<SnackbarHostState>(SnackbarHostState::class.java)
     val scope = rememberCoroutineScope()
 
     var isCreateOpen by remember { mutableStateOf(false) }
@@ -36,12 +37,12 @@ fun DesktopApp() {
             title = "Create a transaction",
             undecorated = true,
         ) {
-            Scaffold(scaffoldState = scaffoldState) {
+            Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) {
                 Card(Modifier.fillMaxSize(), shape = RoundedCornerShape(0)) {
                     CreateTransactionScreen(
                         onCreate = {
                             isCreateOpen = false
-                            scope.launch { scaffoldState.snackbarHostState.showSnackbar("Transaction recorded") }
+                            scope.launch { snackbarHostState.showSnackbar("Transaction recorded") }
                         },
                         onCancel = { isCreateOpen = false }
                     )
@@ -51,35 +52,48 @@ fun DesktopApp() {
     }
 
     Scaffold(
-        scaffoldState = scaffoldState,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
-            TopAppBar(contentPadding = PaddingValues(AppDimensions.Default.topBarHorizontalPadding, 0.dp)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Text("WIMM", style = MaterialTheme.typography.subtitle1)
+            TopAppBar(
+                title = {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            // Makes the topbar be in the center
+                            .padding(start = 4.dp, end = 20.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Text("WIMM", style = MaterialTheme.typography.titleMedium)
 
-                    Spacer(modifier = Modifier.width(42.dp))
+                        Spacer(modifier = Modifier.width(42.dp))
 
-                    NavigationLink(navController, Screen.Overview.route, "Overview")
+                        NavigationLink(navController, Screen.Overview.route, "Overview")
 
-                    NavigationLink(navController, Screen.ManageAccounts.route, "Manage accounts")
+                        NavigationLink(navController, Screen.ManageAccounts.route, "Manage accounts")
 
-                    NavigationLink(navController, Screen.ManageCategories.route, "Manage categories")
+                        NavigationLink(navController, Screen.ManageCategories.route, "Manage categories")
 
-                    Spacer(modifier = Modifier.weight(1f))
+                        Spacer(modifier = Modifier.weight(1f))
 
-                    AppTextButton(
-                        onClick = { isCreateOpen = true },
-                        text = "Create transaction",
-                        icon = { Icon(Icons.Default.Add, "create transaction") })
-                }
-            }
+                        AppTextButton(
+                            onClick = { isCreateOpen = true },
+                            text = "Create transaction",
+                            icon = { Icon(Icons.Default.Add, "create transaction") })
+                    }
+                },
+//                modifier = Modifier.fillMaxWidth().background(Palette.Colors["red300"]!!)
+            )
         },
+//        contentWindowInsets = WindowInsets(left = 64.dp),
     ) {
-        AppNavigationHost(navController)
+        Column {
+            // Without this, the top of the content is invisible
+            // This is the real value if you tint the topbar
+            // Spacer(Modifier.height(52.dp))
+            Spacer(Modifier.height(44.dp))
+            AppNavigationHost(navController)
+        }
     }
 }
 
@@ -92,7 +106,7 @@ fun NavigationLink(navController: NavController, route: String, text: String) {
         modifier = Modifier
             .clickable { navController.navigate(route) }
             .padding(NavigationLinkHorizontalPadding, AppDimensions.Default.padding.medium),
-        style = MaterialTheme.typography.subtitle2
+        style = MaterialTheme.typography.titleSmall
     )
 }
 

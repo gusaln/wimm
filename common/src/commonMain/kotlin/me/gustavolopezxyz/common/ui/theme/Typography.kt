@@ -6,14 +6,13 @@ package me.gustavolopezxyz.common.ui.theme
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.Card
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.Typography
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Modifier
@@ -24,7 +23,6 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.platform.Font
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 
 internal val IbmPlexSansCondensedFontFamily = FontFamily(
@@ -35,7 +33,7 @@ internal val IbmPlexSansCondensedFontFamily = FontFamily(
     ),
     Font(
         resource = "fonts/IBM_Plex_Sans_Condensed/IBMPlexSansCondensed-Regular.ttf",
-        weight = FontWeight.W400,
+        weight = FontWeight.Normal,
         style = FontStyle.Normal
     ),
     Font(
@@ -55,24 +53,24 @@ internal val IbmPlexSansCondensedFontFamily = FontFamily(
     )
 )
 
-internal val SpectralFontFamily = FontFamily(
+internal val LoraFontFamily = FontFamily(
     Font(
-        resource = "fonts/Spectral/Spectral-Light.ttf",
+        resource = "fonts/Lora/Lora-Light.ttf",
         weight = FontWeight.Light,
         style = FontStyle.Normal
     ),
     Font(
-        resource = "fonts/Spectral/Spectral-Regular.ttf",
-        weight = FontWeight.W400,
+        resource = "fonts/Lora/Lora-Regular.ttf",
+        weight = FontWeight.Normal,
         style = FontStyle.Normal
     ),
     Font(
-        resource = "fonts/Spectral/Spectral-Medium.ttf",
+        resource = "fonts/Lora/Lora-Medium.ttf",
         weight = FontWeight.Medium,
         style = FontStyle.Normal
     ),
     Font(
-        resource = "fonts/Spectral/Spectral-SemiBold.ttf",
+        resource = "fonts/Lora/Lora-SemiBold.ttf",
         weight = FontWeight.SemiBold,
         style = FontStyle.Normal
     ),
@@ -80,73 +78,100 @@ internal val SpectralFontFamily = FontFamily(
 
 fun appTypography(): Typography {
     return Typography(
-        defaultFontFamily = IbmPlexSansCondensedFontFamily,
-        h1 = TextStyle(
-            fontFamily = SpectralFontFamily,
-            fontWeight = FontWeight.Light,
-            fontSize = 74.sp,
-        ),
-        h2 = TextStyle(
-            fontFamily = SpectralFontFamily,
-            fontWeight = FontWeight.Light,
-            fontSize = 66.sp,
-        ),
-        h3 = TextStyle(
-            fontFamily = SpectralFontFamily,
+        displayLarge = TextStyle(
+            fontFamily = LoraFontFamily,
             fontWeight = FontWeight.Normal,
-            fontSize = 58.sp,
+            fontSize = 46.sp,
+            lineHeight = 50.sp,
         ),
-        h4 = TextStyle(
+        displayMedium = TextStyle(
+            fontFamily = LoraFontFamily,
+            fontWeight = FontWeight.Normal,
+            fontSize = 42.sp,
+            lineHeight = 46.sp,
+        ),
+        displaySmall = TextStyle(
+            fontFamily = LoraFontFamily,
+            fontWeight = FontWeight.Normal,
+            fontSize = 38.sp,
+            lineHeight = 42.sp,
+            letterSpacing = 0.3.sp,
+        ),
+        headlineLarge = TextStyle(
+            fontFamily = IbmPlexSansCondensedFontFamily,
             fontWeight = FontWeight.Light,
-            fontSize = 28.sp,
+            fontSize = 34.sp,
             letterSpacing = 1.sp,
         ),
-        h5 = TextStyle(
-            fontWeight = FontWeight.Light,
+        headlineMedium = TextStyle(
+            fontFamily = IbmPlexSansCondensedFontFamily,
+//            fontWeight = FontWeight.Light,
+            fontSize = 32.sp,
+            lineHeight = 36.sp,
+            letterSpacing = 1.sp,
+        ),
+        headlineSmall = TextStyle(
+            fontFamily = IbmPlexSansCondensedFontFamily,
+//            fontWeight = FontWeight.Light,
+            fontSize = 30.sp,
+            letterSpacing = 0.8.sp,
+        ),
+        titleLarge = TextStyle(
+            fontFamily = IbmPlexSansCondensedFontFamily,
+            fontWeight = FontWeight.Normal,
             fontSize = 26.sp,
-            letterSpacing = 1.sp,
+            lineHeight = 26.sp,
+            letterSpacing = 1.3.sp,
         ),
-        h6 = TextStyle(
+        titleMedium = TextStyle(
+            fontFamily = IbmPlexSansCondensedFontFamily,
+//            fontWeight = FontWeight.Normal,
+            fontSize = 24.sp,
+            lineHeight = 26.sp,
+            letterSpacing = 1.3.sp,
+        ),
+        titleSmall = TextStyle(
+            fontFamily = IbmPlexSansCondensedFontFamily,
             fontWeight = FontWeight.Light,
             fontSize = 22.sp,
+            letterSpacing = 1.3.sp,
+        ),
+        bodyLarge = TextStyle(
+            fontFamily = IbmPlexSansCondensedFontFamily,
+            fontWeight = FontWeight.Normal,
+            fontSize = 20.sp,
             letterSpacing = 1.sp,
         ),
-        subtitle1 = TextStyle(
-            fontWeight = FontWeight.Normal,
-            fontSize = 18.sp,
-            lineHeight = 24.sp,
-            letterSpacing = 0.125.em,
-        ),
-        subtitle2 = TextStyle(
+        bodyMedium = TextStyle(
+            fontFamily = IbmPlexSansCondensedFontFamily,
             fontWeight = FontWeight.Light,
             fontSize = 18.sp,
-            letterSpacing = 1.25.sp,
-        ),
-        body1 = TextStyle(
-            fontWeight = FontWeight.Normal,
-            fontSize = 18.sp,
-            fontFamily = SpectralFontFamily,
-            letterSpacing = 1.sp,
-        ),
-        body2 = TextStyle(
-            fontWeight = FontWeight.Light,
-            fontSize = 16.sp,
             lineHeight = 20.sp,
             letterSpacing = 1.sp,
         ),
-        button = TextStyle(
-            fontWeight = FontWeight.Medium,
-            fontSize = 14.sp,
-            letterSpacing = 0.125.em,
-        ),
-        caption = TextStyle(
+        bodySmall = TextStyle(
+            fontFamily = IbmPlexSansCondensedFontFamily,
             fontWeight = FontWeight.Normal,
-            fontSize = 14.sp,
-            letterSpacing = 0.1.em,
+            fontSize = 16.sp,
+            letterSpacing = 1.2.sp,
         ),
-        overline = TextStyle(
+        labelLarge = TextStyle(
+            fontFamily = IbmPlexSansCondensedFontFamily,
+            fontWeight = FontWeight.Medium,
+            fontSize = 16.sp,
+//            letterSpacing = 0.125.em,
+            letterSpacing = 1.1.sp,
+        ),
+        labelMedium = TextStyle(
+            fontFamily = IbmPlexSansCondensedFontFamily,
+            fontWeight = FontWeight.Normal,
+            fontSize = 16.sp,
+            letterSpacing = 0.4.sp,
+        ),
+        labelSmall = TextStyle(
+            fontFamily = IbmPlexSansCondensedFontFamily,
             fontWeight = FontWeight.Light,
-            fontSize = 14.sp,
+            fontSize = 15.sp,
             letterSpacing = 0.5.sp,
         )
     )
@@ -154,26 +179,19 @@ fun appTypography(): Typography {
 
 val Typography.amount
     @Composable @ReadOnlyComposable get() = TextStyle(
-        fontFamily = SpectralFontFamily,
+        fontFamily = LoraFontFamily,
         fontWeight = FontWeight.Medium,
+//        fontSize = 1.15.em,
+//        lineHeight = 1.2.em,
+        letterSpacing = 0.4.sp,
     )
 
-val Typography.displayLarge get() = this.h1
-val Typography.displayMedium get() = this.h2
-val Typography.displaySmall get() = this.h3
-
-val Typography.titleLarge get() = this.h4
-val Typography.titleMedium get() = this.h5
-val Typography.titleSmall get() = this.h6
-
-val Typography.headlineMedium get() = this.subtitle1
-val Typography.headlineSmall get() = this.subtitle2
 
 val Typography.dropdownUnselected
-    @Composable get() = this.body2
+    @Composable get() = this.bodyMedium
 val Typography.dropdownSelected
-    @Composable get() = this.body2.copy(
-        color = MaterialTheme.colors.secondary,
+    @Composable get() = this.bodyMedium.copy(
+        color = MaterialTheme.colorScheme.secondary,
         fontWeight = FontWeight.Bold
     )
 
@@ -182,76 +200,144 @@ val Typography.dropdownSelected
 fun TypographyDemo() {
     AppTheme(true) {
         Card(modifier = Modifier.fillMaxSize()) {
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text(
-                    "H1 Headline",
-                    modifier = Modifier.border(1.dp, Color.DarkGray),
-                    style = MaterialTheme.typography.h1
-                )
-                Text(
-                    "H2 Headline",
-                    modifier = Modifier.border(1.dp, Color.DarkGray),
-                    style = MaterialTheme.typography.h2
-                )
-                Text(
-                    "H3 Headline",
-                    modifier = Modifier.border(1.dp, Color.DarkGray),
-                    style = MaterialTheme.typography.h3
-                )
-                Text(
-                    "H4 Headline",
-                    modifier = Modifier.border(1.dp, Color.DarkGray),
-                    style = MaterialTheme.typography.h4
-                )
-                Text(
-                    "H5 Headline",
-                    modifier = Modifier.border(1.dp, Color.DarkGray),
-                    style = MaterialTheme.typography.h5
-                )
-                Text(
-                    "H6 Headline",
-                    modifier = Modifier.border(1.dp, Color.DarkGray),
-                    style = MaterialTheme.typography.h6
-                )
-                Text(
-                    "Subtitle 1",
-                    modifier = Modifier.border(1.dp, Color.DarkGray),
-                    style = MaterialTheme.typography.subtitle1
-                )
-                Text(
-                    "Subtitle 2",
-                    modifier = Modifier.border(1.dp, Color.DarkGray),
-                    style = MaterialTheme.typography.subtitle2
-                )
-                Row {
-                    Text(
-                        "Body 1",
-                        modifier = Modifier.border(1.dp, Color.DarkGray),
-                        style = MaterialTheme.typography.body1
-                    )
+            val scroll = rememberScrollState()
 
+            Column(
+                modifier = Modifier.padding(4.dp).verticalScroll(scroll),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text(
-                        "31,475.92",
-                        modifier = Modifier.border(1.dp, Color.DarkGray),
+                        "This is a word. WOOOOORDS",
+                        modifier = Modifier.border(2.dp, Color.DarkGray),
+                        style = MaterialTheme.typography.displayLarge
+                    )
+                    Text("Display large", style = TextStyle.Default)
+                }
+
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(
+                        "This is a word. WOOOOORDS",
+                        modifier = Modifier.border(2.dp, Color.DarkGray),
+                        style = MaterialTheme.typography.displayMedium
+                    )
+                    Text("Display medium", style = TextStyle.Default)
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(
+                        "This is a word. WOOOOORDS",
+                        modifier = Modifier.border(2.dp, Color.DarkGray),
+                        style = MaterialTheme.typography.displaySmall
+                    )
+                    Text("Display small", style = TextStyle.Default)
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(
+                        "This is a word. WOOOOORDS",
+                        modifier = Modifier.border(2.dp, Color.DarkGray),
+                        style = MaterialTheme.typography.headlineLarge
+                    )
+                    Text("Headline large", style = TextStyle.Default)
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(
+                        "This is a word. WOOOOORDS",
+                        modifier = Modifier.border(2.dp, Color.DarkGray),
+                        style = MaterialTheme.typography.headlineMedium
+                    )
+                    Text("Headline medium", style = TextStyle.Default)
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(
+                        "This is a word. WOOOOORDS",
+                        modifier = Modifier.border(2.dp, Color.DarkGray),
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                    Text("Headline small", style = TextStyle.Default)
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(
+                        "This is a word. WOOOOORDS",
+                        modifier = Modifier.border(2.dp, Color.DarkGray),
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                    Text("Title large", style = TextStyle.Default)
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(
+                        "This is a word. WOOOOORDS",
+                        modifier = Modifier.border(2.dp, Color.DarkGray),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text("Title medium", style = TextStyle.Default)
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(
+                        "This is a word. WOOOOORDS",
+                        modifier = Modifier.border(2.dp, Color.DarkGray),
+                        style = MaterialTheme.typography.titleSmall
+                    )
+                    Text("Title small", style = TextStyle.Default)
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(
+                        "This is a word. WOOOOORDS",
+                        modifier = Modifier.border(2.dp, Color.DarkGray),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Text("Body Large", style = TextStyle.Default)
+                }
+
+
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(
+                        "This is a word. WOOOOORDS",
+                        modifier = Modifier.border(2.dp, Color.DarkGray),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Text("Body medium", style = TextStyle.Default)
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(
+                        "This is a word. WOOOOORDS",
+                        modifier = Modifier.border(2.dp, Color.DarkGray),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    Text("Body small", style = TextStyle.Default)
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(
+                        "This is a word. WOOOOORDS",
+                        modifier = Modifier.border(2.dp, Color.DarkGray),
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                    Text("Label large", style = TextStyle.Default)
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(
+                        "This is a word. WOOOOORDS",
+                        modifier = Modifier.border(2.dp, Color.DarkGray),
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                    Text("Label medium", style = TextStyle.Default)
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(
+                        "This is a word. WOOOOORDS",
+                        modifier = Modifier.border(2.dp, Color.DarkGray),
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                    Text("Label small", style = TextStyle.Default)
+                }
+
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(
+                        "This is a word. WOOOOORDS ::: 31,475.92 $",
+                        modifier = Modifier.border(2.dp, Color.DarkGray),
                         style = MaterialTheme.typography.amount
                     )
+                    Text("Amount 31,475.92 $", style = TextStyle.Default)
                 }
-                Text("Body 2", modifier = Modifier.border(1.dp, Color.DarkGray), style = MaterialTheme.typography.body2)
-                Text(
-                    "BUTTON",
-                    modifier = Modifier.border(1.dp, Color.DarkGray),
-                    style = MaterialTheme.typography.button
-                )
-                Text(
-                    "Caption",
-                    modifier = Modifier.border(1.dp, Color.DarkGray),
-                    style = MaterialTheme.typography.caption
-                )
-                Text(
-                    "OVERLINE",
-                    modifier = Modifier.border(1.dp, Color.DarkGray),
-                    style = MaterialTheme.typography.overline
-                )
             }
         }
     }

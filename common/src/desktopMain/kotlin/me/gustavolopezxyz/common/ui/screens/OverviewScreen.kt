@@ -5,9 +5,9 @@
 package me.gustavolopezxyz.common.ui.screens
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -136,12 +136,12 @@ fun SummaryTypeDropdown(
                     val style =
                         if (isSelected) MaterialTheme.typography.dropdownSelected else MaterialTheme.typography.dropdownUnselected
 
-                    DropdownMenuItem(onClick = {
-                        onClick(it)
-                        expanded = false
-                    }) {
-                        Text(it.name, style = style)
-                    }
+                    DropdownMenuItem(
+                        text = { Text(it.name, style = style) },
+                        onClick = {
+                            onClick(it)
+                            expanded = false
+                        })
                 }
             }
         }

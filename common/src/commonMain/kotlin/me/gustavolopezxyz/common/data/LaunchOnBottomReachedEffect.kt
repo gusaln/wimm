@@ -3,6 +3,7 @@ package me.gustavolopezxyz.common.data
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.*
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 
 data class InfiniteLazyListState(val lastVisibleItemIndex: Int, val buffer: Int) {
     fun minimumRequiredItemsLoadedCount() = lastVisibleItemIndex + buffer
@@ -39,8 +40,9 @@ fun LazyListState.LaunchOnBottomReachedEffect(
     LaunchedEffect(loadMore) {
         snapshotFlow { loadMore.value }
             .distinctUntilChanged()
+            .filter { it }
             .collect {
-                if (it) onLoadMoreState(
+                onLoadMoreState(
                     InfiniteLazyListState(
                         layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0, buffer
                     )

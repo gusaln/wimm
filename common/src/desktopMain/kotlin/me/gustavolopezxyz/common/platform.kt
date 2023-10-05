@@ -4,4 +4,4 @@ actual fun getPlatformName(): String {
     return "Desktop"
 }
 
-actual val VERSION: Version get() = Version(0, 5, 0)
+actual val VERSION: Version get() = Version(0, 6, 0)

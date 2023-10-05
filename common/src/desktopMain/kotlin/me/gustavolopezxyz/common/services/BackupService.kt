@@ -8,7 +8,9 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.datetime.*
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.toLocalDateTime
 import me.gustavolopezxyz.common.Config
 import me.gustavolopezxyz.common.data.Database
 import me.gustavolopezxyz.common.ext.datetime.currentTimeZone
@@ -16,6 +18,7 @@ import org.koin.java.KoinJavaComponent
 import java.io.File
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
+import kotlin.math.max
 
 class BackupService(private val config: Config) {
     private val canMakeBackups get() = isBackupDirValid()
@@ -48,6 +51,7 @@ class BackupService(private val config: Config) {
                 }
             }
             .filterNotNull()
+            .sortedBy { it.date }
             .toList()
     }
 
@@ -73,7 +77,7 @@ class BackupService(private val config: Config) {
 
             val backups = listBackups()
 
-            if (backups.size < backupsToKeep + 5) {
+            if (backups.size < max(backupsToKeep, 1)) {
                 return@launch
             }
 

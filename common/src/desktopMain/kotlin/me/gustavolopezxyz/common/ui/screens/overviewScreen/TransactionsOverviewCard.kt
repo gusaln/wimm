@@ -36,10 +36,10 @@ fun TransactionsOverviewCard(
 ) {
     val categoriesById by viewModel.getCategoriesMapAsFlow().collectAsState(emptyMap())
 
-    val pagination = rememberLazyPaginationState<MoneyTransaction>()
+    val pagination = rememberLazyPaginationState<MoneyTransaction>(TRANSACTIONS_PAGE_SIZE)
     LaunchedEffect(pagination.pagesLoaded) {
         pagination.isLoading = true
-        viewModel.getTransactionsAsFlow(1, pagination.itemsLoadedCount(TRANSACTIONS_PAGE_SIZE))
+        viewModel.getTransactionsAsFlow(1, pagination.itemsLoadedCount())
             .mapToList(Dispatchers.IO)
             .collect {
                 pagination.items = it
@@ -57,7 +57,7 @@ fun TransactionsOverviewCard(
 
     val listState = rememberLazyListState()
     listState.LaunchOnBottomReachedEffect(buffer = 4) {
-        if (transactions.isNotEmpty() && !pagination.isLoading && pagination.itemsLoadedCount(TRANSACTIONS_PAGE_SIZE) < it.minimumRequiredItemsLoadedCount() + 1) {
+        if (transactions.isNotEmpty() && !pagination.isLoading && pagination.itemsLoadedCount() < it.minimumRequiredItemsLoadedCount()) {
             pagination.loadUpToPage(pagination.pagesLoaded + 1)
             KoinJavaComponent.getKoin().logger.info("[TransactionsOverviewCard] ${pagination.pagesLoaded} pages loaded.")
         }

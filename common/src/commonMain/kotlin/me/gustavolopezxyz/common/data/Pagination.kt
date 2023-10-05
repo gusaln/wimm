@@ -10,8 +10,8 @@ import androidx.compose.runtime.*
  * Returns a [LazyPaginationState] to manage a lazily paginated list.
  */
 @Composable
-fun <T> rememberLazyPaginationState(): LazyPaginationState<T> {
-    return remember { LazyPaginationState() }
+fun <T> rememberLazyPaginationState(pageSize: Int): LazyPaginationState<T> {
+    return remember { LazyPaginationState(pageSize) }
 }
 
 /**
@@ -30,9 +30,10 @@ fun <T> rememberLazyPaginationState(): LazyPaginationState<T> {
  */
 @Composable
 fun <T> rememberLazyPaginationState(
+    pageSize: Int,
     onPageChange: (suspend LazyPaginationState<T>.() -> Unit)
 ): LazyPaginationState<T> {
-    val pagination = remember { LazyPaginationState<T>() }
+    val pagination = remember { LazyPaginationState<T>(pageSize) }
     val onChangeState by rememberUpdatedState(onPageChange)
 
     LaunchedEffect(pagination.pagesLoaded) {
@@ -47,7 +48,10 @@ fun <T> rememberLazyPaginationState(
 }
 
 
-class LazyPaginationState<T>(pagesLoadedByDefault: Int = 1) {
+class LazyPaginationState<T>(pageSize: Int, pagesLoadedByDefault: Int = 1) {
+    var pageSize by mutableStateOf(pageSize)
+        private set
+
     var pagesLoaded by mutableStateOf(pagesLoadedByDefault)
         private set
 
@@ -57,7 +61,8 @@ class LazyPaginationState<T>(pagesLoadedByDefault: Int = 1) {
     /** The loading state. */
     var isLoading by mutableStateOf(false)
 
-    fun itemsLoadedCount(pageSize: Int) = pagesLoaded * pageSize
+
+    fun itemsLoadedCount() = pagesLoaded * pageSize
 
     /**
      * Updates [pagesLoaded] if needed.

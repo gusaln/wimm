@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "me.gustavolopezxyz"
-version = "1.0-SNAPSHOT"
+version = "0.6.0"
 
 
 kotlin {
@@ -31,9 +31,9 @@ compose.desktop {
     application {
         mainClass = "MainKt"
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            targetFormats(TargetFormat.Msi, TargetFormat.Deb)
             packageName = "wimm"
-            packageVersion = "1.0.0"
+            packageVersion = "0.6.0"
         }
     }
 }

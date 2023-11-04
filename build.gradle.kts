@@ -1,6 +1,3 @@
-group = "me.gustavolopezxyz"
-version = "1.0-SNAPSHOT"
-
 buildscript {
     repositories {
         google()

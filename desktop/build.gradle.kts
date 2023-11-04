@@ -5,17 +5,13 @@ plugins {
     id("org.jetbrains.compose")
 }
 
-group = "me.gustavolopezxyz"
-version = "0.6.0"
-
-
 kotlin {
     jvm {
-        compilations.all {
-            kotlinOptions.jvmTarget = "17"
-        }
         withJava()
+
+        group = BuildConstants.NameSpaces.group
     }
+
     sourceSets {
         val jvmMain by getting {
             dependencies {
@@ -31,9 +27,9 @@ compose.desktop {
     application {
         mainClass = "MainKt"
         nativeDistributions {
-            targetFormats(TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "wimm"
-            packageVersion = "0.6.0"
+            targetFormats(TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Rpm)
+            packageName = BuildConstants.NameSpaces.Desktop.desktop
+            packageVersion = BuildConstants.DesktopApp.packageVersion
         }
     }
 }

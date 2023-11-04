@@ -5,9 +5,6 @@ plugins {
     id("app.cash.sqldelight")
 }
 
-group = "me.gustavolopezxyz"
-version = "1.0-SNAPSHOT"
-
 kotlin {
     androidTarget()
 
@@ -69,7 +66,7 @@ kotlin {
 
 android {
     compileSdk = (findProperty("android.compileSdk") as String).toInt()
-    namespace = "me.gustavolopezxyz.wimm.common"
+    namespace = BuildConstants.NameSpaces.Common.common
 
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     sourceSets["main"].res.srcDirs("src/androidMain/res")

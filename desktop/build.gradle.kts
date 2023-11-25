@@ -28,7 +28,7 @@ compose.desktop {
         mainClass = "MainKt"
         nativeDistributions {
             targetFormats(TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Rpm)
-            packageName = BuildConstants.NameSpaces.Desktop.desktop
+            packageName = BuildConstants.DesktopApp.packageName
             packageVersion = BuildConstants.DesktopApp.packageVersion
         }
     }

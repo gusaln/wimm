@@ -28,7 +28,7 @@ object BuildConstants {
     }
 
     object DesktopApp {
-        const val packageName = NameSpaces.Desktop.desktop
+        const val packageName = "wimm"
         const val packageVersion = "0.6.0"
     }
 }

@@ -4,7 +4,6 @@
 
 package me.gustavolopezxyz.desktop
 
-import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,40 +16,38 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
-import kotlinx.coroutines.launch
-import me.gustavolopezxyz.common.di.initKoin
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
-import me.gustavolopezxyz.desktop.navigation.AppNavigationHost
-import me.gustavolopezxyz.desktop.navigation.NavController
-import me.gustavolopezxyz.desktop.navigation.Screen
-import me.gustavolopezxyz.desktop.navigation.rememberNavController
+import me.gustavolopezxyz.desktop.navigation.CreateTransactionComponent
+import me.gustavolopezxyz.desktop.navigation.RootComponent
+import me.gustavolopezxyz.desktop.screens.CreateTransactionScreen
+import me.gustavolopezxyz.desktop.services.SnackbarService
 import me.gustavolopezxyz.desktop.ui.common.AppTextButton
-import me.gustavolopezxyz.desktop.ui.screens.CreateTransactionScreen
-import me.gustavolopezxyz.desktop.ui.screens.ImportTransactionsScreen
-import org.koin.java.KoinJavaComponent.get
+import org.kodein.di.DI
+import org.kodein.di.compose.withDI
+import org.kodein.di.instance
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DesktopApp() {
-    val navController by rememberNavController(get(NavController::class.java))
-    val snackbarHostState = get<SnackbarHostState>(SnackbarHostState::class.java)
+fun App(di: DI, component: RootComponent) = withDI(di) {
+    val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    var isCreateOpen by remember { mutableStateOf(false) }
-    if (isCreateOpen) {
+    LaunchedEffect(Unit) {
+        val snackbarService: SnackbarService by di.instance()
+        snackbarService.snackbar = snackbarHostState
+    }
+
+    val isCreateTransactionWindow by component.rememberIsCreateTransactionWindowOpen()
+    if (isCreateTransactionWindow) {
         Window(
-            onCloseRequest = { isCreateOpen = false },
+            onCloseRequest = { component.onCloseCreateTransactionWindow() },
             title = "Create a transaction",
             undecorated = true,
         ) {
             Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) {
                 Card(Modifier.fillMaxSize(), shape = RoundedCornerShape(0)) {
                     CreateTransactionScreen(
-                        onCreate = {
-                            isCreateOpen = false
-                            scope.launch { snackbarHostState.showSnackbar("Transaction recorded") }
-                        },
-                        onCancel = { isCreateOpen = false }
+                        component = CreateTransactionComponent(di)
                     )
                 }
             }
@@ -66,13 +63,7 @@ fun DesktopApp() {
         ) {
             Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) {
                 Card(Modifier.fillMaxSize(), shape = RoundedCornerShape(0)) {
-                    ImportTransactionsScreen(
-                        onCreate = {
-                            isImportingOpen = false
-                            scope.launch { snackbarHostState.showSnackbar("Transactions imported") }
-                        },
-                        onCancel = { isImportingOpen = false }
-                    )
+                    Text("WIP")
                 }
             }
         }
@@ -95,16 +86,22 @@ fun DesktopApp() {
 
                         Spacer(modifier = Modifier.width(42.dp))
 
-                        NavigationLink(navController, Screen.Overview.route, "Overview")
+                        NavigationLink(onNavigate = { component.onNavigateToDashboard() }, text = "Overview")
 
-                        NavigationLink(navController, Screen.ManageAccounts.route, "Manage accounts")
+                        NavigationLink(
+                            onNavigate = { component.onNavigateToManageAccounts() },
+                            text = "Manage accounts"
+                        )
 
-                        NavigationLink(navController, Screen.ManageCategories.route, "Manage categories")
+                        NavigationLink(
+                            onNavigate = { component.onNavigateToManageCategories() },
+                            text = "Manage categories"
+                        )
 
                         Spacer(modifier = Modifier.weight(1f))
 
                         AppTextButton(
-                            onClick = { isCreateOpen = true },
+                            onClick = { component.onOpenCreateTransactionWindow() },
                             text = "Create transaction",
                             icon = { Icon(Icons.Default.Add, "create transaction") })
 
@@ -114,38 +111,22 @@ fun DesktopApp() {
                             icon = { Icon(Icons.Default.UploadFile, "import") })
                     }
                 },
-//                modifier = Modifier.fillMaxWidth().background(Palette.Colors["red300"]!!)
             )
         },
-//        contentWindowInsets = WindowInsets(left = 64.dp),
     ) {
-        Column {
-            // Without this, the top of the content is invisible
-            // This is the real value if you tint the topbar
-            // Spacer(Modifier.height(52.dp))
-            Spacer(Modifier.height(44.dp))
-            AppNavigationHost(navController)
-        }
+        AppContent(component)
     }
 }
 
 internal val NavigationLinkHorizontalPadding = 18.dp
 
 @Composable
-fun NavigationLink(navController: NavController, route: String, text: String) {
+internal fun NavigationLink(onNavigate: () -> Unit, text: String) {
     Text(
         text,
         modifier = Modifier
-            .clickable { navController.navigate(route) }
+            .clickable { onNavigate() }
             .padding(NavigationLinkHorizontalPadding, AppDimensions.Default.padding.medium),
         style = MaterialTheme.typography.titleSmall
     )
-}
-
-@Preview
-@Composable
-fun DesktopAppPreview() {
-    initKoin()
-
-    DesktopApp()
 }

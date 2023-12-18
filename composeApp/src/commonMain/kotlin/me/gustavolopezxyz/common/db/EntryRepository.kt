@@ -12,11 +12,8 @@ import me.gustavolopezxyz.common.data.Database
 import me.gustavolopezxyz.common.data.Entry
 import me.gustavolopezxyz.common.ext.datetime.currentTimeZone
 import me.gustavolopezxyz.db.SelectEntriesInRange
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 
-class EntryRepository : KoinComponent {
-    private val db: Database by inject()
+class EntryRepository(private val db: Database) {
     private val entryQueries = db.entryQueries
 
     fun getAllForTransaction(transactionId: Long) =

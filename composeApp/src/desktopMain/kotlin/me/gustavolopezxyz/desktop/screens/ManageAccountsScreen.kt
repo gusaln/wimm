@@ -2,7 +2,7 @@
  * Copyright (c) 2023. Gustavo López. All rights reserved.
  */
 
-package me.gustavolopezxyz.desktop.ui.screens
+package me.gustavolopezxyz.desktop.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -11,37 +11,36 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.DialogWindow
-import app.cash.sqldelight.coroutines.mapToList
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.gustavolopezxyz.common.data.Account
 import me.gustavolopezxyz.common.data.AccountType
 import me.gustavolopezxyz.common.data.Currency
 import me.gustavolopezxyz.common.data.UnknownAccount
-import me.gustavolopezxyz.common.db.AccountRepository
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
-import me.gustavolopezxyz.desktop.navigation.NavController
-import me.gustavolopezxyz.desktop.navigation.Screen
+import me.gustavolopezxyz.desktop.navigation.ManageAccountsComponent
 import me.gustavolopezxyz.desktop.ui.AccountsGroupedList
 import me.gustavolopezxyz.desktop.ui.CreateAccountForm
 import me.gustavolopezxyz.desktop.ui.EditAccountForm
 import me.gustavolopezxyz.desktop.ui.common.AppButton
 import me.gustavolopezxyz.desktop.ui.common.ScreenTitle
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
+import org.kodein.di.instance
 
 @Composable
-fun ManageAccountsScreen(viewModel: ManageAccountsViewModel) {
+fun ManageAccountsScreen(component: ManageAccountsComponent) {
     val scope = rememberCoroutineScope()
-    val accounts by viewModel.getAccounts().collectAsState(emptyList(), scope.coroutineContext)
+    val accounts by component.getAccounts().collectAsState(emptyList(), scope.coroutineContext)
     var isCreatingOpen by remember { mutableStateOf(false) }
     var accountBeingEdited by remember { mutableStateOf<Account?>(null) }
+    val snackbar: SnackbarHostState by component.di.instance()
+
 
     fun createAccount(name: String, type: AccountType, currency: Currency) {
         isCreatingOpen = false
 
-        scope.launch(Dispatchers.IO) {
-            viewModel.createAccount(name, type, currency)
+        component.createAccount(name, type, currency)
+
+        scope.launch {
+            snackbar.showSnackbar("The account was created")
         }
     }
 
@@ -49,8 +48,9 @@ fun ManageAccountsScreen(viewModel: ManageAccountsViewModel) {
         val modified = accountBeingEdited!!.copy()
         accountBeingEdited = null
 
-        scope.launch(Dispatchers.IO) {
-            viewModel.editAccount(modified)
+        component.editAccount(modified)
+        scope.launch {
+            snackbar.showSnackbar("The account was modified")
         }
     }
 
@@ -91,42 +91,15 @@ fun ManageAccountsScreen(viewModel: ManageAccountsViewModel) {
 
             AppButton(onClick = { isCreatingOpen = !isCreatingOpen }, "Create account")
             Spacer(Modifier.width(AppDimensions.Default.spacing.medium))
-            AppButton(onClick = { viewModel.recomputeBalances() }, "Reload balances")
+            AppButton(onClick = { component.recomputeBalances() }, "Reload balances")
         }
 
         Spacer(modifier = Modifier.fillMaxWidth())
 
         AccountsGroupedList(
             accounts,
-            onSelect = { viewModel.navigateToAccountsSummary(it) },
+            onSelect = { component.onShowAccountSummary(it.accountId) },
             onEdit = { accountBeingEdited = it.copy() }
         )
-    }
-}
-
-class ManageAccountsViewModel(private val navController: NavController) : KoinComponent {
-    private val snackbar: SnackbarHostState by inject()
-    private val accountRepository: AccountRepository by inject()
-
-    fun getAccounts() = accountRepository.allAsFlow().mapToList(Dispatchers.IO)
-
-    suspend fun createAccount(name: String, type: AccountType, currency: Currency) {
-        accountRepository.create(type, name, currency)
-
-        snackbar.showSnackbar("The account was created")
-    }
-
-    suspend fun editAccount(modified: Account) {
-        accountRepository.update(modified)
-
-        snackbar.showSnackbar("The account was modified")
-    }
-
-    fun recomputeBalances() {
-        accountRepository.recomputeBalances()
-    }
-
-    fun navigateToAccountsSummary(account: Account) {
-        navController.navigate(Screen.AccountSummary.route(account.accountId))
     }
 }

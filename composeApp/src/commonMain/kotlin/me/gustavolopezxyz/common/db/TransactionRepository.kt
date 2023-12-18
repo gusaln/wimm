@@ -15,11 +15,8 @@ import me.gustavolopezxyz.common.data.Database
 import me.gustavolopezxyz.common.data.MoneyTransaction
 import me.gustavolopezxyz.common.ext.datetime.currentTimeZone
 import me.gustavolopezxyz.db.SelectTransactionsInCategoryInRange
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 
-class TransactionRepository : KoinComponent {
-    private val db: Database by inject()
+class TransactionRepository(private val db: Database) {
     private val queries = db.transactionQueries
 
     fun get(offset: Int = 0, limit: Int = 15): List<MoneyTransaction> {
@@ -49,7 +46,7 @@ class TransactionRepository : KoinComponent {
             to.toInstant(currentTimeZone())
         ).asFlow()
 
-    fun findById(id: Long): MoneyTransaction? {
+    fun findByIdOrNull(id: Long): MoneyTransaction? {
         return queries.selectById(id).executeAsOneOrNull()
     }
 

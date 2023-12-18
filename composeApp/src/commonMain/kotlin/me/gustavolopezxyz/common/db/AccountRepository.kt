@@ -13,11 +13,8 @@ import me.gustavolopezxyz.common.data.Currency
 import me.gustavolopezxyz.common.data.Database
 import me.gustavolopezxyz.common.ext.toCurrency
 import me.gustavolopezxyz.db.AccountQueries
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 
-class AccountRepository : KoinComponent {
-    private val db: Database by inject()
+class AccountRepository(private val db: Database) {
     private val accountQueries: AccountQueries = db.accountQueries
 
     fun getAll(): List<Account> {

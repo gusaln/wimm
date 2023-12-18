@@ -4,6 +4,6 @@
 
 package me.gustavolopezxyz.common.di
 
-import org.koin.core.module.Module
+import org.kodein.di.DI
 
-expect fun platformModule(): Module
+expect fun platformModule(): DI.Module

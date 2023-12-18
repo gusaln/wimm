@@ -2,10 +2,11 @@ import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
-    alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
+    alias(libs.plugins.androidApplication)
+    alias(libs.plugins.kotlinMultiplatform)
 
+    alias(libs.plugins.kotlinxSerialization)
     alias(libs.plugins.sqldelight)
 }
 
@@ -30,18 +31,17 @@ kotlin {
             implementation(libs.compose.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)
 
+            implementation(libs.decompose.extensionsAndroid)
             implementation(libs.sqldelight.androidDriver)
         }
         androidNativeTest.dependencies {
             implementation(libs.androidx.test.junit)
             implementation(libs.sqldelight.androidDriver)
-
-            implementation(libs.koin.test)
-            implementation(libs.koin.testJUnit4)
         }
 
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
+            implementation(libs.decompose.extensionsCompose)
             implementation(libs.sqldelight.sqliteDriver)
         }
 
@@ -56,14 +56,14 @@ kotlin {
             implementation(compose.components.resources)
             implementation(compose.preview)
 
-            api(libs.koin.core)
-            api(libs.koin.test)
-            implementation(libs.sqldelight.runtime)
-            implementation(libs.sqldelight.coroutineExtensions)
             implementation(libs.kotlinx.datetime)
+            implementation(libs.kotlinx.serialization.json)
+            implementation(libs.kodein.compose)
+            implementation(libs.decompose)
+            implementation(libs.sqldelight.coroutineExtensions)
+            implementation(libs.sqldelight.runtime)
         }
         commonTest.dependencies {
-            implementation(libs.koin.test)
             implementation(kotlin("test"))
         }
     }
@@ -117,6 +117,10 @@ compose.desktop {
             targetFormats(TargetFormat.Msi, TargetFormat.Deb)
             packageName = BuildConstants.DesktopApp.packageName
             packageVersion = BuildConstants.DesktopApp.packageVersion
+        }
+
+        buildTypes.release.proguard {
+            configurationFiles.from(project.file("compose-desktop.pro"))
         }
     }
 }

@@ -2,7 +2,7 @@
  * Copyright (c) 2023. Gustavo López. All rights reserved.
  */
 
-package me.gustavolopezxyz.desktop.ui.screens.overviewScreen
+package me.gustavolopezxyz.desktop.screens.overviewScreen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -29,23 +29,23 @@ import me.gustavolopezxyz.desktop.ui.common.AppListTitle
 import me.gustavolopezxyz.desktop.ui.core.MoneyPartitionEntry
 import me.gustavolopezxyz.desktop.ui.core.MoneyPartitionSummary
 
-internal val expensesColors = listOfNotNull(
-    Palette.Colors["red800"],
-    Palette.Colors["red600"],
-    Palette.Colors["red400"],
-    Palette.Colors["red200"],
-    Palette.Colors["orange800"],
-    Palette.Colors["orange600"],
-    Palette.Colors["orange400"],
-    Palette.Colors["orange200"],
-    Palette.Colors["yellow800"],
-    Palette.Colors["yellow600"],
-    Palette.Colors["yellow400"],
-    Palette.Colors["yellow200"],
+internal val incomesColors = listOfNotNull(
+    Palette.Colors["green800"],
+    Palette.Colors["green600"],
+    Palette.Colors["green400"],
+    Palette.Colors["green200"],
+    Palette.Colors["emerald800"],
+    Palette.Colors["emerald600"],
+    Palette.Colors["emerald400"],
+    Palette.Colors["emerald200"],
+    Palette.Colors["teal800"],
+    Palette.Colors["teal600"],
+    Palette.Colors["teal400"],
+    Palette.Colors["teal200"],
 )
 
 @Composable
-fun ExpensesSummaryCard(
+fun IncomesSummaryCard(
     categoryRepository: CategoryRepository,
     transactionRepository: TransactionRepository,
     modifier: Modifier = Modifier,
@@ -57,27 +57,27 @@ fun ExpensesSummaryCard(
         list.map { it.toDto() }.associateBy { it.categoryId }
     }.collectAsState(emptyMap())
 
-    var expenses by remember { mutableStateOf(emptyList<MoneyTransaction>()) }
+    var incomes by remember { mutableStateOf(emptyList<MoneyTransaction>()) }
     LaunchedEffect(month) {
         transactionRepository.getInPeriodAsFlow(month.startOfMonth().atStartOfDay(), month.endOfMonth().atEndOfDay())
             .mapToList(Dispatchers.IO)
             .map { list ->
-                list.filter { it.total < 0 }
+                list.filter { it.total > 0 }
             }.collect {
-                expenses = it
+                incomes = it
             }
     }
 
     MoneyPartitionSummary(
         currency = currencyOf("USD"),
-        amounts = expenses.groupBy {
+        amounts = incomes.groupBy {
             categories.getOrDefault(
                 it.categoryId,
                 MissingCategory.toDto()
             ).fullname()
-        }.entries.map { transaction -> MoneyPartitionEntry(transaction.key, transaction.value.sumOf { it.total }) },
+        }.entries.map { entry -> MoneyPartitionEntry(entry.key, entry.value.sumOf { it.total }) },
         descending = false,
-        colorPalette = expensesColors,
+        colorPalette = incomesColors,
         modifier = modifier
     ) {
         AppListTitle(verticalAlignment = Alignment.Top) {

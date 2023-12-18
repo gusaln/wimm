@@ -2,7 +2,7 @@
  * Copyright (c) 2023. Gustavo López. All rights reserved.
  */
 
-package me.gustavolopezxyz.desktop.ui.screens
+package me.gustavolopezxyz.desktop.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -16,25 +16,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogWindow
-import app.cash.sqldelight.coroutines.mapToList
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.atTime
 import kotlinx.datetime.toLocalDateTime
 import me.gustavolopezxyz.common.data.*
-import me.gustavolopezxyz.common.db.AccountRepository
-import me.gustavolopezxyz.common.db.CategoryRepository
-import me.gustavolopezxyz.common.db.EntryRepository
-import me.gustavolopezxyz.common.db.TransactionRepository
-import me.gustavolopezxyz.common.ext.datetime.atStartOfDay
 import me.gustavolopezxyz.common.ext.datetime.currentTimeZone
 import me.gustavolopezxyz.common.ext.toCurrency
 import me.gustavolopezxyz.common.ext.toMoney
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
-import me.gustavolopezxyz.db.SelectEntriesForTransaction
-import me.gustavolopezxyz.desktop.navigation.NavController
+import me.gustavolopezxyz.desktop.navigation.EditTransactionComponent
+import me.gustavolopezxyz.desktop.services.SnackbarService
 import me.gustavolopezxyz.desktop.ui.CategoryDropdown
 import me.gustavolopezxyz.desktop.ui.ModifiedEntriesList
 import me.gustavolopezxyz.desktop.ui.NewEntriesList
@@ -43,21 +34,14 @@ import me.gustavolopezxyz.desktop.ui.common.AppButton
 import me.gustavolopezxyz.desktop.ui.common.AppTextButton
 import me.gustavolopezxyz.desktop.ui.common.OutlinedDateTextField
 import me.gustavolopezxyz.desktop.ui.common.ScreenTitle
-import org.koin.core.component.KoinComponent
-import org.koin.core.parameter.parametersOf
-import org.koin.java.KoinJavaComponent.inject
+import org.kodein.di.compose.localDI
+import org.kodein.di.instance
 
 @Composable
-fun EditTransactionScreen(navController: NavController, transactionId: Long) {
-    val viewModel by remember {
-        inject<EditTransactionViewModel>(EditTransactionViewModel::class.java) {
-            parametersOf(transactionId)
-        }
-    }
-
+fun EditTransactionScreen(component: EditTransactionComponent) {
     val scope = rememberCoroutineScope()
 
-    val transaction by remember { mutableStateOf(viewModel.getTransaction()) }
+    val transaction by remember { mutableStateOf(component.getTransaction()) }
     if (transaction == null) {
         Column(
             modifier = Modifier.fillMaxWidth(),
@@ -65,21 +49,24 @@ fun EditTransactionScreen(navController: NavController, transactionId: Long) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row {
-                AppButton(onClick = { navController.navigateBack() }, "Back")
+                AppButton(onClick = component.onNavigateBack, "Back")
             }
 
             Card(modifier = Modifier.widthIn(200.dp, 400.dp).padding(AppDimensions.Default.padding.medium)) {
-                Text("Transaction ID $transactionId not found")
+                Text("Transaction ID ${component.transactionId} not found")
             }
         }
 
         return
     }
 
-    val accounts by viewModel.getAccounts()
-    val categories by viewModel.getCategories()
+    val di = localDI()
+    val snackbar by di.instance<SnackbarService>()
+
+    val accounts by component.collectAccountsAsState()
+    val categories by component.collectCategoriesAsState()
     val entryMap = remember {
-        viewModel.getEntries().associateBy { it.entryId }
+        component.getEntries().associateBy { it.entryId }
     }
 
     val toCreate = remember { mutableStateListOf<NewEntryDto>() }
@@ -116,35 +103,37 @@ fun EditTransactionScreen(navController: NavController, transactionId: Long) {
     var isConfirmingDelete by remember { mutableStateOf(false) }
 
     fun editRecord() {
-        scope.launch(Dispatchers.IO) {
-            viewModel.editTransaction(
-                transaction!!.transactionId,
-                category.categoryId,
-                incurredAt,
-                description,
-                details,
-                transaction!!.currency.toCurrency(),
-                entryMap,
-                toCreate,
-                toModify
-            )
+        val result = component.editTransaction(
+            transaction!!.transactionId,
+            category.categoryId,
+            incurredAt,
+            description,
+            details,
+            transaction!!.currency.toCurrency(),
+            entryMap,
+            toCreate,
+            toModify
+        )
 
-            launch { viewModel.snackbar.showSnackbar("Transaction modified") }
-
-            navController.navigateBack()
+        if (result is EditTransactionComponent.Result.Error) {
+            scope.launch {
+                snackbar.showSnackbar(result.message)
+            }
+        } else {
+            component.onTransactionChanged()
         }
     }
 
     fun deleteTransaction() {
         isConfirmingDelete = false
 
-        scope.launch(Dispatchers.IO) {
-            viewModel.deleteTransaction(transaction!!.transactionId)
+        component.deleteTransaction(transaction!!.transactionId)
 
-            launch { viewModel.snackbar.showSnackbar("Transaction deleted") }
-
-            navController.navigateBack()
+        scope.launch {
+            launch { snackbar.showSnackbar("Transaction deleted") }
         }
+
+        component.onTransactionDeleted()
     }
 
 
@@ -200,12 +189,10 @@ fun EditTransactionScreen(navController: NavController, transactionId: Long) {
         )
         Spacer(modifier = Modifier.fillMaxWidth())
 
-        OutlinedDateTextField(
-            modifier = Modifier.fillMaxWidth(),
+        OutlinedDateTextField(modifier = Modifier.fillMaxWidth(),
             label = { Text("Date of the transaction") },
             date = incurredAt,
-            onValueChange = { handleIncurredAtUpdate(it) }
-        )
+            onValueChange = { handleIncurredAtUpdate(it) })
 
         Spacer(modifier = Modifier.fillMaxWidth())
 
@@ -228,8 +215,7 @@ fun EditTransactionScreen(navController: NavController, transactionId: Long) {
         )
         Spacer(modifier = Modifier.fillMaxWidth())
 
-        ModifiedEntriesList(
-            accounts = accounts,
+        ModifiedEntriesList(accounts = accounts,
             entries = toModify,
             onEdit = { entry ->
                 toModify[toModify.indexOfFirst { entry.id == it.id }] = entry
@@ -244,30 +230,23 @@ fun EditTransactionScreen(navController: NavController, transactionId: Long) {
                 ) {
                     Text("Modified entries", style = MaterialTheme.typography.headlineSmall)
                 }
-            }
-        )
+            })
 
-        NewEntriesList(
-            accounts = accounts,
-            entries = toCreate,
-            onEdit = { entry ->
-                toCreate[toCreate.indexOfFirst { entry.id == it.id }] = entry
-            },
-            onDelete = { entry -> toCreate.removeIf { entry.id == it.id } },
-            name = {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text("New entries", style = MaterialTheme.typography.headlineSmall)
+        NewEntriesList(accounts = accounts, entries = toCreate, onEdit = { entry ->
+            toCreate[toCreate.indexOfFirst { entry.id == it.id }] = entry
+        }, onDelete = { entry -> toCreate.removeIf { entry.id == it.id } }, name = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("New entries", style = MaterialTheme.typography.headlineSmall)
 
-                    IconButton(onClick = { toCreate.add(emptyNewEntryDto()) }) {
-                        Icon(Icons.Default.Add, "add new entry")
-                    }
+                IconButton(onClick = { toCreate.add(emptyNewEntryDto()) }) {
+                    Icon(Icons.Default.Add, "add new entry")
                 }
             }
-        )
+        })
 
         val prevTotal by remember {
             derivedStateOf {
@@ -299,95 +278,7 @@ fun EditTransactionScreen(navController: NavController, transactionId: Long) {
             modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
         ) {
             AppButton(onClick = ::editRecord, "Edit")
-            AppTextButton(onClick = { navController.navigateBack() }, "Go Back")
+            AppTextButton(onClick = component.onNavigateBack, "Go Back")
         }
-    }
-}
-
-class EditTransactionViewModel(private val transactionId: Long) : KoinComponent {
-    private val db by inject<Database>(Database::class.java)
-    private val accountRepository by inject<AccountRepository>(AccountRepository::class.java)
-    private val categoryRepository by inject<CategoryRepository>(CategoryRepository::class.java)
-    private val transactionRepository by inject<TransactionRepository>(TransactionRepository::class.java)
-    private val entriesRepository by inject<EntryRepository>(EntryRepository::class.java)
-    val snackbar by inject<SnackbarHostState>(SnackbarHostState::class.java)
-
-    fun getTransaction() = transactionRepository.findById(transactionId)
-
-    @Composable
-    fun getAccounts() =
-        accountRepository.allAsFlow().mapToList(Dispatchers.IO).map { list -> list.sortedBy { it.name } }
-            .collectAsState(emptyList())
-
-    @Composable
-    fun getCategories() = categoryRepository.allAsFlow().mapToList(Dispatchers.IO).map { list ->
-        list.map { it.toDto() }.sortedBy { it.fullname() }
-    }.collectAsState(emptyList())
-
-    fun getEntries() = entriesRepository.getAllForTransaction(transactionId)
-
-    suspend fun editTransaction(
-        transactionId: Long,
-        categoryId: Long,
-        incurredAt: LocalDate,
-        description: String,
-        details: String? = null,
-        currency: Currency,
-        entryMap: Map<Long, SelectEntriesForTransaction>,
-        toCreate: Collection<NewEntryDto>,
-        toModify: Collection<ModifiedEntryDto>,
-    ) {
-        if (description.trim().isEmpty()) {
-            snackbar.showSnackbar("You need a description")
-
-            return
-        }
-
-        if ((toModify.count { !it.toDelete } + toCreate.size) < 1) {
-            snackbar.showSnackbar("You need at least one entry")
-
-            return
-        }
-
-        db.transaction {
-            val newTotal = toCreate.sumOf { it.amount } + toModify.filter { !it.toDelete }.sumOf { it.amount }
-            transactionRepository.update(
-                transactionId,
-                categoryId,
-                incurredAt.atStartOfDay(),
-                description,
-                details,
-                currency,
-                newTotal
-            )
-
-            toCreate.forEach {
-                entriesRepository.create(
-                    transactionId,
-                    it.account!!.accountId,
-                    it.amount,
-                    it.recordedAt.atTime(0, 0),
-                    it.reference
-                )
-            }
-
-            toModify.filter { it.toDelete }.forEach {
-                val entry = entryMap.getValue(it.id)
-                entriesRepository.delete(entry.entryId, entry.accountId, entry.amount)
-            }
-
-            toModify.filter { it.wasEdited }.forEach {
-                val original = entryMap.getValue(it.id)
-
-                entriesRepository.edit(
-                    original.toEntry(),
-                    it.toEntry(original.transactionId),
-                )
-            }
-        }
-    }
-
-    fun deleteTransaction(transactionId: Long) {
-        transactionRepository.delete(transactionId)
     }
 }

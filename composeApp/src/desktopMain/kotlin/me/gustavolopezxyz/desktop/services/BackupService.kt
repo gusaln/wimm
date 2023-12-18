@@ -14,7 +14,6 @@ import kotlinx.datetime.toLocalDateTime
 import me.gustavolopezxyz.common.data.Database
 import me.gustavolopezxyz.common.ext.datetime.currentTimeZone
 import me.gustavolopezxyz.desktop.Config
-import org.koin.java.KoinJavaComponent
 import java.io.File
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
@@ -66,14 +65,14 @@ class BackupService(private val config: Config) {
         }
 
         return backup.also {
-            KoinJavaComponent.getKoin().logger.info("Backup $it created")
+//            KoinJavaComponent.getKoin().logger.info("Backup $it created")
         }
     }
 
     @OptIn(DelicateCoroutinesApi::class)
     fun deleteExcessBackups() {
         GlobalScope.launch(Dispatchers.IO) {
-            KoinJavaComponent.getKoin().logger.info("Checking excess backups")
+//            KoinJavaComponent.getKoin().logger.info("Checking excess backups")
 
             val backups = listBackups()
 
@@ -84,7 +83,7 @@ class BackupService(private val config: Config) {
             backups.dropLast(backupsToKeep).forEach {
                 it.file.delete()
 
-                KoinJavaComponent.getKoin().logger.info("Backup $it deleted as excess")
+//                KoinJavaComponent.getKoin().logger.info("Backup $it deleted as excess")
             }
         }
     }

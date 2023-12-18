@@ -15,10 +15,10 @@ fun <T> rememberLazyPaginationState(pageSize: Int): LazyPaginationState<T> {
 }
 
 /**
- * Returns aa [LazyPaginationState] to manage a lazily paginated list.
- * Will notify the [onPageChange] callback when the page changes
+ * Returns a [LazyPaginationState] to manage a lazily paginated list.
+ * Will notify the [onPageChangeEffect] callback when the page changes
  *
- * @param onPageChange the callback that modifies the item list and should load the new chunk of items.
+ * @param onPageChangeEffect the callback that modifies the item list and should load the new chunk of items.
  *
  * Usage:
  * ```
@@ -31,10 +31,10 @@ fun <T> rememberLazyPaginationState(pageSize: Int): LazyPaginationState<T> {
 @Composable
 fun <T> rememberLazyPaginationState(
     pageSize: Int,
-    onPageChange: (suspend LazyPaginationState<T>.() -> Unit)
+    onPageChangeEffect: (suspend LazyPaginationState<T>.() -> Unit)
 ): LazyPaginationState<T> {
     val pagination = remember { LazyPaginationState<T>(pageSize) }
-    val onChangeState by rememberUpdatedState(onPageChange)
+    val onChangeState by rememberUpdatedState(onPageChangeEffect)
 
     LaunchedEffect(pagination.pagesLoaded) {
         pagination.isLoading = true

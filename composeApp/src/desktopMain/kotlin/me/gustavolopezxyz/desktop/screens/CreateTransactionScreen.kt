@@ -2,7 +2,7 @@
  * Copyright (c) 2023. Gustavo López. All rights reserved.
  */
 
-package me.gustavolopezxyz.desktop.ui.screens
+package me.gustavolopezxyz.desktop.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -13,138 +13,63 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import app.cash.sqldelight.coroutines.mapToList
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.datetime.LocalDate
-import me.gustavolopezxyz.common.data.*
-import me.gustavolopezxyz.common.db.AccountRepository
-import me.gustavolopezxyz.common.db.CategoryRepository
-import me.gustavolopezxyz.common.db.EntryRepository
-import me.gustavolopezxyz.common.db.TransactionRepository
-import me.gustavolopezxyz.common.ext.datetime.atStartOfDay
-import me.gustavolopezxyz.common.ext.datetime.nowLocalDateTime
+import me.gustavolopezxyz.common.data.MissingAccount
+import me.gustavolopezxyz.common.data.emptyNewEntryDto
+import me.gustavolopezxyz.common.data.getCurrency
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
+import me.gustavolopezxyz.desktop.navigation.CreateTransactionComponent
+import me.gustavolopezxyz.desktop.services.SnackbarService
 import me.gustavolopezxyz.desktop.ui.CategoryDropdown
 import me.gustavolopezxyz.desktop.ui.NewEntriesList
 import me.gustavolopezxyz.desktop.ui.TotalListItem
 import me.gustavolopezxyz.desktop.ui.common.AppButton
 import me.gustavolopezxyz.desktop.ui.common.AppTextButton
 import me.gustavolopezxyz.desktop.ui.common.OutlinedDateTextField
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
-import org.koin.java.KoinJavaComponent.inject
-
-class CreateTransactionViewModel : KoinComponent {
-    private val db: Database by inject()
-    private val accountRepository: AccountRepository by inject()
-    private val categoryRepository: CategoryRepository by inject()
-    private val transactionRepository: TransactionRepository by inject()
-    private val entriesRepository: EntryRepository by inject()
-    val snackbar: SnackbarHostState by inject()
-
-    @Composable
-    fun getAccounts() =
-        accountRepository.allAsFlow().mapToList(Dispatchers.IO).map { list -> list.sortedBy { it.name } }
-            .collectAsState(emptyList())
-
-    @Composable
-    fun getCategories() = categoryRepository.allAsFlow().mapToList(Dispatchers.IO).map { list ->
-        list.map { it.toDto() }.sortedBy { it.fullname() }
-    }.collectAsState(emptyList())
-
-    suspend fun createTransaction(
-        description: String,
-        details: String,
-        category: Category,
-        incurredAt: LocalDate,
-        currency: Currency,
-        entries: List<NewEntryDto>
-    ) {
-        if (description.trim().isEmpty()) {
-            snackbar.showSnackbar("You need a description")
-
-            return
-        }
-
-        if (entries.isEmpty()) {
-            snackbar.showSnackbar("You need to add at least one entry")
-
-            return
-        }
-
-        db.transaction {
-            val number = transactionRepository.create(
-                category.categoryId,
-                incurredAt.atStartOfDay(),
-                description,
-                details,
-                currency,
-                entries.asIterable().sumOf { it.amount }
-            )
-            val transactionId = transactionRepository.findByReference(number)!!.transactionId
-
-            entries.forEach {
-                entriesRepository.create(
-                    transactionId,
-                    it.account!!.accountId,
-                    it.amount,
-                    it.recordedAt.atStartOfDay(),
-                    it.reference
-                )
-            }
-        }
-    }
-}
+import org.kodein.di.compose.localDI
+import org.kodein.di.instance
 
 @Composable
-fun CreateTransactionScreen(onCreate: () -> Unit = {}, onCancel: (() -> Unit)? = null) {
-    val viewModel by remember { inject<CreateTransactionViewModel>(CreateTransactionViewModel::class.java) }
-
+fun CreateTransactionScreen(
+    component: CreateTransactionComponent,
+    onCreate: () -> Unit = {},
+    onCancel: (() -> Unit)? = null
+) {
     val scope = rememberCoroutineScope()
 
-    val accounts by viewModel.getAccounts()
-    val categories by viewModel.getCategories()
+    val accounts by component.collectAccountsAsState()
+    val categories by component.collectCategoriesAsState()
 
-    var description by remember { mutableStateOf("") }
-    var details by remember { mutableStateOf("") }
-    var category by remember { mutableStateOf<CategoryWithParent?>(null) }
-    var incurredAt by remember { mutableStateOf(nowLocalDateTime().date) }
-    val entries = remember { mutableStateListOf(emptyNewEntryDto(nowLocalDateTime().date)) }
+    var description by remember { component.description }
+    var details by remember { component.details }
+    var category by remember { component.category }
+    var incurredAt by remember { component.incurredAt }
+    val entries = remember { component.entries }
 
+    val di = localDI()
     val onCreateHook by rememberUpdatedState(onCreate)
 
-    fun handleIncurredAtUpdate(value: LocalDate) {
-        val oldValue = incurredAt.toString()
-        incurredAt = value
-
-//        scope.launch {
-            entries.forEachIndexed { index, entry ->
-                if (entry.recordedAt.toString() == oldValue) {
-                    entries[index] = entry.copy(recordedAt = value)
-                }
+    val snackbar by di.instance<SnackbarService>()
+    var oldValue by remember { mutableStateOf(incurredAt.toString()) }
+    LaunchedEffect(incurredAt) {
+        entries.forEachIndexed { index, entry ->
+            if (entry.recordedAt.toString() == oldValue) {
+                entries[index] = entry.copy(recordedAt = incurredAt)
             }
-//        }
+        }
+
+        oldValue = incurredAt.toString()
     }
 
     fun handleCreate() {
-        if (category == null) {
+        val result = component.createTransaction()
+
+        if (result is CreateTransactionComponent.Result.Error) {
             scope.launch {
-                viewModel.snackbar.showSnackbar("You need to select a category")
+                snackbar.showSnackbar(result.message)
             }
         } else {
-            scope.launch {
-                viewModel.createTransaction(
-                    description,
-                    details,
-                    category!!.toCategory(),
-                    incurredAt,
-                    entries.firstOrNull()?.account?.getCurrency() ?: MissingCurrency,
-                    entries
-                )
-                onCreateHook()
-            }
+            onCreateHook()
         }
     }
 
@@ -153,8 +78,7 @@ fun CreateTransactionScreen(onCreate: () -> Unit = {}, onCancel: (() -> Unit)? =
     }
 
     fun handleReset() {
-        entries.removeAll { true }
-        description = ""
+        component.reset()
     }
 
     val scroll = rememberScrollState()
@@ -176,7 +100,7 @@ fun CreateTransactionScreen(onCreate: () -> Unit = {}, onCancel: (() -> Unit)? =
             modifier = Modifier.fillMaxWidth(),
             label = { Text("Date of the transaction") },
             date = incurredAt,
-            onValueChange = { handleIncurredAtUpdate(it) }
+            onValueChange = { incurredAt = it }
         )
 
         Spacer(modifier = Modifier.fillMaxWidth())

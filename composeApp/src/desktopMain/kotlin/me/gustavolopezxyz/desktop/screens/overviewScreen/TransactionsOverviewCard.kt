@@ -2,72 +2,45 @@
  * Copyright (c) 2023. Gustavo López. All rights reserved.
  */
 
-package me.gustavolopezxyz.desktop.ui.screens.overviewScreen
+package me.gustavolopezxyz.desktop.screens.overviewScreen
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import app.cash.sqldelight.coroutines.mapToList
-import kotlinx.coroutines.Dispatchers
 import me.gustavolopezxyz.common.data.*
 import me.gustavolopezxyz.common.ext.datetime.formatDate
 import me.gustavolopezxyz.common.ext.datetime.formatDateTime
 import me.gustavolopezxyz.common.ext.toCurrency
-import me.gustavolopezxyz.desktop.ui.TransactionsListViewModel
 import me.gustavolopezxyz.desktop.ui.common.*
-import org.koin.java.KoinJavaComponent
 
 const val TRANSACTIONS_PAGE_SIZE = 15
 
 @Composable
 fun TransactionsOverviewCard(
-    viewModel: TransactionsListViewModel, modifier: Modifier, onClickTransaction: (MoneyTransaction) -> Unit
+    listState: LazyListState,
+    categoriesById: Map<Long, CategoryWithParent>,
+    transactions: List<MoneyTransaction>,
+    entriesByTransaction: Map<Long, List<EntryForTransaction>>,
+    isLoading: Boolean,
+    modifier: Modifier,
+    onClickTransaction: (transaction: MoneyTransaction) -> Unit
 ) {
-    val categoriesById by viewModel.getCategoriesMapAsFlow().collectAsState(emptyMap())
-
-    val pagination = rememberLazyPaginationState<MoneyTransaction>(TRANSACTIONS_PAGE_SIZE)
-    LaunchedEffect(pagination.pagesLoaded) {
-        pagination.isLoading = true
-        viewModel.getTransactionsAsFlow(1, pagination.itemsLoadedCount())
-            .mapToList(Dispatchers.IO)
-            .collect {
-                pagination.items = it
-                pagination.isLoading = false
-            }
-    }
-
-    val transactions = pagination.items
-    val entriesByTransaction by derivedStateOf {
-        viewModel
-            .getEntries(transactions.map { it.transactionId })
-            .map { it.toEntryForTransaction() }
-            .groupBy { it.transactionId }
-    }
-
-    val listState = rememberLazyListState()
-    listState.LaunchOnBottomReachedEffect(buffer = 4) {
-        if (transactions.isNotEmpty() && !pagination.isLoading && pagination.itemsLoadedCount() < it.minimumRequiredItemsLoadedCount()) {
-            pagination.loadUpToPage(pagination.pagesLoaded + 1)
-            KoinJavaComponent.getKoin().logger.info("[TransactionsOverviewCard] ${pagination.pagesLoaded} pages loaded.")
-        }
-    }
-
     OverviewLazyListCard(
         modifier = modifier,
         listState = listState,
         items = transactions,
-        isLoading = pagination.isLoading,
+        isLoading = isLoading,
         title = {
             AppListTitle("Transactions", Modifier.fillMaxWidth())
         },
@@ -80,13 +53,10 @@ fun TransactionsOverviewCard(
         AppListItem(
             secondaryText = {
                 Row {
-
                     Text(
                         buildAnnotatedString {
                             append(transaction.incurredAt.formatDate())
-
                             append(" - ")
-
                             append(
                                 categoriesById.getOrDefault(transaction.categoryId, MissingCategory.toDto()).fullname(),
                             )
@@ -95,8 +65,6 @@ fun TransactionsOverviewCard(
                     )
 
                     Spacer(Modifier.width(16.dp))
-
-
                 }
             },
             action = {
@@ -104,7 +72,7 @@ fun TransactionsOverviewCard(
                     onClick = { onClickTransaction(transaction) },
                     modifier = Modifier.wrapContentSize()
                 ) {
-                    Icon(Icons.Default.ArrowForward, "edit transaction", Modifier.size(16.dp))
+                    Icon(Icons.Default.MoreVert, "edit transaction", Modifier.size(16.dp))
                 }
             }
         ) {

@@ -2,7 +2,7 @@
  * Copyright (c) 2023. Gustavo López. All rights reserved.
  */
 
-package me.gustavolopezxyz.desktop.ui.screens
+package me.gustavolopezxyz.desktop.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -11,39 +11,36 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.DialogWindow
-import app.cash.sqldelight.coroutines.mapToList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import me.gustavolopezxyz.common.data.Category
 import me.gustavolopezxyz.common.data.CategoryWithParent
 import me.gustavolopezxyz.common.data.MissingCategory
 import me.gustavolopezxyz.common.data.toDto
-import me.gustavolopezxyz.common.db.CategoryRepository
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
-import me.gustavolopezxyz.desktop.navigation.NavController
-import me.gustavolopezxyz.desktop.navigation.Screen
+import me.gustavolopezxyz.desktop.navigation.ManageCategoriesComponent
 import me.gustavolopezxyz.desktop.ui.CategoriesGroupedList
 import me.gustavolopezxyz.desktop.ui.CreateCategoryForm
 import me.gustavolopezxyz.desktop.ui.EditCategoryForm
 import me.gustavolopezxyz.desktop.ui.common.AppButton
 import me.gustavolopezxyz.desktop.ui.common.ScreenTitle
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
+import org.kodein.di.instance
 
 @Composable
-fun ManageCategoriesScreen(viewModel: ManageCategoriesViewModel) {
+fun ManageCategoriesScreen(component: ManageCategoriesComponent) {
     val scope = rememberCoroutineScope()
-    val categories by viewModel.getCategories().map { list -> list.map { it.toDto() } }
+    val categories by component.getCategories().map { list -> list.map { it.toDto() } }
         .collectAsState(emptyList(), scope.coroutineContext)
     var isCreatingOpen by remember { mutableStateOf(false) }
     var categoryBeingEdited by remember { mutableStateOf<CategoryWithParent?>(null) }
+    val snackbar: SnackbarHostState by component.di.instance()
 
     fun createCategory(name: String, parentCategoryId: Long?) {
         isCreatingOpen = false
 
+        component.createCategory(name, parentCategoryId)
         scope.launch(Dispatchers.IO) {
-            viewModel.createCategory(name, parentCategoryId)
+            snackbar.showSnackbar("The category was created")
         }
     }
 
@@ -51,8 +48,9 @@ fun ManageCategoriesScreen(viewModel: ManageCategoriesViewModel) {
         val modified = categoryBeingEdited!!.copy()
         categoryBeingEdited = null
 
+        component.editCategory(modified.toCategory())
         scope.launch(Dispatchers.IO) {
-            viewModel.editCategory(modified.toCategory())
+            snackbar.showSnackbar("The category was modified")
         }
     }
 
@@ -99,31 +97,8 @@ fun ManageCategoriesScreen(viewModel: ManageCategoriesViewModel) {
 
         CategoriesGroupedList(
             categories,
-            onSelect = { viewModel.navigateToCategoriesSummary(it) },
+            onSelect = { component.onShowCategorySummary(it.categoryId) },
             onEdit = { categoryBeingEdited = it.copy() }
         )
-    }
-}
-
-class ManageCategoriesViewModel(private val navController: NavController) : KoinComponent {
-    private val snackbar: SnackbarHostState by inject()
-    private val categoryRepository: CategoryRepository by inject()
-
-    fun getCategories() = categoryRepository.allAsFlow().mapToList(Dispatchers.IO)
-
-    suspend fun createCategory(name: String, parentCategoryId: Long?) {
-        categoryRepository.create(name, parentCategoryId)
-
-        snackbar.showSnackbar("The category was created")
-    }
-
-    suspend fun editCategory(modified: Category) {
-        categoryRepository.update(modified)
-
-        snackbar.showSnackbar("The category was modified")
-    }
-
-    fun navigateToCategoriesSummary(category: CategoryWithParent) {
-        navController.navigate(Screen.CategoryMonthlySummary.route(category.categoryId))
     }
 }

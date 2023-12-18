@@ -18,16 +18,15 @@ androidx-espresso-core = "3.5.1"
 kotlin = "1.9.21"
 junit = "4.13.2"
 
-sqlDelight = "2.0.+"
+kodein-di = "7.19.0"
 
-koinCore = "3.4.3"
-koinAndroid = "3.4.3"
-koinAndroidCompose = "3.4.1"
 kotlinx-datetime = "0.4.+"
+kotlinx-serialization-plugin = "1.9.21"
+kotlinx-serialization-json = "1.6.2"
 
-androidCoreKtx = "1.12.0"
-androidActivityCompose = "1.8.+"
-androidJUnit = "4.13.2"
+decompose = "[2.1.0, 3.0.0)"
+
+sqlDelight = "2.0.+"
 
 fastexcel = "0.15.7"
 
@@ -51,22 +50,20 @@ androidx-material = { group = "com.google.android.material", name = "material", 
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "androidx-constraintlayout" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
 
+kodein-compose = { module = "org.kodein.di:kodein-di-framework-compose", version.ref = "kodein-di" }
 
-koin-core = { module = "io.insert-koin:koin-core", version.ref = "koinCore" }
-koin-test = { module = "io.insert-koin:koin-test", version.ref = "koinCore" }
-koin-testJUnit4 = { module = "io.insert-koin:koin-test-junit4", version.ref = "koinCore" }
-koin-android = { module = "io.insert-koin:koin-android", version.ref = "koinAndroid" }
-koin-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koinAndroidCompose" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }
 
-sqldelight-plugin = { module = "app.cash.sqldelight:gradle-plugin", version.ref = "sqlDelight" }
+decompose = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }
+decompose-extensionsCompose = { module = "com.arkivanov.decompose:extensions-compose-jetbrains", version.ref = "decompose" }
+decompose-extensionsAndroid = { module = "com.arkivanov.decompose:extensions-android", version.ref = "decompose" }
 
 sqldelight-runtime = { module = "app.cash.sqldelight:runtime", version.ref = "sqlDelight" }
 sqldelight-coroutineExtensions = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqlDelight" }
 sqldelight-androidDriver = { module = "app.cash.sqldelight:android-driver", version.ref = "sqlDelight" }
 sqldelight-sqliteDriver = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqlDelight" }
 sqldelight-dialects-sqlite = { module = "app.cash.sqldelight:sqlite-3-24-dialect", version.ref = "sqlDelight" }
-
-kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 
 fastexcel-core = { module = "org.dhatim:fastexcel", version.ref = "fastexcel" }
 fastexcel-reader = { module = "org.dhatim:fastexcel-reader", version.ref = "fastexcel" }
@@ -79,4 +76,5 @@ androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 
+kotlinxSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinx-serialization-plugin" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqlDelight" }

@@ -8,11 +8,8 @@ import app.cash.sqldelight.coroutines.asFlow
 import me.gustavolopezxyz.common.data.Category
 import me.gustavolopezxyz.common.data.Database
 import me.gustavolopezxyz.db.CategoryQueries
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 
-class CategoryRepository : KoinComponent {
-    private val db: Database by inject()
+class CategoryRepository(private val db: Database) {
     private val categoryQueries: CategoryQueries = db.categoryQueries
 
     fun getAll() = categoryQueries.selectAllCategories().executeAsList()

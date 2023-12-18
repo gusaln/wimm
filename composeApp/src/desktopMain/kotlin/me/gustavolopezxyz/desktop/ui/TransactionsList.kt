@@ -16,43 +16,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
-import app.cash.sqldelight.coroutines.mapToList
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.map
 import me.gustavolopezxyz.common.data.EntryForTransaction
 import me.gustavolopezxyz.common.data.MoneyTransaction
-import me.gustavolopezxyz.common.data.toDto
-import me.gustavolopezxyz.common.db.CategoryRepository
-import me.gustavolopezxyz.common.db.EntryRepository
-import me.gustavolopezxyz.common.db.TransactionRepository
 import me.gustavolopezxyz.common.ext.datetime.formatDateTime
 import me.gustavolopezxyz.common.ext.toCurrency
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import me.gustavolopezxyz.desktop.ui.common.AppDivider
 import me.gustavolopezxyz.desktop.ui.common.CardTitle
 import me.gustavolopezxyz.desktop.ui.common.MoneyText
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
-
-class TransactionsListViewModel : KoinComponent {
-    private val transactionRepository: TransactionRepository by inject()
-    private val entryRepository: EntryRepository by inject()
-    private val categoryRepository: CategoryRepository by inject()
-
-    fun getTransactionsAsFlow(page: Int = 1, perPage: Int = 15) =
-        transactionRepository.getAsFlow(((page - 1) * perPage), perPage)
-
-    fun getEntriesAsFlow(transactionIds: Collection<Long>) =
-        entryRepository.getAllForTransactionsAsFlow(transactionIds)
-
-    fun getEntries(transactionIds: Collection<Long>) = entryRepository.getAllForTransactions(transactionIds)
-
-    fun getCategoriesAsFlow() = categoryRepository.allAsFlow()
-
-    fun getCategoriesMapAsFlow() = getCategoriesAsFlow().mapToList(Dispatchers.IO).map { list ->
-        list.map { it.toDto() }.associateBy { it.categoryId }
-    }
-}
 
 @Composable
 fun TransactionsList(

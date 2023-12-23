@@ -18,11 +18,14 @@ androidx-espresso-core = "3.5.1"
 kotlin = "1.9.21"
 junit = "4.13.2"
 
-kodein-di = "7.19.0"
-
 kotlinx-datetime = "0.4.+"
 kotlinx-serialization-plugin = "1.9.21"
 kotlinx-serialization-json = "1.6.2"
+
+kodein-di = "7.19.0"
+slf4j = "2.0.9"
+slf4j-android = "1.7.36"
+log4j = "2.20.0"
 
 decompose = "[2.1.0, 3.0.0)"
 
@@ -50,10 +53,17 @@ androidx-material = { group = "com.google.android.material", name = "material", 
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "androidx-constraintlayout" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
 
-kodein-compose = { module = "org.kodein.di:kodein-di-framework-compose", version.ref = "kodein-di" }
-
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }
+
+kodein-compose = { module = "org.kodein.di:kodein-di-framework-compose", version.ref = "kodein-di" }
+slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
+#slf4j-log4j = { module = "org.slf4j:slf4j-reload4j", version.ref = "slf4j" }
+slf4j-android = { module = "org.slf4j:slf4j-android", version.ref = "slf4j-android" }
+log4j-api = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4j" }
+log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j" }
+log4j-slf4jImpl = { module = "org.apache.logging.log4j:log4j-slf4j-impl", version.ref = "log4j" }
 
 decompose = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }
 decompose-extensionsCompose = { module = "com.arkivanov.decompose:extensions-compose-jetbrains", version.ref = "decompose" }
@@ -69,6 +79,7 @@ fastexcel-core = { module = "org.dhatim:fastexcel", version.ref = "fastexcel" }
 fastexcel-reader = { module = "org.dhatim:fastexcel-reader", version.ref = "fastexcel" }
 
 [bundles]
+log4j-desktop = ["log4j-api", "log4j-core", "log4j-slf4jImpl"]
 
 [plugins]
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }

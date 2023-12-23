@@ -13,6 +13,7 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toLocalDateTime
 import me.gustavolopezxyz.common.data.Database
 import me.gustavolopezxyz.common.ext.datetime.currentTimeZone
+import me.gustavolopezxyz.common.logging.logger
 import me.gustavolopezxyz.desktop.Config
 import java.io.File
 import kotlin.io.path.Path
@@ -25,6 +26,8 @@ class BackupService(private val config: Config) {
 
     private val backupsToKeep get() = config.backupsToKeep.toInt()
 
+    private val logger by logger()
+
     private fun isBackupDirValid(): Boolean {
         return (backupDir.isDirectory || backupDir.mkdirs()) && backupDir.canRead() && backupDir.canWrite()
     }
@@ -34,7 +37,7 @@ class BackupService(private val config: Config) {
         deleteExcessBackups()
     }
 
-    fun listBackups(): List<Backup> {
+    private fun listBackups(): List<Backup> {
         if (!canMakeBackups) {
             return emptyList()
         }
@@ -65,14 +68,14 @@ class BackupService(private val config: Config) {
         }
 
         return backup.also {
-//            KoinJavaComponent.getKoin().logger.info("Backup $it created")
+            logger.info("Backup $it created")
         }
     }
 
     @OptIn(DelicateCoroutinesApi::class)
     fun deleteExcessBackups() {
         GlobalScope.launch(Dispatchers.IO) {
-//            KoinJavaComponent.getKoin().logger.info("Checking excess backups")
+            logger.info("Checking for old backups")
 
             val backups = listBackups()
 
@@ -83,7 +86,7 @@ class BackupService(private val config: Config) {
             backups.dropLast(backupsToKeep).forEach {
                 it.file.delete()
 
-//                KoinJavaComponent.getKoin().logger.info("Backup $it deleted as excess")
+                logger.info("Backup $it deleted as excess")
             }
         }
     }

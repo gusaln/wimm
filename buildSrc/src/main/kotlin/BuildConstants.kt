@@ -18,6 +18,7 @@ object BuildConstants {
 
         object Common {
             const val common = "$base.commmon"
+            const val data = "$common.data"
         }
     }
 

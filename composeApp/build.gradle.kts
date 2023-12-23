@@ -30,6 +30,7 @@ kotlin {
             implementation(libs.compose.ui)
             implementation(libs.compose.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.slf4j.android)
 
             implementation(libs.decompose.extensionsAndroid)
             implementation(libs.sqldelight.androidDriver)
@@ -41,12 +42,16 @@ kotlin {
 
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
+            implementation(libs.bundles.log4j.desktop)
+            implementation(libs.slf4j.simple)
             implementation(libs.decompose.extensionsCompose)
             implementation(libs.sqldelight.sqliteDriver)
         }
 
 
         commonMain.dependencies {
+            api(libs.slf4j.api)
+
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material)

@@ -43,6 +43,10 @@ data class Money(val currency: Currency, val value: Double) {
     fun withCurrency(currency: Currency): Money = this.copy(currency = currency)
 
     operator fun plus(other: Money): Money {
+        if (other.currency != this.currency) {
+            throw IllegalArgumentException("Cannot add money with different currencies")
+        }
+
         return plus(other.value)
     }
 
@@ -51,6 +55,10 @@ data class Money(val currency: Currency, val value: Double) {
     operator fun plus(other: Double): Money = this.copy(currency = this.currency, value = this.value + other)
 
     operator fun minus(other: Money): Money {
+        if (other.currency != this.currency) {
+            throw IllegalArgumentException("Cannot subtract money with different currencies")
+        }
+
         return minus(other.value)
     }
 
@@ -58,7 +66,13 @@ data class Money(val currency: Currency, val value: Double) {
 
     operator fun minus(other: Double): Money = this.copy(currency = this.currency, value = this.value - other)
 
-    operator fun compareTo(other: Money): Int = compareTo(other.value)
+    operator fun compareTo(other: Money): Int {
+        if (other.currency != this.currency) {
+            throw IllegalArgumentException("Cannot compare money with different currencies")
+        }
+
+        return compareTo(other.value)
+    }
 
     operator fun compareTo(other: Number): Int = compareTo(other.toDouble())
 

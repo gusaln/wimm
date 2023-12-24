@@ -25,8 +25,12 @@ class AccountRepository(private val db: Database) {
         return accountQueries.selectById(ids).executeAsList()
     }
 
-    fun findById(id: Long): Account? {
+    fun findByIdOrNull(id: Long): Account? {
         return accountQueries.selectById(listOf(id)).executeAsOneOrNull()
+    }
+
+    fun findById(id: Long): Account {
+        return accountQueries.selectById(listOf(id)).executeAsOne()
     }
 
     fun getByType(types: Collection<AccountType>): List<Account> {

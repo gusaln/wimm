@@ -34,7 +34,7 @@ class AccountSummaryComponent(
     private val entryRepository: EntryRepository by instance()
 
     val account by lazy {
-        accountRepository.findById(accountId)
+        accountRepository.findByIdOrNull(accountId)
     }
 
     val page = MutableValue(1)

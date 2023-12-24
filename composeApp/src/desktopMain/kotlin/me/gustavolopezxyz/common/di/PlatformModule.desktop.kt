@@ -16,9 +16,9 @@ import org.kodein.di.instance
 actual fun platformModule(): DI.Module {
     return DI.Module(name = "PLATFORM") {
         bindInstance {
-            ConfigFactory.new().also {
-//                logger.info("App dir: ${it.dataDir}")
-//                logger.info("Data file: ${it.dataFilePath}")
+            ConfigFactory.new().apply {
+                ConfigFactory.logger.info("App dir: $dataDir")
+                ConfigFactory.logger.info("Data file: $dataFilePath")
             }
         }
 

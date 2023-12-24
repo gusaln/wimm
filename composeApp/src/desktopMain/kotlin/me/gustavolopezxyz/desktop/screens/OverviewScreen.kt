@@ -36,22 +36,16 @@ fun OverviewScreen(component: OverviewComponent) {
 
     val categoriesById by component.getCategoriesByIdAsFlow().collectAsState(emptyMap())
 
-    val pagination = rememberLazyPaginationState<MoneyTransaction>(TRANSACTIONS_PAGE_SIZE) {
-        component.getTransactionsAsFlow(1, itemsLoadedCount())
+    val pagination = rememberLazyPaginationState<MoneyTransaction>(TRANSACTIONS_PAGE_SIZE)
+    LaunchedEffect(pagination.pagesLoaded) {
+        pagination.isLoading = true
+        component.getTransactionsAsFlow(1, pagination.itemsLoadedCount())
             .mapToList(Dispatchers.IO)
             .collect {
-                items = it
+                pagination.items = it
+                pagination.isLoading = false
             }
     }
-//    LaunchedEffect(pagination.pagesLoaded) {
-//        pagination.isLoading = true
-//        component.getTransactionsAsFlow(1, pagination.itemsLoadedCount())
-//            .mapToList(Dispatchers.IO)
-//            .collect {
-//                pagination.items = it
-//                pagination.isLoading = false
-//            }
-//    }
 
     val entriesByTransaction by derivedStateOf {
         component
@@ -81,10 +75,12 @@ fun OverviewScreen(component: OverviewComponent) {
                     transactions = pagination.items,
                     entriesByTransaction = entriesByTransaction,
                     isLoading = pagination.isLoading,
+                    onEditTransaction = {
+                        component.onEditTransaction(it.transactionId)
+                    },
+                    onDuplicateTransaction = component.onDuplicateTransaction,
                     modifier = Modifier.fillMaxHeight().weight(1f)
-                ) {
-                    component.onEditTransaction(it.transactionId)
-                }
+                )
 
                 when (summary) {
                     SummaryType.Balance -> {

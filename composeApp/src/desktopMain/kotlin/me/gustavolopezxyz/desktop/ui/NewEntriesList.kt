@@ -14,6 +14,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -23,6 +24,7 @@ import me.gustavolopezxyz.common.data.AccountType
 import me.gustavolopezxyz.common.data.Currency
 import me.gustavolopezxyz.common.data.NewEntryDto
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
+import me.gustavolopezxyz.desktop.screens.EntryError
 import me.gustavolopezxyz.desktop.ui.common.AppChip
 import me.gustavolopezxyz.desktop.ui.common.MoneyText
 import me.gustavolopezxyz.desktop.ui.common.OutlinedDateTextField
@@ -74,7 +76,8 @@ fun NewEntriesListItem(
     onEdit: (NewEntryDto) -> Unit,
     onDelete: (NewEntryDto) -> Unit
 ) {
-    var expanded by remember { mutableStateOf(false) }
+    var isExpanded by remember { mutableStateOf(false) }
+    val account by derivedStateOf { accounts.firstOrNull { it.accountId == entry.accountId } }
 
     Row(
         horizontalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium),
@@ -91,8 +94,8 @@ fun NewEntriesListItem(
             ) {
                 AccountDropdown(
                     label = "Account",
-                    value = entry.account,
-                    onSelect = { onEdit(entry.copy(account = it)) },
+                    value = account,
+                    onSelect = { onEdit(entry.copy(accountId = it.accountId, amount = entry.amount)) },
                     accounts = accounts,
                     modifier = Modifier.weight(1f),
                 )
@@ -111,7 +114,7 @@ fun NewEntriesListItem(
             }
 
             //  Extra information section
-            if (expanded) {
+            if (isExpanded) {
                 OutlinedTextField(
                     value = entry.reference ?: "",
                     onValueChange = { onEdit(entry.copy(reference = it.replace('\n', ' ').trim().ifEmpty { null })) },
@@ -133,9 +136,9 @@ fun NewEntriesListItem(
                 Icon(Icons.Default.Delete, "delete new entry", Modifier.size(EntriesListDefault.iconSize))
             }
 
-            IconButton(onClick = { expanded = !expanded }) {
+            IconButton(onClick = { isExpanded = !isExpanded }) {
                 Icon(
-                    if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                    if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
                     "expand",
                     Modifier.size(EntriesListDefault.iconSize)
                 )
@@ -149,10 +152,11 @@ fun NewEntriesListItem(
 fun NewEntriesList(
     accounts: List<Account>,
     entries: List<NewEntryDto>,
+    entryError: EntryError?,
     onEdit: (NewEntryDto) -> Unit,
     onDelete: (NewEntryDto) -> Unit,
     name: @Composable() (() -> Unit)? = null,
-    totals: @Composable() (() -> Unit) = {},
+    totals: @Composable () -> Unit = {},
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -167,6 +171,9 @@ fun NewEntriesList(
         Column {
             entries.forEach {
                 NewEntriesListItem(accounts, entry = it, onEdit = onEdit, onDelete = onDelete)
+                if (entryError?.entryId == it.id) {
+                    Text(entryError.message, color = Color.Red)
+                }
                 Divider(Modifier.fillMaxWidth())
             }
         }
@@ -181,8 +188,14 @@ fun NewEntriesListPreview() {
     val ac1 = Account(99, AccountType.Cash, "Income", "USD", 0.0)
     val ac2 = Account(2, AccountType.Cash, "Expenses", "USD", 0.0)
 
-    NewEntriesList(accounts = listOf(ac1, ac2), entries = listOf(
-        NewEntryDto(-1, ac1, 100.0, LocalDate(2023, 1, 13)),
-        NewEntryDto(-2, ac2, -10.0, LocalDate(2023, 1, 14)),
-    ), onEdit = {}, onDelete = {})
+    NewEntriesList(
+        accounts = listOf(ac1, ac2),
+        entries = listOf(
+            NewEntryDto(-1, ac1, 100.0, LocalDate(2023, 1, 13)),
+            NewEntryDto(-2, ac2, -10.0, LocalDate(2023, 1, 14)),
+        ),
+        entryError = null,
+        onEdit = {},
+        onDelete = {}
+    )
 }

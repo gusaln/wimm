@@ -139,8 +139,6 @@ class EntryRepository(private val db: Database) {
         recordedAt: Instant,
         reference: String? = null
     ) {
-        println("entryId=$entryId accountId=$accountId amountDelta=$amountDelta recordedAt=$recordedAt reference=$reference")
-
         return entryQueries.updateEntry(
             entryId = entryId,
             accountId = accountId,

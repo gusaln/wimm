@@ -6,15 +6,18 @@ package me.gustavolopezxyz.desktop.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.*
 import com.arkivanov.decompose.value.Value
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.Serializable
-import me.gustavolopezxyz.common.data.CategoryWithParent
 import me.gustavolopezxyz.common.data.NewEntryDto
+import me.gustavolopezxyz.common.data.emptyNewEntryDto
+import me.gustavolopezxyz.common.ext.datetime.currentTimeZone
+import me.gustavolopezxyz.common.ext.datetime.nowLocalDateTime
 import org.kodein.di.DI
 
 class RootComponent(
@@ -35,19 +38,29 @@ class RootComponent(
     private val createTransactionComponent = mutableStateOf<CreateTransactionComponent?>(null)
 
     @Composable
-    fun rememberIsCreateTransactionWindowOpen(): State<Boolean> {
-        return derivedStateOf { createTransactionComponent.value != null }
+    fun rememberCreateTransactionWindowComponent(): State<CreateTransactionComponent?> {
+        return remember { createTransactionComponent }
     }
 
-    fun onOpenCreateTransactionWindow(
+    fun onOpenCreateTransactionWindow() {
+        createTransactionComponent.value = CreateTransactionComponent(di)
+    }
+
+    private fun onOpenCreateTransactionWindow(
         description: String? = null,
         details: String? = null,
-        category: CategoryWithParent? = null,
+        categoryId: Long? = null,
         incurredAt: LocalDate? = null,
         entries: Collection<NewEntryDto>? = null,
     ) {
-        createTransactionComponent.value =
-            CreateTransactionComponent(di, description, details, category, incurredAt, entries)
+        createTransactionComponent.value = CreateTransactionComponent(di).also {
+            it.description.value = description ?: ""
+            it.details.value = details ?: ""
+            it.categoryId.value = categoryId
+            it.incurredAt.value = incurredAt ?: nowLocalDateTime().date
+            it.entries.clear()
+            it.entries += entries ?: listOf(emptyNewEntryDto(nowLocalDateTime().date))
+        }
     }
 
     fun onCloseCreateTransactionWindow() {
@@ -72,9 +85,29 @@ class RootComponent(
     private fun child(config: Config, componentContext: ComponentContext): Child =
         when (config) {
             is Config.Overview -> Child.Overview(
-                OverviewComponent(componentContext = componentContext, di = di, onEditTransaction = {
-                    navigation.push(Config.EditTransaction(it))
-                }, onDuplicateTransaction = {})
+                OverviewComponent(
+                    componentContext = componentContext,
+                    di = di,
+                    onEditTransaction = {
+                        navigation.push(Config.EditTransaction(it))
+                    },
+                    onDuplicateTransaction = { transaction, entries ->
+                        onOpenCreateTransactionWindow(
+                            description = transaction.description,
+                            details = transaction.details,
+                            categoryId = transaction.categoryId,
+                            incurredAt = transaction.incurredAt.toLocalDateTime(currentTimeZone()).date,
+                            entries = entries.map {
+                                emptyNewEntryDto().copy(
+                                    amount = it.amount,
+                                    accountId = it.accountId,
+                                    recordedAt = it.recordedAt.toLocalDateTime(currentTimeZone()).date,
+                                    reference = it.reference
+                                )
+                            }
+                        )
+                    }
+                )
             )
 
             is Config.ManageAccounts -> Child.ManageAccounts(

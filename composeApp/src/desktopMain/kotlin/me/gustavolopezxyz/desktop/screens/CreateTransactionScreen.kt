@@ -14,9 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.launch
-import me.gustavolopezxyz.common.data.MissingAccount
 import me.gustavolopezxyz.common.data.emptyNewEntryDto
-import me.gustavolopezxyz.common.data.getCurrency
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import me.gustavolopezxyz.desktop.navigation.CreateTransactionComponent
 import me.gustavolopezxyz.desktop.services.SnackbarService
@@ -32,8 +30,8 @@ import org.kodein.di.instance
 @Composable
 fun CreateTransactionScreen(
     component: CreateTransactionComponent,
-    onCreate: () -> Unit = {},
-    onCancel: (() -> Unit)? = null
+    onCreate: () -> Unit,
+    onCancel: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
 
@@ -42,14 +40,16 @@ fun CreateTransactionScreen(
 
     var description by remember { component.description }
     var details by remember { component.details }
-    var category by remember { component.category }
+    var categoryId by remember { component.categoryId }
     var incurredAt by remember { component.incurredAt }
     val entries = remember { component.entries }
-
-    val di = localDI()
     val onCreateHook by rememberUpdatedState(onCreate)
 
+    val category by derivedStateOf { categories.firstOrNull { it.categoryId == categoryId } }
+
+    val di = localDI()
     val snackbar by di.instance<SnackbarService>()
+
     var oldValue by remember { mutableStateOf(incurredAt.toString()) }
     LaunchedEffect(incurredAt) {
         entries.forEachIndexed { index, entry ->
@@ -61,15 +61,36 @@ fun CreateTransactionScreen(
         oldValue = incurredAt.toString()
     }
 
-    fun handleCreate() {
-        val result = component.createTransaction()
+    var lastError by remember { mutableStateOf<CreateTransactionComponent.Result?>(null) }
+    val lastEntryError by derivedStateOf {
+        when (lastError) {
+            is CreateTransactionComponent.Result.EntryError -> EntryError(
+                (lastError as CreateTransactionComponent.Result.EntryError).message,
+                (lastError as CreateTransactionComponent.Result.EntryError).entryId
+            )
 
-        if (result is CreateTransactionComponent.Result.Error) {
-            scope.launch {
-                snackbar.showSnackbar(result.message)
+            else -> null
+        }
+    }
+    fun handleCreate() {
+        when (val result = component.createTransaction()) {
+            is CreateTransactionComponent.Result.Success -> {
+                onCreateHook()
             }
-        } else {
-            onCreateHook()
+
+            is CreateTransactionComponent.Result.Error -> {
+                lastError = result
+                scope.launch {
+                    snackbar.showSnackbar(result.message)
+                }
+            }
+
+            is CreateTransactionComponent.Result.EntryError -> {
+                lastError = result
+                scope.launch {
+                    snackbar.showSnackbar(result.message)
+                }
+            }
         }
     }
 
@@ -120,15 +141,28 @@ fun CreateTransactionScreen(
         CategoryDropdown(
             label = "Category",
             value = category,
-            onSelect = { category = it },
+            onSelect = {
+//                category = it
+                categoryId = it.categoryId
+            },
             categories = categories
         )
 
         Spacer(modifier = Modifier.fillMaxWidth())
 
+        val totalsByCurrency by remember {
+            derivedStateOf {
+                entries
+                    .groupBy { it.currency }
+                    .mapValues { mapEntry ->
+                        mapEntry.value.map { it.amount }.reduceOrNull { acc, amount -> acc + amount } ?: 0.0
+                    }
+            }
+        }
         NewEntriesList(
             accounts = accounts,
             entries = entries,
+            entryError = lastEntryError,
             onEdit = { entry ->
                 entries[entries.indexOfFirst { entry.id == it.id }] = entry
             },
@@ -147,16 +181,6 @@ fun CreateTransactionScreen(
                 }
             }
         ) {
-            val totalsByCurrency by remember {
-                derivedStateOf {
-                    entries
-                        .groupBy { (it.account ?: MissingAccount).getCurrency() }
-                        .mapValues { mapEntry ->
-                            mapEntry.value.map { it.amount }.reduceOrNull { acc, amount -> acc + amount } ?: 0.0
-                        }
-                }
-            }
-
             TotalListItem(totalsByCurrency = totalsByCurrency)
         }
 
@@ -169,9 +193,9 @@ fun CreateTransactionScreen(
             AppButton(onClick = ::handleCreate, "Create")
 
             AppTextButton(onClick = ::handleReset, "Reset")
-            if (onCancel != null) {
-                AppTextButton(onClick = onCancel, "Cancel")
-            }
+            AppTextButton(onClick = onCancel, "Cancel")
         }
     }
 }
+
+data class EntryError(val message: String, val entryId: Long)

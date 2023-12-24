@@ -4,23 +4,49 @@
 
 package me.gustavolopezxyz.common.data
 
+import androidx.compose.runtime.Immutable
 import kotlinx.datetime.*
 import me.gustavolopezxyz.common.ext.datetime.currentTimeZone
+import me.gustavolopezxyz.common.ext.toCurrency
 import me.gustavolopezxyz.db.SelectEntriesForTransaction
+import java.util.*
 
+internal fun newEntryId(): Long {
+//    val id: Long = -Clock.System.now().toEpochMilliseconds(),
+    return -UUID.randomUUID().leastSignificantBits
+}
+
+@Immutable
 data class NewEntryDto(
-    val id: Long = -Clock.System.now().toEpochMilliseconds(),
-    val account: Account? = null,
+    val id: Long = newEntryId(),
+    val accountId: Long? = null,
+    val currency: Currency,
     val amount: Double = 0.0,
     val recordedAt: LocalDate,
     val reference: String? = null,
-)
+) {
+    constructor(
+        id: Long = newEntryId(),
+        account: Account? = null,
+        amount: Double = 0.0,
+        recordedAt: LocalDate,
+        reference: String? = null,
+    ) : this(
+        id,
+        account?.accountId,
+        account?.currency?.toCurrency() ?: MissingCurrency,
+        amount,
+        recordedAt,
+        reference
+    )
+}
 
 fun emptyNewEntryDto(recordedAt: LocalDate) = NewEntryDto(recordedAt = recordedAt)
 
 inline fun emptyNewEntryDto() = emptyNewEntryDto(Clock.System.now().toLocalDateTime(currentTimeZone()).date)
 
 
+@Immutable
 data class ModifiedEntryDto(
     val id: Long,
     val accountId: Long,

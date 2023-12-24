@@ -11,8 +11,9 @@ import androidx.compose.runtime.mutableStateOf
 import app.cash.sqldelight.coroutines.mapToList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
-import kotlinx.datetime.LocalDate
-import me.gustavolopezxyz.common.data.*
+import me.gustavolopezxyz.common.data.Database
+import me.gustavolopezxyz.common.data.emptyNewEntryDto
+import me.gustavolopezxyz.common.data.toDto
 import me.gustavolopezxyz.common.db.AccountRepository
 import me.gustavolopezxyz.common.db.CategoryRepository
 import me.gustavolopezxyz.common.db.EntryRepository
@@ -24,23 +25,6 @@ import org.kodein.di.DIAware
 import org.kodein.di.instance
 
 class CreateTransactionComponent(override val di: DI) : DIAware {
-    constructor(
-        di: DI,
-        description: String? = null,
-        details: String? = null,
-        category: CategoryWithParent? = null,
-        incurredAt: LocalDate? = null,
-        entries: Collection<NewEntryDto>? = null,
-    ) : this(di) {
-        this.description.value = description ?: ""
-        this.details.value = details ?: ""
-        this.category.value = category
-        this.incurredAt.value = incurredAt ?: nowLocalDateTime().date
-        this.entries.clear()
-        this.entries += entries ?: listOf(emptyNewEntryDto(nowLocalDateTime().date))
-    }
-
-
     private val db: Database by instance()
     private val accountRepository: AccountRepository by instance()
     private val categoryRepository: CategoryRepository by instance()
@@ -49,14 +33,14 @@ class CreateTransactionComponent(override val di: DI) : DIAware {
 
     var description = mutableStateOf("")
     var details = mutableStateOf("")
-    var category = mutableStateOf<CategoryWithParent?>(null)
+    var categoryId = mutableStateOf<Long?>(null)
     var incurredAt = mutableStateOf(nowLocalDateTime().date)
     val entries = mutableStateListOf(emptyNewEntryDto(nowLocalDateTime().date))
 
     fun reset() {
         description.value = ""
         details.value = ""
-        category.value = null
+        categoryId.value = null
         incurredAt.value = nowLocalDateTime().date
         entries.clear()
         entries += emptyNewEntryDto(nowLocalDateTime().date)
@@ -73,36 +57,35 @@ class CreateTransactionComponent(override val di: DI) : DIAware {
     }.collectAsState(emptyList())
 
     fun createTransaction(): Result {
-        if (category.value == null) {
-            return Result.Error("You need to select a category")
+        if (categoryId.value == null) {
+            return Result.Error("You need to select a category", "categoryId")
         }
 
         if (description.value.trim().isEmpty()) {
-            return Result.Error("You need a description")
+            return Result.Error("You need a description", "description")
         }
 
         if (entries.isEmpty()) {
-            return Result.Error("You need to add at least one entry")
+            return Result.Error("You need to add at least one entry", "entries")
+        }
+
+        val entryWithoutAccount = entries.firstOrNull { it.accountId == null }
+        if (entryWithoutAccount != null) {
+            return Result.EntryError("All entries require an Account", entryWithoutAccount.id)
         }
 
         db.transaction {
-            val number = transactionRepository.create(
-                category.value!!.categoryId,
+            val number = transactionRepository.create(categoryId.value!!,
                 incurredAt.value.atStartOfDay(),
                 description.value,
                 details.value,
-                entries.firstOrNull()?.account?.getCurrency() ?: MissingCurrency,
-                entries.asIterable().sumOf { it.amount }
-            )
+                entries.first().currency,
+                entries.sumOf { it.amount })
             val transactionId = transactionRepository.findByReference(number)!!.transactionId
 
             entries.forEach {
                 entriesRepository.create(
-                    transactionId,
-                    it.account!!.accountId,
-                    it.amount,
-                    it.recordedAt.atStartOfDay(),
-                    it.reference
+                    transactionId, it.accountId!!, it.amount, it.recordedAt.atStartOfDay(), it.reference
                 )
             }
         }
@@ -113,6 +96,8 @@ class CreateTransactionComponent(override val di: DI) : DIAware {
     sealed class Result {
         data object Success : Result()
 
-        data class Error(val message: String) : Result()
+        data class Error(val message: String, val parameter: String? = null) : Result()
+
+        data class EntryError(val message: String, val entryId: Long) : Result()
     }
 }

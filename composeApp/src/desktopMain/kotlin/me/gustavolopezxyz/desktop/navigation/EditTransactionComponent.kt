@@ -86,7 +86,7 @@ class EditTransactionComponent(
             toCreate.forEach {
                 entryRepository.create(
                     transactionId,
-                    it.account!!.accountId,
+                    it.accountId!!,
                     it.amount,
                     it.recordedAt.atTime(0, 0),
                     it.reference

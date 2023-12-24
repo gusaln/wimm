@@ -16,10 +16,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
+import kotlinx.coroutines.launch
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
-import me.gustavolopezxyz.desktop.navigation.CreateTransactionComponent
+import me.gustavolopezxyz.desktop.navigation.ImportTransactionsComponent
 import me.gustavolopezxyz.desktop.navigation.RootComponent
 import me.gustavolopezxyz.desktop.screens.CreateTransactionScreen
+import me.gustavolopezxyz.desktop.screens.ImportTransactionsScreen
 import me.gustavolopezxyz.desktop.services.SnackbarService
 import me.gustavolopezxyz.desktop.ui.common.AppTextButton
 import org.kodein.di.DI
@@ -37,18 +39,24 @@ fun App(di: DI, component: RootComponent) = withDI(di) {
         snackbarService.snackbar = snackbarHostState
     }
 
-    val isCreateTransactionWindow by component.rememberIsCreateTransactionWindowOpen()
-    if (isCreateTransactionWindow) {
+    val createTransactionComponent by component.rememberCreateTransactionWindowComponent()
+    if (createTransactionComponent != null) {
         Window(
             onCloseRequest = { component.onCloseCreateTransactionWindow() },
             title = "Create a transaction",
             undecorated = true,
         ) {
-            Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) {
+            Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }, contentWindowInsets = WindowInsets(24.dp)) {
                 Card(Modifier.fillMaxSize(), shape = RoundedCornerShape(0)) {
                     CreateTransactionScreen(
-                        component = CreateTransactionComponent(di)
-                    )
+                        component = createTransactionComponent!!,
+                        onCreate = {
+                            component.onCloseCreateTransactionWindow()
+                            scope.launch {
+                                snackbarHostState.showSnackbar("Transaction created")
+                            }
+                        },
+                        onCancel = { component.onCloseCreateTransactionWindow() })
                 }
             }
         }

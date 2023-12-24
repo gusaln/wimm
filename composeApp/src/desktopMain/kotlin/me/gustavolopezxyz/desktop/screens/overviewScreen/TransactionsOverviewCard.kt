@@ -7,15 +7,17 @@ package me.gustavolopezxyz.desktop.screens.overviewScreen
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import me.gustavolopezxyz.common.data.*
@@ -33,8 +35,9 @@ fun TransactionsOverviewCard(
     transactions: List<MoneyTransaction>,
     entriesByTransaction: Map<Long, List<EntryForTransaction>>,
     isLoading: Boolean,
+    onEditTransaction: (transaction: MoneyTransaction) -> Unit,
+    onDuplicateTransaction: (transaction: MoneyTransaction, entries: List<EntryForTransaction>) -> Unit,
     modifier: Modifier,
-    onClickTransaction: (transaction: MoneyTransaction) -> Unit
 ) {
     OverviewLazyListCard(
         modifier = modifier,
@@ -50,17 +53,14 @@ fun TransactionsOverviewCard(
             }
         }
     ) { transaction ->
+        val category by derivedStateOf { categoriesById.getOrDefault(transaction.categoryId, MissingCategory.toDto()) }
+        val entries by derivedStateOf { entriesByTransaction.getOrDefault(transaction.transactionId, emptyList()) }
+
         AppListItem(
             secondaryText = {
                 Row {
                     Text(
-                        buildAnnotatedString {
-                            append(transaction.incurredAt.formatDate())
-                            append(" - ")
-                            append(
-                                categoriesById.getOrDefault(transaction.categoryId, MissingCategory.toDto()).fullname(),
-                            )
-                        },
+                        "${transaction.incurredAt.formatDate()} - ${category.fullname()}",
                         overflow = TextOverflow.Ellipsis,
                     )
 
@@ -68,11 +68,20 @@ fun TransactionsOverviewCard(
                 }
             },
             action = {
-                IconButton(
-                    onClick = { onClickTransaction(transaction) },
-                    modifier = Modifier.wrapContentSize()
-                ) {
-                    Icon(Icons.Default.MoreVert, "edit transaction", Modifier.size(16.dp))
+                Row {
+                    IconButton(
+                        onClick = { onEditTransaction(transaction) },
+                        modifier = Modifier.wrapContentSize()
+                    ) {
+                        Icon(Icons.Default.Edit, "edit transaction", Modifier.size(16.dp))
+                    }
+
+                    IconButton(
+                        onClick = { onDuplicateTransaction(transaction, entries) },
+                        modifier = Modifier.wrapContentSize()
+                    ) {
+                        Icon(Icons.Default.ContentCopy, "duplicate transaction", Modifier.size(16.dp))
+                    }
                 }
             }
         ) {
@@ -83,7 +92,7 @@ fun TransactionsOverviewCard(
 
         ListItemSpacer()
 
-        entriesByTransaction.getOrDefault(transaction.transactionId, emptyList()).forEach { entry ->
+        entries.forEach { entry ->
             AppListItem(
                 modifier = Modifier.padding(start = 12.dp),
                 secondaryText = {

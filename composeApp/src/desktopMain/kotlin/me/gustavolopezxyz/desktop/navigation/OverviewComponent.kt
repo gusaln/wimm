@@ -9,6 +9,8 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.MutableValue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
+import me.gustavolopezxyz.common.data.EntryForTransaction
+import me.gustavolopezxyz.common.data.MoneyTransaction
 import me.gustavolopezxyz.common.data.toDto
 import me.gustavolopezxyz.common.db.AccountRepository
 import me.gustavolopezxyz.common.db.CategoryRepository
@@ -22,22 +24,18 @@ class OverviewComponent(
     componentContext: ComponentContext,
     override val di: DI,
     val onEditTransaction: (transactionId: Long) -> Unit,
-    val onDuplicateTransaction: () -> Unit
+    val onDuplicateTransaction: (transaction: MoneyTransaction, entries: List<EntryForTransaction>) -> Unit
 ) : DIAware, ComponentContext by componentContext {
     val transactionRepository: TransactionRepository by instance()
     val categoryRepository: CategoryRepository by instance()
     val accountRepository: AccountRepository by instance()
-    val entryRepository: EntryRepository by instance()
+    private val entryRepository: EntryRepository by instance()
 
     var summary: MutableValue<SummaryType> = MutableValue(SummaryType.Balance)
 
     fun onShowSummary(summaryType: SummaryType) {
         summary.value = summaryType
     }
-
-
-    val transactionsListPage = MutableValue(1)
-    val transactionsListPageCount = MutableValue(1)
 
     fun getEntries(transactionIds: Collection<Long>) = entryRepository.getAllForTransactions(transactionIds)
 

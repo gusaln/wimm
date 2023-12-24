@@ -90,11 +90,9 @@ fun EditTransactionScreen(component: EditTransactionComponent) {
         val oldValue = incurredAt
         incurredAt = value
 
-        scope.launch {
-            toModify.forEachIndexed { index, entry ->
-                if (entry.recordedAt == oldValue) {
-                    toModify[index] = entry.copy(recordedAt = value)
-                }
+        toModify.forEachIndexed { index, entry ->
+            if (entry.recordedAt == oldValue) {
+                toModify[index] = entry.copy(recordedAt = value)
             }
         }
     }
@@ -232,7 +230,7 @@ fun EditTransactionScreen(component: EditTransactionComponent) {
                 }
             })
 
-        NewEntriesList(accounts = accounts, entries = toCreate, onEdit = { entry ->
+        NewEntriesList(accounts = accounts, entries = toCreate, entryError = null, onEdit = { entry ->
             toCreate[toCreate.indexOfFirst { entry.id == it.id }] = entry
         }, onDelete = { entry -> toCreate.removeIf { entry.id == it.id } }, name = {
             Row(
@@ -262,7 +260,7 @@ fun EditTransactionScreen(component: EditTransactionComponent) {
 
                 toModify.filter { !it.toDelete }.map { it.amount.toMoney(it.currency) }
                     .groupByTo(amountsByCurrency) { it.currency }
-                toCreate.map { it.amount.toMoney((it.account ?: MissingAccount).currency) }
+                toCreate.map { it.amount.toMoney(it.currency) }
                     .groupByTo(amountsByCurrency) { it.currency }
 
                 amountsByCurrency.mapValues { mapEntry ->

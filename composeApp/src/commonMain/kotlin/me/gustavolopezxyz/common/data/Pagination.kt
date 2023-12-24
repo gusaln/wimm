@@ -77,4 +77,15 @@ class LazyPaginationState<T>(pageSize: Int, pagesLoadedByDefault: Int = 1) {
     fun rememberPages(pageSize: Int): State<List<List<T>>> {
         return derivedStateOf { items.chunked(pageSize) }
     }
+
+    @Composable
+    fun launchOnPagesLoadedEffect(effect: suspend () -> Unit) {
+        LaunchedEffect(pagesLoaded) {
+            isLoading = true
+
+            effect()
+
+            isLoading = false
+        }
+    }
 }

@@ -153,9 +153,9 @@ fun CreateTransactionScreen(
         val totalsByCurrency by remember {
             derivedStateOf {
                 entries
-                    .groupBy { it.currency }
+                    .groupBy { it.amountCurrency }
                     .mapValues { mapEntry ->
-                        mapEntry.value.map { it.amount }.reduceOrNull { acc, amount -> acc + amount } ?: 0.0
+                        mapEntry.value.map { it.amountValue }.reduceOrNull { acc, amount -> acc + amount } ?: 0.0
                     }
             }
         }

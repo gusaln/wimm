@@ -6,8 +6,10 @@ package me.gustavolopezxyz.common.data
 
 import androidx.compose.runtime.Immutable
 import kotlinx.datetime.*
+import kotlinx.datetime.TimeZone
 import me.gustavolopezxyz.common.ext.datetime.currentTimeZone
 import me.gustavolopezxyz.common.ext.toCurrency
+import me.gustavolopezxyz.common.ext.toMoney
 import me.gustavolopezxyz.db.SelectEntriesForTransaction
 import java.util.*
 
@@ -16,34 +18,38 @@ internal fun newEntryId(): Long {
     return -UUID.randomUUID().leastSignificantBits
 }
 
+internal fun currentDate(tz: TimeZone = currentTimeZone()) = Clock.System.now().toLocalDateTime(tz).date
+
 @Immutable
 data class NewEntryDto(
     val id: Long = newEntryId(),
     val accountId: Long? = null,
-    val currency: Currency,
-    val amount: Double = 0.0,
-    val recordedAt: LocalDate,
+    val amount: Money = Money(MissingCurrency, 0.0),
+    val recordedAt: LocalDate = currentDate(),
     val reference: String? = null,
 ) {
+    inline val amountCurrency: Currency
+        get() = amount.currency
+
+    inline val amountValue: Double
+        get() = amount.value
+
     constructor(
         id: Long = newEntryId(),
         account: Account? = null,
         amount: Double = 0.0,
-        recordedAt: LocalDate,
+        recordedAt: LocalDate?,
         reference: String? = null,
     ) : this(
         id,
         account?.accountId,
-        account?.currency?.toCurrency() ?: MissingCurrency,
-        amount,
-        recordedAt,
+        amount.toMoney(account?.currency?.toCurrency() ?: MissingCurrency),
+        recordedAt ?: currentDate(),
         reference
     )
 }
 
-fun emptyNewEntryDto(recordedAt: LocalDate) = NewEntryDto(recordedAt = recordedAt)
-
-inline fun emptyNewEntryDto() = emptyNewEntryDto(Clock.System.now().toLocalDateTime(currentTimeZone()).date)
+fun emptyNewEntryDto(recordedAt: LocalDate? = null) = NewEntryDto(recordedAt = recordedAt)
 
 
 @Immutable
@@ -51,19 +57,50 @@ data class ModifiedEntryDto(
     val id: Long,
     val accountId: Long,
     val accountName: String,
-    val currency: String,
-    val amount: Double,
+    val amount: Money,
     val recordedAt: LocalDate,
     val reference: String? = null,
     val wasEdited: Boolean = false,
     val toDelete: Boolean = false,
 ) {
+
+    constructor(
+        id: Long,
+        accountId: Long,
+        accountName: String,
+        currencyCode: String,
+        amount: Double,
+        recordedAt: LocalDate,
+        reference: String? = null,
+        wasEdited: Boolean = false,
+        toDelete: Boolean = false,
+    ) : this(
+        id,
+        accountId,
+        accountName,
+        amount.toMoney(currencyCode),
+        recordedAt,
+        reference,
+        wasEdited,
+        toDelete
+    )
+
+    inline val amountCurrency: Currency
+        get() = amount.currency
+
+    inline val amountCurrencyCode: String
+        get() = amount.currency.code
+
+    inline val amountValue: Double
+        get() = amount.value
+
     fun edit(
-        amount: Double = this.amount,
+        amount: Double = this.amount.value,
+        currency: Currency = this.amount.currency,
         recordedAt: LocalDate = this.recordedAt,
         reference: String? = this.reference,
     ) = copy(
-        amount = amount,
+        amount = amount.toMoney(currency),
         recordedAt = recordedAt,
         reference = reference,
         wasEdited = true,
@@ -73,7 +110,7 @@ data class ModifiedEntryDto(
     fun changeAccount(account: Account) = copy(
         accountId = account.accountId,
         accountName = account.name,
-        currency = account.currency,
+        amount = this.amount.withCurrency(account.currency),
         wasEdited = true,
         toDelete = false,
     )
@@ -86,7 +123,7 @@ data class ModifiedEntryDto(
         entryId = id,
         transactionId = transactionId,
         accountId = accountId,
-        amount = amount,
+        amount = amount.value,
         recordedAt = recordedAt.atTime(0, 0, 0).toInstant(
             currentTimeZone()
         ),
@@ -99,8 +136,7 @@ fun modifiedEntryDto(entry: SelectEntriesForTransaction): ModifiedEntryDto {
         id = entry.entryId,
         accountId = entry.accountId,
         accountName = entry.accountName,
-        currency = entry.currency,
-        amount = entry.amount,
+        amount = entry.amount.toMoney(entry.currency),
         recordedAt = entry.recordedAt.toLocalDateTime(currentTimeZone()).date,
         reference = entry.reference
     )

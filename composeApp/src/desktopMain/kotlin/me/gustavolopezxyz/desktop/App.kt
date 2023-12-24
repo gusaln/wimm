@@ -71,7 +71,17 @@ fun App(di: DI, component: RootComponent) = withDI(di) {
         ) {
             Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) {
                 Card(Modifier.fillMaxSize(), shape = RoundedCornerShape(0)) {
-                    Text("WIP")
+                    ImportTransactionsScreen(
+                        ImportTransactionsComponent(
+                            di = di,
+                            onImportTransaction = {
+                                isImportingOpen = false
+                                scope.launch { snackbarHostState.showSnackbar("Transactions imported") }
+                            },
+                            onSyncTransactions = {},
+                            onCancel = { isImportingOpen = false }
+                        )
+                    )
                 }
             }
         }

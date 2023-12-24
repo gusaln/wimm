@@ -95,14 +95,21 @@ fun NewEntriesListItem(
                 AccountDropdown(
                     label = "Account",
                     value = account,
-                    onSelect = { onEdit(entry.copy(accountId = it.accountId, amount = entry.amount)) },
+                    onSelect = {
+                        onEdit(
+                            entry.copy(
+                                accountId = it.accountId,
+                                amount = entry.amount.withCurrency(it.currency)
+                            )
+                        )
+                    },
                     accounts = accounts,
                     modifier = Modifier.weight(1f),
                 )
 
                 OutlinedDoubleField(
-                    value = entry.amount,
-                    onValueChange = { onEdit(entry.copy(amount = it)) },
+                    value = entry.amount.value,
+                    onValueChange = { onEdit(entry.copy(amount = entry.amount.withValue(it))) },
                     modifier = Modifier.weight(1f),
                     label = { Text("Amount") },
                 )

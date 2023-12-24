@@ -18,6 +18,7 @@ import me.gustavolopezxyz.common.data.NewEntryDto
 import me.gustavolopezxyz.common.data.emptyNewEntryDto
 import me.gustavolopezxyz.common.ext.datetime.currentTimeZone
 import me.gustavolopezxyz.common.ext.datetime.nowLocalDateTime
+import me.gustavolopezxyz.common.ext.toMoney
 import org.kodein.di.DI
 
 class RootComponent(
@@ -99,7 +100,7 @@ class RootComponent(
                             incurredAt = transaction.incurredAt.toLocalDateTime(currentTimeZone()).date,
                             entries = entries.map {
                                 emptyNewEntryDto().copy(
-                                    amount = it.amount,
+                                    amount = it.amount.toMoney(it.currency),
                                     accountId = it.accountId,
                                     recordedAt = it.recordedAt.toLocalDateTime(currentTimeZone()).date,
                                     reference = it.reference
@@ -122,12 +123,14 @@ class RootComponent(
                     componentContext = componentContext,
                     di = di,
                     accountId = config.accountId,
-                    onSelectEntry = {},
+                    onSelectEntry = { navigation.push(Config.EditTransaction(it.transactionId)) },
                     onNavigateBack = { navigation.pop() })
             )
 
             is Config.ManageCategories -> Child.ManageCategories(
-                ManageCategoriesComponent(componentContext = componentContext, di = di, onShowCategorySummary = { })
+                ManageCategoriesComponent(componentContext = componentContext, di = di, onShowCategorySummary = {
+                    navigation.push(Config.CategorySummary(it))
+                })
             )
 
             is Config.CategorySummary -> Child.CategorySummary(
@@ -135,7 +138,7 @@ class RootComponent(
                     componentContext = componentContext,
                     di = di,
                     categoryId = config.categoryId,
-                    onSelectTransaction = {},
+                    onSelectTransaction = { navigation.push(Config.EditTransaction(it.transactionId)) },
                     onNavigateBack = { navigation.pop() })
             )
 

@@ -71,8 +71,18 @@ class EditTransactionComponent(
             return Result.Error("You need at least one entry")
         }
 
+        val modifiedEntryWithoutCurrency = toModify.firstOrNull { it.amount.currency == MissingCurrency }
+        if (modifiedEntryWithoutCurrency != null) {
+            return Result.ModifiedEntryError("All entries require a Currency", modifiedEntryWithoutCurrency.id)
+        }
+
+        val newEntryWithoutCurrency = toCreate.firstOrNull { it.amount.currency == MissingCurrency }
+        if (newEntryWithoutCurrency != null) {
+            return Result.NewEntryError("All entries require a Currency", newEntryWithoutCurrency.id)
+        }
+
         db.transaction {
-            val newTotal = toCreate.sumOf { it.amount } + toModify.filter { !it.toDelete }.sumOf { it.amount }
+            val newTotal = toCreate.sumOf { it.amountValue } + toModify.filter { !it.toDelete }.sumOf { it.amountValue }
             transactionRepository.update(
                 transactionId,
                 categoryId,
@@ -87,7 +97,7 @@ class EditTransactionComponent(
                 entryRepository.create(
                     transactionId,
                     it.accountId!!,
-                    it.amount,
+                    it.amountValue,
                     it.recordedAt.atTime(0, 0),
                     it.reference
                 )
@@ -129,5 +139,9 @@ class EditTransactionComponent(
         data object Success : Result()
 
         data class Error(val message: String) : Result()
+
+        data class NewEntryError(val message: String, val entryId: Long) : Result()
+
+        data class ModifiedEntryError(val message: String, val entryId: Long) : Result()
     }
 }

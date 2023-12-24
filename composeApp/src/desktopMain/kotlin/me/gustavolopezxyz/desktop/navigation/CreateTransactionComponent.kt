@@ -12,6 +12,7 @@ import app.cash.sqldelight.coroutines.mapToList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import me.gustavolopezxyz.common.data.Database
+import me.gustavolopezxyz.common.data.MissingCurrency
 import me.gustavolopezxyz.common.data.emptyNewEntryDto
 import me.gustavolopezxyz.common.data.toDto
 import me.gustavolopezxyz.common.db.AccountRepository
@@ -74,18 +75,23 @@ class CreateTransactionComponent(override val di: DI) : DIAware {
             return Result.EntryError("All entries require an Account", entryWithoutAccount.id)
         }
 
+        val entryWithoutCurrency = entries.firstOrNull { it.amount.currency == MissingCurrency }
+        if (entryWithoutCurrency != null) {
+            return Result.EntryError("All entries require a Currency", entryWithoutCurrency.id)
+        }
+
         db.transaction {
             val number = transactionRepository.create(categoryId.value!!,
                 incurredAt.value.atStartOfDay(),
                 description.value,
                 details.value,
-                entries.first().currency,
-                entries.sumOf { it.amount })
+                entries.first().amountCurrency,
+                entries.sumOf { it.amountValue })
             val transactionId = transactionRepository.findByReference(number)!!.transactionId
 
             entries.forEach {
                 entriesRepository.create(
-                    transactionId, it.accountId!!, it.amount, it.recordedAt.atStartOfDay(), it.reference
+                    transactionId, it.accountId!!, it.amountValue, it.recordedAt.atStartOfDay(), it.reference
                 )
             }
         }

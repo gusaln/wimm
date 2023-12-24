@@ -64,7 +64,7 @@ fun ModifiedEntriesListItem(
                 )
 
                 OutlinedDoubleField(
-                    value = entry.amount,
+                    value = entry.amountValue,
                     onValueChange = { onEdit(entry.edit(amount = it)) },
                     modifier = Modifier.weight(1f),
                     label = { Text("Amount") },
@@ -137,7 +137,7 @@ fun ModifiedEntriesListDeletedItem(entry: ModifiedEntryDto, onRestore: (Modified
                 )
 
                 OutlinedDoubleField(
-                    value = entry.amount,
+                    value = entry.amountValue,
                     onValueChange = { },
                     modifier = Modifier.weight(1f),
                     label = { Text("Amount") },

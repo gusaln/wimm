@@ -5,6 +5,7 @@
 package me.gustavolopezxyz.common.data
 
 import androidx.compose.runtime.Immutable
+import me.gustavolopezxyz.common.ext.toCurrency
 import java.math.RoundingMode
 import java.text.DecimalFormat
 
@@ -33,6 +34,13 @@ val MoneyAmountFormat = DecimalFormat("#,##0.00").apply {
 
 @Immutable
 data class Money(val currency: Currency, val value: Double) {
+    fun withValue(value: Number): Money = withValue(value.toDouble())
+
+    fun withValue(value: Double): Money = this.copy(value = value)
+
+    fun withCurrency(currencyCode: String): Money = withCurrency(currencyCode.toCurrency())
+
+    fun withCurrency(currency: Currency): Money = this.copy(currency = currency)
 
     operator fun plus(other: Money): Money {
         return plus(other.value)

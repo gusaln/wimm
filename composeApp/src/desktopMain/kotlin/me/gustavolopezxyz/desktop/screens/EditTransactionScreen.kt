@@ -22,7 +22,6 @@ import kotlinx.datetime.toLocalDateTime
 import me.gustavolopezxyz.common.data.*
 import me.gustavolopezxyz.common.ext.datetime.currentTimeZone
 import me.gustavolopezxyz.common.ext.toCurrency
-import me.gustavolopezxyz.common.ext.toMoney
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import me.gustavolopezxyz.desktop.navigation.EditTransactionComponent
 import me.gustavolopezxyz.desktop.services.SnackbarService
@@ -258,9 +257,9 @@ fun EditTransactionScreen(component: EditTransactionComponent) {
             derivedStateOf {
                 val amountsByCurrency = mutableMapOf<Currency, MutableList<Money>>()
 
-                toModify.filter { !it.toDelete }.map { it.amount.toMoney(it.currency) }
+                toModify.filter { !it.toDelete }.map { it.amount }
                     .groupByTo(amountsByCurrency) { it.currency }
-                toCreate.map { it.amount.toMoney(it.currency) }
+                toCreate.map { it.amount }
                     .groupByTo(amountsByCurrency) { it.currency }
 
                 amountsByCurrency.mapValues { mapEntry ->

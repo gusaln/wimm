@@ -30,6 +30,6 @@ object BuildConstants {
 
     object DesktopApp {
         const val packageName = "wimm"
-        const val packageVersion = "0.6.0"
+        const val packageVersion = "0.7.0"
     }
 }

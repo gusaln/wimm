@@ -7,10 +7,13 @@ package me.gustavolopezxyz.common.data
 import androidx.compose.runtime.Immutable
 import kotlinx.datetime.*
 import kotlinx.datetime.TimeZone
+import me.gustavolopezxyz.common.db.SelectEntriesForTransaction
 import me.gustavolopezxyz.common.ext.datetime.currentTimeZone
 import me.gustavolopezxyz.common.ext.toCurrency
 import me.gustavolopezxyz.common.ext.toMoney
-import me.gustavolopezxyz.db.SelectEntriesForTransaction
+import me.gustavolopezxyz.common.money.Currency
+import me.gustavolopezxyz.common.money.MissingCurrency
+import me.gustavolopezxyz.common.money.Money
 import java.util.*
 
 internal fun newEntryId(): Long {

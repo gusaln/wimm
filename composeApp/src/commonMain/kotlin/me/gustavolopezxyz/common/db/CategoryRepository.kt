@@ -6,8 +6,6 @@ package me.gustavolopezxyz.common.db
 
 import app.cash.sqldelight.coroutines.asFlow
 import me.gustavolopezxyz.common.data.Category
-import me.gustavolopezxyz.common.data.Database
-import me.gustavolopezxyz.db.CategoryQueries
 
 class CategoryRepository(private val db: Database) {
     private val categoryQueries: CategoryQueries = db.categoryQueries

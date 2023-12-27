@@ -2,29 +2,12 @@
  * Copyright (c) 2023. Gustavo López. All rights reserved.
  */
 
-package me.gustavolopezxyz.common.data
+package me.gustavolopezxyz.common.money
 
 import androidx.compose.runtime.Immutable
 import me.gustavolopezxyz.common.ext.toCurrency
 import java.math.RoundingMode
 import java.text.DecimalFormat
-
-@Immutable
-data class Currency internal constructor(val code: String, val symbol: String) {
-    override fun toString(): String {
-        return code
-    }
-}
-
-val MissingCurrency = Currency("XXX", "?")
-
-private val currencyRepository: HashMap<String, Currency> = hashMapOf(
-    Pair("USD", Currency("USD", "$"))
-)
-
-fun currencyOf(code: String): Currency {
-    return currencyRepository.getOrDefault(code.uppercase().trim(), MissingCurrency)
-}
 
 val MoneyAmountFormat = DecimalFormat("#,##0.00").apply {
     roundingMode = RoundingMode.CEILING
@@ -44,7 +27,7 @@ data class Money(val currency: Currency, val value: Double) {
 
     operator fun plus(other: Money): Money {
         if (other.currency != this.currency) {
-            throw IllegalArgumentException("Cannot add money with different currencies")
+            throw IllegalArgumentException("Cannot add ${this.currency} to ${other.currency}")
         }
 
         return plus(other.value)
@@ -56,7 +39,7 @@ data class Money(val currency: Currency, val value: Double) {
 
     operator fun minus(other: Money): Money {
         if (other.currency != this.currency) {
-            throw IllegalArgumentException("Cannot subtract money with different currencies")
+            throw IllegalArgumentException("Cannot subtract ${other.currency} from ${this.currency}")
         }
 
         return minus(other.value)
@@ -68,7 +51,7 @@ data class Money(val currency: Currency, val value: Double) {
 
     operator fun compareTo(other: Money): Int {
         if (other.currency != this.currency) {
-            throw IllegalArgumentException("Cannot compare money with different currencies")
+            throw IllegalArgumentException("Cannot compare ${this.currency} to ${other.currency}")
         }
 
         return compareTo(other.value)

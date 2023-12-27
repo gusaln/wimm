@@ -14,8 +14,8 @@ import androidx.compose.ui.window.DialogWindow
 import kotlinx.coroutines.launch
 import me.gustavolopezxyz.common.data.Account
 import me.gustavolopezxyz.common.data.AccountType
-import me.gustavolopezxyz.common.data.Currency
 import me.gustavolopezxyz.common.data.UnknownAccount
+import me.gustavolopezxyz.common.money.Currency
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import me.gustavolopezxyz.desktop.navigation.ManageAccountsComponent
 import me.gustavolopezxyz.desktop.ui.AccountsGroupedList

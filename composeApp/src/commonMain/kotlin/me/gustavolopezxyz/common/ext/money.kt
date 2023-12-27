@@ -4,9 +4,9 @@
 
 package me.gustavolopezxyz.common.ext
 
-import me.gustavolopezxyz.common.data.Currency
-import me.gustavolopezxyz.common.data.Money
-import me.gustavolopezxyz.common.data.currencyOf
+import me.gustavolopezxyz.common.money.Currency
+import me.gustavolopezxyz.common.money.Money
+import me.gustavolopezxyz.common.money.currencyOf
 
 fun String.toCurrency() = currencyOf(this)
 

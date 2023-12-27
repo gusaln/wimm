@@ -133,7 +133,7 @@ compose.desktop {
 sqldelight {
     databases {
         create("Database") {
-            packageName.set("me.gustavolopezxyz.common.data")
+            packageName.set("me.gustavolopezxyz.common.db")
             schemaOutputDirectory.set(file("me.gustavolopezxyz.common.data"))
             migrationOutputDirectory.set(file("src/commonMain/sqldelight/databases"))
             deriveSchemaFromMigrations.set(true)

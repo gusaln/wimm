@@ -7,7 +7,6 @@ package me.gustavolopezxyz.common.db
 import app.cash.sqldelight.EnumColumnAdapter
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import me.gustavolopezxyz.common.data.Account
-import me.gustavolopezxyz.common.data.Database
 import me.gustavolopezxyz.common.data.Entry
 import me.gustavolopezxyz.common.data.MoneyTransaction
 import me.gustavolopezxyz.desktop.Config

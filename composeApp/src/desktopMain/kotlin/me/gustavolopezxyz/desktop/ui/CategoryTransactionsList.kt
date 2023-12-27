@@ -28,10 +28,10 @@ import kotlinx.coroutines.launch
 import me.gustavolopezxyz.common.data.CategoryWithParent
 import me.gustavolopezxyz.common.data.MoneyTransaction
 import me.gustavolopezxyz.common.data.toMoneyTransaction
+import me.gustavolopezxyz.common.db.SelectTransactionsInCategoryInRange
 import me.gustavolopezxyz.common.ext.datetime.formatDateTime
 import me.gustavolopezxyz.common.ext.toCurrency
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
-import me.gustavolopezxyz.db.SelectTransactionsInCategoryInRange
 import me.gustavolopezxyz.desktop.ui.common.*
 
 @OptIn(ExperimentalComposeUiApi::class)

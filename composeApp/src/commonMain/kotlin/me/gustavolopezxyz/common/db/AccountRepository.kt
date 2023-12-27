@@ -9,10 +9,8 @@ import app.cash.sqldelight.coroutines.asFlow
 import kotlinx.coroutines.flow.Flow
 import me.gustavolopezxyz.common.data.Account
 import me.gustavolopezxyz.common.data.AccountType
-import me.gustavolopezxyz.common.data.Currency
-import me.gustavolopezxyz.common.data.Database
 import me.gustavolopezxyz.common.ext.toCurrency
-import me.gustavolopezxyz.db.AccountQueries
+import me.gustavolopezxyz.common.money.Currency
 
 class AccountRepository(private val db: Database) {
     private val accountQueries: AccountQueries = db.accountQueries

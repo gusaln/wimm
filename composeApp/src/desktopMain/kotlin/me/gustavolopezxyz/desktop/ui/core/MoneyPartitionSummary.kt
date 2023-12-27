@@ -22,7 +22,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
-import me.gustavolopezxyz.common.data.*
+import me.gustavolopezxyz.common.data.Account
+import me.gustavolopezxyz.common.data.AccountType
+import me.gustavolopezxyz.common.data.Palette
+import me.gustavolopezxyz.common.money.Currency
+import me.gustavolopezxyz.common.money.currencyOf
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import me.gustavolopezxyz.common.ui.theme.AppTheme
 import me.gustavolopezxyz.desktop.ui.common.*

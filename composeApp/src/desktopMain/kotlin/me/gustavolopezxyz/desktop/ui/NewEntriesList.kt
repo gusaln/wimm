@@ -21,8 +21,8 @@ import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalDate
 import me.gustavolopezxyz.common.data.Account
 import me.gustavolopezxyz.common.data.AccountType
-import me.gustavolopezxyz.common.data.Currency
 import me.gustavolopezxyz.common.data.NewEntryDto
+import me.gustavolopezxyz.common.money.Currency
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import me.gustavolopezxyz.desktop.screens.EntryError
 import me.gustavolopezxyz.desktop.ui.common.AppChip

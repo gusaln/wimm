@@ -10,11 +10,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toInstant
-import me.gustavolopezxyz.common.data.Currency
-import me.gustavolopezxyz.common.data.Database
 import me.gustavolopezxyz.common.data.MoneyTransaction
 import me.gustavolopezxyz.common.ext.datetime.currentTimeZone
-import me.gustavolopezxyz.db.SelectTransactionsInCategoryInRange
+import me.gustavolopezxyz.common.money.Currency
 
 class TransactionRepository(private val db: Database) {
     private val queries = db.transactionQueries

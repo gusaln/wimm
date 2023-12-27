@@ -15,8 +15,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import me.gustavolopezxyz.common.data.AccountType
-import me.gustavolopezxyz.common.data.Currency
 import me.gustavolopezxyz.common.ext.toCurrency
+import me.gustavolopezxyz.common.money.Currency
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import me.gustavolopezxyz.desktop.ui.common.AppButton
 import me.gustavolopezxyz.desktop.ui.common.AppTextButton

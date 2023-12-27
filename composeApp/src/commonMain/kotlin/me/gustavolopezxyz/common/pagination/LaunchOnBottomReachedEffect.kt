@@ -1,4 +1,8 @@
-package me.gustavolopezxyz.common.data
+/*
+ * Copyright (c) 2023. Gustavo López. All rights reserved.
+ */
+
+package me.gustavolopezxyz.common.pagination
 
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.*

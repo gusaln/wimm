@@ -8,10 +8,8 @@ import app.cash.sqldelight.Query
 import app.cash.sqldelight.coroutines.asFlow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.*
-import me.gustavolopezxyz.common.data.Database
 import me.gustavolopezxyz.common.data.Entry
 import me.gustavolopezxyz.common.ext.datetime.currentTimeZone
-import me.gustavolopezxyz.db.SelectEntriesInRange
 
 class EntryRepository(private val db: Database) {
     private val entryQueries = db.entryQueries

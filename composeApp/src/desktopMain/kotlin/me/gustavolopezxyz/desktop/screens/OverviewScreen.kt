@@ -18,10 +18,10 @@ import androidx.compose.ui.unit.em
 import app.cash.sqldelight.coroutines.mapToList
 import com.arkivanov.decompose.extensions.compose.jetbrains.subscribeAsState
 import kotlinx.coroutines.Dispatchers
-import me.gustavolopezxyz.common.data.LaunchOnBottomReachedEffect
 import me.gustavolopezxyz.common.data.MoneyTransaction
-import me.gustavolopezxyz.common.data.rememberLazyPaginationState
 import me.gustavolopezxyz.common.data.toEntryForTransaction
+import me.gustavolopezxyz.common.pagination.LaunchOnBottomReachedEffect
+import me.gustavolopezxyz.common.pagination.rememberLazyPaginationState
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import me.gustavolopezxyz.common.ui.theme.dropdownSelected
 import me.gustavolopezxyz.common.ui.theme.dropdownUnselected

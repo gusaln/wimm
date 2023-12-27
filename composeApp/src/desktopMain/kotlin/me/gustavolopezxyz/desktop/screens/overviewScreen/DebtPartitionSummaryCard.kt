@@ -12,8 +12,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import me.gustavolopezxyz.common.data.AccountType
 import me.gustavolopezxyz.common.data.Palette
-import me.gustavolopezxyz.common.data.currencyOf
 import me.gustavolopezxyz.common.db.AccountRepository
+import me.gustavolopezxyz.common.money.currencyOf
 import me.gustavolopezxyz.desktop.ui.common.AppListTitle
 import me.gustavolopezxyz.desktop.ui.core.MoneyPartitionEntry
 import me.gustavolopezxyz.desktop.ui.core.MoneyPartitionSummary

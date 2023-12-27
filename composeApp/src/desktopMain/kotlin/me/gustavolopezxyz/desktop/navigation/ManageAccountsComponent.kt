@@ -9,8 +9,8 @@ import com.arkivanov.decompose.ComponentContext
 import kotlinx.coroutines.Dispatchers
 import me.gustavolopezxyz.common.data.Account
 import me.gustavolopezxyz.common.data.AccountType
-import me.gustavolopezxyz.common.data.Currency
 import me.gustavolopezxyz.common.db.AccountRepository
+import me.gustavolopezxyz.common.money.Currency
 import org.kodein.di.DI
 import org.kodein.di.DIAware
 import org.kodein.di.instance

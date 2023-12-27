@@ -2,7 +2,7 @@
  * Copyright (c) 2023. Gustavo López. All rights reserved.
  */
 
-package me.gustavolopezxyz.common.data
+package me.gustavolopezxyz.common.pagination
 
 import androidx.compose.runtime.*
 

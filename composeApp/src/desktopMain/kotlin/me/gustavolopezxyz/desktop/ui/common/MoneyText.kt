@@ -15,9 +15,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import me.gustavolopezxyz.common.data.Currency
-import me.gustavolopezxyz.common.data.MoneyAmountFormat
-import me.gustavolopezxyz.common.data.currencyOf
+import me.gustavolopezxyz.common.money.Currency
+import me.gustavolopezxyz.common.money.MoneyAmountFormat
+import me.gustavolopezxyz.common.money.currencyOf
 import me.gustavolopezxyz.common.ui.theme.AppTheme
 import me.gustavolopezxyz.common.ui.theme.amount
 

@@ -18,9 +18,9 @@ import kotlinx.datetime.LocalDateTime
 import me.gustavolopezxyz.common.data.MoneyTransaction
 import me.gustavolopezxyz.common.data.toDto
 import me.gustavolopezxyz.common.db.CategoryRepository
+import me.gustavolopezxyz.common.db.SelectTransactionsInCategoryInRange
 import me.gustavolopezxyz.common.db.TransactionRepository
 import me.gustavolopezxyz.common.ext.datetime.*
-import me.gustavolopezxyz.db.SelectTransactionsInCategoryInRange
 import org.kodein.di.DI
 import org.kodein.di.DIAware
 import org.kodein.di.instance

@@ -12,8 +12,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.extensions.compose.jetbrains.subscribeAsState
-import me.gustavolopezxyz.common.data.MissingCurrency
 import me.gustavolopezxyz.common.ext.toCurrency
+import me.gustavolopezxyz.common.money.MissingCurrency
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import me.gustavolopezxyz.desktop.navigation.CategoryMonthlySummaryComponent
 import me.gustavolopezxyz.desktop.ui.CategoryTransactionsList

@@ -13,8 +13,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import me.gustavolopezxyz.common.data.AccountType
 import me.gustavolopezxyz.common.data.Palette
-import me.gustavolopezxyz.common.data.currencyOf
 import me.gustavolopezxyz.common.db.AccountRepository
+import me.gustavolopezxyz.common.money.currencyOf
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import me.gustavolopezxyz.desktop.ui.common.AppCheckbox
 import me.gustavolopezxyz.desktop.ui.common.AppListTitle

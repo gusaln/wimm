@@ -29,7 +29,7 @@ enum class AccountType {
         get() = this == Cash || this == Envelope
 
     companion object {
-        val All: List<AccountType> get() = values().toList()
-        val Owned: List<AccountType> get() = values().filter { it.isAsset }.toList()
+        val All: List<AccountType> get() = entries
+        val Owned: List<AccountType> get() = entries.filter { it.isAsset }
     }
 }

@@ -4,10 +4,11 @@
 
 package me.gustavolopezxyz.common.data
 
-import me.gustavolopezxyz.db.SelectAllCategories
-import me.gustavolopezxyz.db.SelectEntriesForAccount
-import me.gustavolopezxyz.db.SelectEntriesForTransaction
-import me.gustavolopezxyz.db.SelectTransactionsInCategoryInRange
+import me.gustavolopezxyz.common.db.SelectAllCategories
+import me.gustavolopezxyz.common.db.SelectEntriesForAccount
+import me.gustavolopezxyz.common.db.SelectEntriesForTransaction
+import me.gustavolopezxyz.common.db.SelectTransactionsInCategoryInRange
+import me.gustavolopezxyz.common.money.currencyOf
 
 
 val UnknownAccount = Account(-1, AccountType.Cash, "Unknown", "XXX", 0.0)

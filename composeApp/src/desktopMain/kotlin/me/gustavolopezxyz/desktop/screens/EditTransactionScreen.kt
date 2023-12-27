@@ -22,6 +22,8 @@ import kotlinx.datetime.toLocalDateTime
 import me.gustavolopezxyz.common.data.*
 import me.gustavolopezxyz.common.ext.datetime.currentTimeZone
 import me.gustavolopezxyz.common.ext.toCurrency
+import me.gustavolopezxyz.common.money.Currency
+import me.gustavolopezxyz.common.money.Money
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import me.gustavolopezxyz.desktop.navigation.EditTransactionComponent
 import me.gustavolopezxyz.desktop.services.SnackbarService

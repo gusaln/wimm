@@ -5,6 +5,8 @@
 package me.gustavolopezxyz.desktop
 
 import me.gustavolopezxyz.common.logging.logger
+import me.gustavolopezxyz.common.money.Currency
+import me.gustavolopezxyz.common.money.currencyOf
 import java.io.File
 import kotlin.io.path.Path
 import kotlin.io.path.absolute
@@ -16,7 +18,7 @@ object ConfigFactory {
         getAppXdgDir()?.also {
             logger.debug("Using XDG_DATA_HOME env var to create Config")
 
-            return Config(it)
+            return Config(it, currency = getCurrency())
         }
 
         getHomeDir()?.also {
@@ -30,6 +32,12 @@ object ConfigFactory {
         logger.debug("Using current directory ($currentDirectory) to create Config")
 
         return Config(currentDirectory, "wimm.db")
+    }
+
+    private fun getCurrency(): Currency {
+        return currencyOf(
+            System.getenv("WIMM_CURRENCY") ?: "USD"
+        )
     }
 
     private fun getAppXdgDir(): String? {
@@ -73,6 +81,7 @@ class Config(
     val dataDir: String,
     val dataFileName: String = "data.db",
     val backupsToKeep: UByte = 7u,
+    val currency: Currency = currencyOf("USD"),
 ) {
     val dataFilePath get() = Path(dataDir, dataFileName).absolute().toString()
     val backupDirPath get() = Path(dataDir, "backups").absolute().toString()

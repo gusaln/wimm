@@ -20,10 +20,14 @@ import androidx.compose.ui.Modifier
 import app.cash.sqldelight.coroutines.mapToList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
-import me.gustavolopezxyz.common.data.*
+import me.gustavolopezxyz.common.data.MissingCategory
+import me.gustavolopezxyz.common.data.MoneyTransaction
+import me.gustavolopezxyz.common.data.Palette
+import me.gustavolopezxyz.common.data.toDto
 import me.gustavolopezxyz.common.db.CategoryRepository
 import me.gustavolopezxyz.common.db.TransactionRepository
 import me.gustavolopezxyz.common.ext.datetime.*
+import me.gustavolopezxyz.common.money.currencyOf
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import me.gustavolopezxyz.desktop.ui.common.AppListTitle
 import me.gustavolopezxyz.desktop.ui.core.MoneyPartitionEntry

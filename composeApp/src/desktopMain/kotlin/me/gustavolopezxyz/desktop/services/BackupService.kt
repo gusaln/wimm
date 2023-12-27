@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toLocalDateTime
-import me.gustavolopezxyz.common.data.Database
+import me.gustavolopezxyz.common.db.Database
 import me.gustavolopezxyz.common.ext.datetime.currentTimeZone
 import me.gustavolopezxyz.common.logging.logger
 import me.gustavolopezxyz.desktop.Config

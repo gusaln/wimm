@@ -1,0 +1,19 @@
+selectAllPaginated:
+SELECT * FROM exchangeRate
+ORDER BY effectiveSince DESC
+LIMIT :offset, :limit;
+
+selectByCurrenciesSince:
+SELECT * FROM exchangeRate
+WHERE baseCurrency = :baseCurrency AND counterCurrency = :counterCurrency AND effectiveSince >= :since
+ORDER BY effectiveSince DESC;
+
+insert:
+INSERT INTO exchangeRate(baseCurrency, counterCurrency, effectiveSince, rate)
+VALUES (:baseCurrency, :counterCurrency, :effectiveSince, :rate)
+ON CONFLICT (baseCurrency, counterCurrency, effectiveSince) DO UPDATE SET effectiveSince = :effectiveSince, rate = :rate;
+
+update:
+UPDATE exchangeRate
+SET baseCurrency = :baseCurrency, counterCurrency = :counterCurrency, effectiveSince = :effectiveSince, rate = :rate
+WHERE exchangeRateId = :exchangeRateId;

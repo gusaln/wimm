@@ -4,10 +4,7 @@
 
 package me.gustavolopezxyz.common.di
 
-import me.gustavolopezxyz.common.db.AccountRepository
-import me.gustavolopezxyz.common.db.CategoryRepository
-import me.gustavolopezxyz.common.db.EntryRepository
-import me.gustavolopezxyz.common.db.TransactionRepository
+import me.gustavolopezxyz.common.db.*
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
 import org.kodein.di.instance
@@ -27,5 +24,6 @@ fun baseModule(): DI.Module {
         bindProvider { CategoryRepository(instance()) }
         bindProvider { TransactionRepository(instance()) }
         bindProvider { EntryRepository(instance()) }
+        bindProvider { ExchangeRateRepository(instance()) }
     }
 }

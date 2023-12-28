@@ -14,9 +14,10 @@ data class Currency internal constructor(val code: String, val symbol: String) {
 }
 
 val MissingCurrency = Currency("XXX", "?")
-private val currencyRepository: HashMap<String, Currency> = hashMapOf(
-    Pair("USD", Currency("USD", "$"))
-)
+private val currencyRepository: Map<String, Currency> = listOf(
+    Currency("USD", "$"),
+    Currency("VED", "Bs")
+).associateBy { it.code }
 
 fun currencyOf(code: String): Currency {
     return currencyRepository.getOrDefault(code.uppercase().trim(), MissingCurrency)

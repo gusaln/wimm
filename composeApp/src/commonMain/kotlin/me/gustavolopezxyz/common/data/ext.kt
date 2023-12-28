@@ -8,6 +8,8 @@ import me.gustavolopezxyz.common.db.SelectAllCategories
 import me.gustavolopezxyz.common.db.SelectEntriesForAccount
 import me.gustavolopezxyz.common.db.SelectEntriesForTransaction
 import me.gustavolopezxyz.common.db.SelectTransactionsInCategoryInRange
+import me.gustavolopezxyz.common.ext.toCurrency
+import me.gustavolopezxyz.common.money.CurrencyPair
 import me.gustavolopezxyz.common.money.currencyOf
 
 
@@ -73,4 +75,10 @@ fun SelectTransactionsInCategoryInRange.toMoneyTransaction() = MoneyTransaction(
     this.details,
     this.currency,
     this.total
+)
+
+fun ExchangeRate.toCurrencyPair() = CurrencyPair(
+    this.baseCurrency.toCurrency(),
+    this.counterCurrency.toCurrency(),
+    this.rate
 )

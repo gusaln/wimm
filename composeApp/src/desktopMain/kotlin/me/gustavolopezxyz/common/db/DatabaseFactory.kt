@@ -8,6 +8,7 @@ import app.cash.sqldelight.EnumColumnAdapter
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import me.gustavolopezxyz.common.data.Account
 import me.gustavolopezxyz.common.data.Entry
+import me.gustavolopezxyz.common.data.ExchangeRate
 import me.gustavolopezxyz.common.data.MoneyTransaction
 import me.gustavolopezxyz.desktop.Config
 import java.io.File
@@ -23,7 +24,8 @@ actual class DatabaseFactory(private val config: Config) {
             driver,
             accountAdapter = Account.Adapter(EnumColumnAdapter()),
             entryAdapter = Entry.Adapter(instantColumnAdapter),
-            moneyTransactionAdapter = MoneyTransaction.Adapter(instantColumnAdapter)
+            exchangeRateAdapter = ExchangeRate.Adapter(instantColumnAdapter),
+            moneyTransactionAdapter = MoneyTransaction.Adapter(instantColumnAdapter),
         ).also {
             if (File(dbFile).exists()) {
                 Database.Schema.migrate(driver, getLastMigration(), Database.Schema.version)

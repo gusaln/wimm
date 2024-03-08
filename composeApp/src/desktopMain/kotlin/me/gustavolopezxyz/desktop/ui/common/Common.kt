@@ -22,7 +22,7 @@ import java.text.DecimalFormat
 
 
 @Composable
-fun CardTitle(
+fun AppCardTitle(
     modifier: Modifier = Modifier.heightIn(24.dp, 64.dp),
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,

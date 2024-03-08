@@ -21,8 +21,8 @@ import me.gustavolopezxyz.common.data.MoneyTransaction
 import me.gustavolopezxyz.common.ext.datetime.formatDateTime
 import me.gustavolopezxyz.common.ext.toCurrency
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
+import me.gustavolopezxyz.desktop.ui.common.AppCardTitle
 import me.gustavolopezxyz.desktop.ui.common.AppDivider
-import me.gustavolopezxyz.desktop.ui.common.CardTitle
 import me.gustavolopezxyz.desktop.ui.common.MoneyText
 
 @Composable
@@ -63,7 +63,7 @@ fun TransactionEntriesList(
             modifier = Modifier.padding(AppDimensions.Default.cardPadding),
             verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium)
         ) {
-            CardTitle(
+            AppCardTitle(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.small)
             ) {

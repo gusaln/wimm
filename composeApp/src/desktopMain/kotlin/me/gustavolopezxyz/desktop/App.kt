@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CurrencyExchange
 import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -23,7 +24,6 @@ import me.gustavolopezxyz.desktop.navigation.RootComponent
 import me.gustavolopezxyz.desktop.screens.CreateTransactionScreen
 import me.gustavolopezxyz.desktop.screens.ImportTransactionsScreen
 import me.gustavolopezxyz.desktop.services.SnackbarService
-import me.gustavolopezxyz.desktop.ui.common.AppTextButton
 import org.kodein.di.DI
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
@@ -118,15 +118,24 @@ fun App(di: DI, component: RootComponent) = withDI(di) {
 
                         Spacer(modifier = Modifier.weight(1f))
 
-                        AppTextButton(
+                        IconButton(
                             onClick = { component.onOpenCreateTransactionWindow() },
-                            text = "Create transaction",
-                            icon = { Icon(Icons.Default.Add, "create transaction") })
-
-                        AppTextButton(
+                            modifier = Modifier
+                        ) {
+                            Icon(Icons.Default.Add, "create transaction")
+                        }
+                        IconButton(
                             onClick = { isImportingOpen = true },
-                            text = "Import",
-                            icon = { Icon(Icons.Default.UploadFile, "import") })
+                            modifier = Modifier
+                        ) {
+                            Icon(Icons.Default.UploadFile, "import")
+                        }
+                        IconButton(
+                            onClick = { component.onNavigateToManageExchangeRates() },
+                            modifier = Modifier
+                        ) {
+                            Icon(Icons.Default.CurrencyExchange, "manage exchange rates")
+                        }
                     }
                 },
             )

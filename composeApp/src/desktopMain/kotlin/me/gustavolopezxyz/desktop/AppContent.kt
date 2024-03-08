@@ -22,7 +22,7 @@ import me.gustavolopezxyz.desktop.screens.*
 fun AppContent(component: RootComponent) {
     Surface {
         Column {
-            Spacer(Modifier.height(48.dp))
+            Spacer(Modifier.height(64.dp))
 
             Children(
                 stack = component.stack,
@@ -37,7 +37,11 @@ fun AppContent(component: RootComponent) {
 
                     is RootComponent.Child.ManageCategories -> ManageCategoriesScreen(child.component)
                     is RootComponent.Child.CategorySummary -> CategoryMonthlySummaryScreen(child.component)
+
                     is RootComponent.Child.EditTransaction -> EditTransactionScreen(child.component)
+
+                    is RootComponent.Child.ManageExchangeRates -> ManageExchangeRatesScreen(child.component)
+
                 }
             }
         }

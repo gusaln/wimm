@@ -83,6 +83,11 @@ class RootComponent(
         navigation.replaceCurrent(Config.ManageCategories)
     }
 
+    fun onNavigateToManageExchangeRates() {
+        navigation.popTo(0)
+        navigation.replaceCurrent(Config.ManageExchangeRates)
+    }
+
     private fun child(config: Config, componentContext: ComponentContext): Child =
         when (config) {
             is Config.Overview -> Child.Overview(
@@ -149,6 +154,10 @@ class RootComponent(
                     transactionId = config.transactionId,
                     onNavigateBack = { navigation.pop() })
             )
+
+            is Config.ManageExchangeRates -> Child.ManageExchangeRates(
+                ManageExchangeRatesComponent(componentContext = componentContext, di = di)
+            )
         }
 
     @Serializable
@@ -170,6 +179,9 @@ class RootComponent(
 
         @Serializable
         data class EditTransaction(val transactionId: Long) : Config
+
+        @Serializable
+        data object ManageExchangeRates : Config
     }
 
     sealed class Child {
@@ -178,8 +190,9 @@ class RootComponent(
         class AccountSummary(val component: AccountSummaryComponent) : Child()
         class ManageCategories(val component: ManageCategoriesComponent) : Child()
         class CategorySummary(val component: CategoryMonthlySummaryComponent) : Child()
-
         class EditTransaction(val component: EditTransactionComponent) : Child()
+        class ManageExchangeRates(val component: ManageExchangeRatesComponent) : Child()
+
     }
 }
 

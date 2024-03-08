@@ -33,9 +33,9 @@ import me.gustavolopezxyz.desktop.ui.common.*
 import kotlin.math.absoluteValue
 
 internal val AccountPartitionSummaryDefaultColors = lazy {
-    Palette.Colors.asIterable().filterNot { it.key.startsWith("gray") || it.key.startsWith("zinc") }
+    Palette.Colors.asSequence().filterNot { it.key.startsWith("gray") || it.key.startsWith("zinc") }
         .filter { it.key.endsWith("200") || it.key.endsWith("400") || it.key.endsWith("600") || it.key.endsWith("800") }
-        .sortedByDescending { it.key }.map { it.value }
+        .sortedByDescending { it.key }.map { it.value }.toList()
 }
 
 @Composable

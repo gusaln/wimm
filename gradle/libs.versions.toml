@@ -2,7 +2,7 @@
 compose = "1.5.4"
 compose-plugin = "1.5.11"
 compose-compiler = "1.5.5"
-agp = "8.1.4"
+agp = "8.2.0"
 
 android-minSdk = "24"
 android-compileSdk = "33"
@@ -21,6 +21,8 @@ junit = "4.13.2"
 kotlinx-datetime = "0.4.+"
 kotlinx-serialization-plugin = "1.9.21"
 kotlinx-serialization-json = "1.6.2"
+
+orgJson = "20231013"
 
 kodein-di = "7.19.0"
 slf4j = "2.0.9"
@@ -55,6 +57,8 @@ androidx-activity-compose = { module = "androidx.activity:activity-compose", ver
 
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }
+
+orgJson = { module = "org.json:json", version.ref = "orgJson" }
 
 kodein-compose = { module = "org.kodein.di:kodein-di-framework-compose", version.ref = "kodein-di" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }

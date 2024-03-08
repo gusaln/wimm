@@ -79,7 +79,7 @@ fun OverviewScreen(component: OverviewComponent) {
                         component.onEditTransaction(it.transactionId)
                     },
                     onDuplicateTransaction = component.onDuplicateTransaction,
-                    modifier = Modifier.fillMaxHeight().weight(1f)
+                    modifier = Modifier.fillMaxHeight().requiredWidthIn(400.dp).weight(1f)
                 )
 
                 when (summary) {

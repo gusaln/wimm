@@ -42,6 +42,7 @@ kotlin {
 
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
+            implementation(libs.orgJson)
             implementation(libs.bundles.log4j.desktop)
             implementation(libs.slf4j.simple)
             implementation(libs.decompose.extensionsCompose)

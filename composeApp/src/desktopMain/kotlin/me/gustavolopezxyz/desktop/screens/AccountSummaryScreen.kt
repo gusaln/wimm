@@ -6,7 +6,7 @@ package me.gustavolopezxyz.desktop.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -41,7 +41,7 @@ fun AccountSummaryScreen(component: AccountSummaryComponent) {
     val page by component.page.subscribeAsState()
 
     val account by remember(component.accountId) { derivedStateOf { component.account!! } }
-    val entries by component.getEntries(scope.coroutineContext, ACCOUNT_SUMMARY_PAGE_SIZE)
+    val entries by component.collectEntriesAsState(scope.coroutineContext, ACCOUNT_SUMMARY_PAGE_SIZE)
     LaunchedEffect(entries) {
         isLoading = false
     }
@@ -53,7 +53,7 @@ fun AccountSummaryScreen(component: AccountSummaryComponent) {
         ) {
             ScreenTitle {
                 IconButton(onClick = { component.onNavigateBack() }) {
-                    Icon(Icons.Default.ArrowBack, "go back")
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, "go back")
                 }
 
                 Spacer(Modifier.width(AppDimensions.Default.padding.extraLarge))
@@ -88,8 +88,8 @@ fun AccountSummaryScreen(component: AccountSummaryComponent) {
                 isFirstPage = page == 1,
                 isLastPage = entries.size < ACCOUNT_SUMMARY_PAGE_SIZE,
                 isLoading = isLoading,
-                onPrevPage = { component.onNextPage() },
-                onNextPage = { component.onPrevPage() },
+                onPrevPage = { component.onPrevPage() },
+                onNextPage = { component.onNextPage() },
                 onSelectEntry = { component.onSelectEntry(it) }
             )
         }

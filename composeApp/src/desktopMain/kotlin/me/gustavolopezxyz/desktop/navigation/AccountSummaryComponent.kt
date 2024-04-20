@@ -47,10 +47,10 @@ class AccountSummaryComponent(
     }
 
     @Composable
-    fun getEntries(scope: CoroutineContext, perPage: Int): State<List<EntryForAccount>> {
+    fun collectEntriesAsState(scope: CoroutineContext, perPage: Int): State<List<EntryForAccount>> {
         val page by page.subscribeAsState()
 
-        return entryRepository.getAllForAccount(accountId, ((page - 1) * perPage).toLong(), perPage.toLong())
+        return entryRepository.getAllForAccountAsFlow(accountId, ((page - 1) * perPage).toLong(), perPage.toLong())
             .mapToList(Dispatchers.IO)
             .map { list -> list.map { it.toEntryForAccount() } }
             .collectAsState(emptyList(), scope)

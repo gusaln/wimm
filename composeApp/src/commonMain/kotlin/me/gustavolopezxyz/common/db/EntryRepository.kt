@@ -24,6 +24,9 @@ class EntryRepository(private val db: Database) {
         entryQueries.selectEntriesForTransaction(transactionIds).executeAsList()
 
     fun getAllForAccount(accountId: Long, offset: Long = 0, limit: Long = 15) =
+        entryQueries.selectEntriesForAccount(listOf(accountId), offset = offset, limit = limit).executeAsList()
+
+    fun getAllForAccountAsFlow(accountId: Long, offset: Long = 0, limit: Long = 15) =
         entryQueries.selectEntriesForAccount(listOf(accountId), offset = offset, limit = limit).asFlow()
 
     fun getInRangeAsFlow(from: LocalDateTime, to: LocalDateTime): Flow<Query<SelectEntriesInRange>> {

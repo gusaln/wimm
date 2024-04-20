@@ -1,35 +1,35 @@
 [versions]
-compose = "1.5.4"
-compose-plugin = "1.5.11"
+compose = "1.6.6"
+compose-plugin = "1.6.1"
 compose-compiler = "1.5.5"
-agp = "8.2.0"
+agp = "8.2.+"
 
 android-minSdk = "24"
 android-compileSdk = "33"
 android-targetSdk = "33"
-androidx-activityCompose = "1.8.1"
-androidx-core-ktx = "1.12.0"
+androidx-activityCompose = "1.9.+"
+androidx-core-ktx = "1.13.+"
 androidx-appcompat = "1.6.1"
-androidx-material = "1.10.0"
+androidx-material = "1.11.+"
 androidx-constraintlayout = "2.1.4"
 androidx-test-junit = "1.1.5"
 androidx-espresso-core = "3.5.1"
 
-kotlin = "1.9.21"
+kotlin = "1.9.23"
 junit = "4.13.2"
 
-kotlinx-datetime = "0.4.+"
+kotlinx-datetime = "0.5.+"
 kotlinx-serialization-plugin = "1.9.21"
 kotlinx-serialization-json = "1.6.2"
 
 orgJson = "20231013"
 
-kodein-di = "7.19.0"
+kodein-di = "7.19.+"
 slf4j = "2.0.9"
 slf4j-android = "1.7.36"
-log4j = "2.20.0"
+log4j = "2.20.+"
 
-decompose = "[2.1.0, 3.0.0)"
+decompose = "[2.2.0, 3.0.0)"
 
 sqlDelight = "2.0.+"
 

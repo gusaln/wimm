@@ -8,8 +8,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -32,11 +32,11 @@ fun SimplePaginationControl(
         )
     ) {
         IconButton(onClick = onPrevPage, enabled = isPrevEnabled) {
-            Icon(Icons.Default.KeyboardArrowLeft, "prev page")
+            Icon(Icons.AutoMirrored.Default.KeyboardArrowLeft, "prev page")
         }
 
         IconButton(onClick = onNextPage, enabled = isNextEnabled) {
-            Icon(Icons.Default.KeyboardArrowRight, "next page")
+            Icon(Icons.AutoMirrored.Default.KeyboardArrowRight, "next page")
         }
     }
 }

@@ -185,7 +185,7 @@ fun ModifiedEntriesList(
                 } else {
                     ModifiedEntriesListItem(accounts, entry = it, onEdit = onEdit, onDelete = onDelete)
                 }
-                Divider(Modifier.fillMaxWidth())
+                HorizontalDivider(Modifier.fillMaxWidth())
             }
         }
     }

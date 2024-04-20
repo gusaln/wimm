@@ -6,7 +6,7 @@ package me.gustavolopezxyz.desktop.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -51,7 +51,7 @@ fun CategoryMonthlySummaryScreen(component: CategoryMonthlySummaryComponent) {
         ) {
             ScreenTitle {
                 IconButton(onClick = { component.onNavigateBack() }) {
-                    Icon(Icons.Default.ArrowBack, "go back")
+                    Icon(Icons.AutoMirrored.Default.ArrowBack, "go back")
                 }
 
                 Spacer(Modifier.width(AppDimensions.Default.padding.extraLarge))

@@ -9,8 +9,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -96,11 +96,11 @@ fun IncomesSummaryCard(
                 Text(month.month.toString())
 
                 IconButton(onClick = { month = month.prevMonth() }) {
-                    Icon(Icons.Default.KeyboardArrowLeft, "prev month")
+                    Icon(Icons.AutoMirrored.Default.KeyboardArrowLeft, "prev month")
                 }
 
                 IconButton(onClick = { month = month.nextMonth() }) {
-                    Icon(Icons.Default.KeyboardArrowRight, "next month")
+                    Icon(Icons.AutoMirrored.Default.KeyboardArrowRight, "next month")
                 }
             }
         }

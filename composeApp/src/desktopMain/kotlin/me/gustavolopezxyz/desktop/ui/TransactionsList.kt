@@ -9,7 +9,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -87,7 +87,7 @@ fun TransactionEntriesList(
                 Spacer(modifier = Modifier.weight(1f))
 
                 IconButton(onClick = { onSelect(transaction) }) {
-                    Icon(Icons.Default.ArrowForward, "edit transaction")
+                    Icon(Icons.AutoMirrored.Default.ArrowForward, "edit transaction")
                 }
             }
 

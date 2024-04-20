@@ -63,7 +63,7 @@ fun AppChip(
 
 @Composable
 fun AppDivider(modifier: Modifier = Modifier) {
-    Divider(color = MaterialTheme.colorScheme.background, thickness = 1.dp, modifier = modifier)
+    HorizontalDivider(modifier = modifier, thickness = 1.dp, color = MaterialTheme.colorScheme.background)
 }
 
 @Composable

@@ -181,7 +181,7 @@ fun NewEntriesList(
                 if (entryError?.entryId == it.id) {
                     Text(entryError.message, color = Color.Red)
                 }
-                Divider(Modifier.fillMaxWidth())
+                HorizontalDivider(Modifier.fillMaxWidth())
             }
         }
 

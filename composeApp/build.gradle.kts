@@ -1,4 +1,3 @@
-import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
@@ -47,6 +46,7 @@ kotlin {
             implementation(libs.slf4j.simple)
             implementation(libs.decompose.extensionsCompose)
             implementation(libs.sqldelight.sqliteDriver)
+            implementation(libs.bundles.ktor.client)
         }
 
 
@@ -58,7 +58,6 @@ kotlin {
             implementation(compose.material)
             implementation(compose.material3)
             implementation(compose.materialIconsExtended)
-            @OptIn(ExperimentalComposeLibrary::class)
             implementation(compose.components.resources)
             implementation(compose.preview)
 
@@ -68,6 +67,7 @@ kotlin {
             implementation(libs.decompose)
             implementation(libs.sqldelight.coroutineExtensions)
             implementation(libs.sqldelight.runtime)
+            implementation(libs.bundles.multiplatformSettings)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

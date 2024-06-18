@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
+import me.gustavolopezxyz.common.ext.camelToSnakeCase
 import me.gustavolopezxyz.common.ext.datetime.currentTimeZone
 import me.gustavolopezxyz.common.ext.toCurrency
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
@@ -21,9 +22,7 @@ import me.gustavolopezxyz.desktop.navigation.ManageExchangeRatesComponent
 import me.gustavolopezxyz.desktop.ui.common.AppDropdown
 import org.json.JSONArray
 import org.json.JSONObject
-
-internal const val RAW_JSON = """
-    []"""
+import java.util.*
 
 enum class ExchangeRateAttribute {
     BaseCurrency,
@@ -52,33 +51,45 @@ data class Mapper(
     }
 }
 
+fun tryToGetMap(keys: Set<String>, attribute: ExchangeRateAttribute): Mapper {
+    if (keys.contains(attribute.name.lowercase(Locale.getDefault()))) return Mapper(
+        attribute.name.lowercase(Locale.getDefault()),
+        false
+    )
+
+    if (keys.contains(attribute.name.camelToSnakeCase())) return Mapper(attribute.name.camelToSnakeCase(), false)
+
+    if (attribute == ExchangeRateAttribute.Rate && keys.contains("value")) return Mapper("value", false)
+
+    return Mapper()
+}
+
 @Composable
 fun ExchangeRateParser(
-    modifier: Modifier = Modifier,
+    rawData: JSONArray,
     onImportRequest: (List<ManageExchangeRatesComponent.UnsavedExchangeRate>) -> Unit,
-    onClose: () -> Unit
+    onClear: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    val rawData = remember { JSONArray(RAW_JSON) }
-
     val keys by derivedStateOf {
         val size = rawData.length()
 
         val keySet = mutableSetOf<String>()
         for (i in 0..size) {
-            val obj = rawData.optJSONObject(0)
-            keySet += obj.keySet()
+            rawData.optJSONObject(0).apply {
+                if (this != null) keySet += this.keySet()
+            }
         }
 
         keySet.toSet()
     }
 
-
     val mappers = remember {
         mutableStateMapOf(
-            ExchangeRateAttribute.BaseCurrency to Mapper(),
-            ExchangeRateAttribute.CounterCurrency to Mapper(),
-            ExchangeRateAttribute.Rate to Mapper(),
-            ExchangeRateAttribute.EffectiveSince to Mapper(),
+            ExchangeRateAttribute.BaseCurrency to tryToGetMap(keys, ExchangeRateAttribute.BaseCurrency),
+            ExchangeRateAttribute.CounterCurrency to tryToGetMap(keys, ExchangeRateAttribute.CounterCurrency),
+            ExchangeRateAttribute.Rate to tryToGetMap(keys, ExchangeRateAttribute.Rate),
+            ExchangeRateAttribute.EffectiveSince to tryToGetMap(keys, ExchangeRateAttribute.EffectiveSince),
         )
     }
 
@@ -99,14 +110,10 @@ fun ExchangeRateParser(
     }
 
     Column(
-        modifier.padding(AppDimensions.Default.padding.large).fillMaxSize(),
+        modifier.padding(AppDimensions.Default.padding.large),
     ) {
-        Text("Import exchange rates from JSON", style = MaterialTheme.typography.headlineLarge)
-        Spacer(Modifier.fillMaxWidth().height(24.dp))
-
         Column {
-            Text("Mappers", style = MaterialTheme.typography.headlineMedium)
-
+            Text("Select the fields", style = MaterialTheme.typography.headlineSmall)
             mappers.forEach { (attribute, mapper) ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically
@@ -146,8 +153,33 @@ fun ExchangeRateParser(
                     }
                 }
             }
+
+            Spacer(Modifier.fillMaxWidth().height(24.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.small, Alignment.End)
+            ) {
+                Button(onClick = { onImportRequest(getUnsavedRates()) }) {
+                    Text("Import")
+                }
+
+                Button(onClick = { onClear() }) {
+                    Text("Cancelar")
+                }
+            }
         }
         Spacer(Modifier.fillMaxWidth().height(24.dp))
+
+        RawEntriesTable(keys, rawData, Modifier.fillMaxSize())
+    }
+}
+
+@Composable
+private fun RawEntriesTable(keys: Set<String>, rawData: JSONArray, modifier: Modifier = Modifier) {
+    Column(modifier = modifier) {
+        Text("Raw data", style = MaterialTheme.typography.headlineSmall)
+        Spacer(Modifier.fillMaxWidth().height(AppDimensions.Default.spacing.medium))
 
         Surface(
             tonalElevation = 24.dp,
@@ -164,7 +196,7 @@ fun ExchangeRateParser(
                         Text(it, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
                     }
                 }
-                Divider(Modifier.fillMaxWidth().height(1.dp), color = Color.Gray)
+                HorizontalDivider(Modifier.fillMaxWidth().height(1.dp), color = Color.Gray)
                 LazyColumn(
                     Modifier.wrapContentHeight().fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(6.dp)
@@ -196,21 +228,9 @@ fun ExchangeRateParser(
                                 )
                             }
                         }
-                        Divider(Modifier.fillMaxWidth().height(1.dp), color = Color.Gray)
+                        HorizontalDivider(Modifier.fillMaxWidth().height(1.dp), color = Color.Gray)
                     }
                 }
-            }
-        }
-
-        Spacer(Modifier.fillMaxWidth().height(24.dp))
-
-        Row(horizontalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.small, Alignment.End)) {
-            Button(onClick = { onImportRequest(getUnsavedRates()) }) {
-                Text("Import")
-            }
-
-            Button(onClick = { onClose() }) {
-                Text("Cancelar")
             }
         }
     }

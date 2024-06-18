@@ -18,7 +18,7 @@ import com.arkivanov.decompose.extensions.compose.jetbrains.subscribeAsState
 import kotlinx.coroutines.launch
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import me.gustavolopezxyz.desktop.navigation.ManageExchangeRatesComponent
-import me.gustavolopezxyz.desktop.screens.manageExchangeRatesScreen.ExchangeRateParser
+import me.gustavolopezxyz.desktop.screens.manageExchangeRatesScreen.ExchangeRatePanel
 import me.gustavolopezxyz.desktop.services.SnackbarService
 import me.gustavolopezxyz.desktop.ui.ExchangeRatesList
 import me.gustavolopezxyz.desktop.ui.common.ContainerLayout
@@ -42,11 +42,13 @@ fun ManageExchangeRatesScreen(component: ManageExchangeRatesComponent) {
             title = "Import from JSON",
         ) {
             Card(modifier = Modifier.fillMaxSize()) {
-                ExchangeRateParser(
+                ExchangeRatePanel(
                     onImportRequest = {
                         component.insertMany(it)
 
                         scope.launch {
+                            isImporting = false
+
                             snackbar.showSnackbar("${it.size} exchange rates imported")
                         }
                     },
@@ -70,18 +72,19 @@ fun ManageExchangeRatesScreen(component: ManageExchangeRatesComponent) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.large)
             ) {
+                Column(Modifier.weight(1f).fillMaxHeight()) {}
+
                 ExchangeRatesList(
                     exchangeRates,
                     isFirstPage = page == 1,
                     isLastPage = exchangeRates.size < component.pageSize.value,
                     isLoading = false,
-                    onPrevPage = { component.onNextPage() },
-                    onNextPage = { component.onPrevPage() },
-                    modifier = Modifier.weight(4f).fillMaxHeight()
+                    onPrevPage = { component.onPrevPage() },
+                    onNextPage = { component.onNextPage() },
+                    modifier = Modifier.weight(2f).fillMaxHeight()
                 )
 
-                Column(Modifier.weight(6f).fillMaxHeight()) {
-                }
+                Column(Modifier.weight(1f).fillMaxHeight()) {}
             }
         }
 

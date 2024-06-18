@@ -1,5 +1,5 @@
 [versions]
-compose = "1.6.6"
+compose = "1.6.7"
 compose-plugin = "1.6.1"
 compose-compiler = "1.5.5"
 agp = "8.2.+"
@@ -32,6 +32,11 @@ log4j = "2.20.+"
 decompose = "[2.2.0, 3.0.0)"
 
 sqlDelight = "2.0.+"
+
+multiplatformSettings = "1.1.1"
+
+
+ktor = "2.3.11"
 
 fastexcel = "0.15.7"
 
@@ -79,11 +84,29 @@ sqldelight-androidDriver = { module = "app.cash.sqldelight:android-driver", vers
 sqldelight-sqliteDriver = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqlDelight" }
 sqldelight-dialects-sqlite = { module = "app.cash.sqldelight:sqlite-3-24-dialect", version.ref = "sqlDelight" }
 
+multiplatformSettings = { module = "com.russhwolf:multiplatform-settings", version.ref = "multiplatformSettings" }
+multiplatformSettings-serialization = { module = "com.russhwolf:multiplatform-settings-serialization", version.ref = "multiplatformSettings" }
+
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
+ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+
 fastexcel-core = { module = "org.dhatim:fastexcel", version.ref = "fastexcel" }
 fastexcel-reader = { module = "org.dhatim:fastexcel-reader", version.ref = "fastexcel" }
 
 [bundles]
 log4j-desktop = ["log4j-api", "log4j-core", "log4j-slf4jImpl"]
+ktor-client = [
+    "ktor-client-core",
+    "ktor-client-cio",
+    "ktor-client-logging",
+    "ktor-client-content-negotiation",
+    "ktor-serialization-kotlinx-json",
+]
+
+multiplatformSettings = ["multiplatformSettings", "multiplatformSettings-serialization"]
 
 [plugins]
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }

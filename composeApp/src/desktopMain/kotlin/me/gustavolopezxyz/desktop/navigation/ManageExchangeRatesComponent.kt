@@ -48,8 +48,9 @@ class ManageExchangeRatesComponent(
     @Composable
     fun collectExchangeRatesAsState(): State<List<ExchangeRate>> {
         val page by page.subscribeAsState()
+        val pageSize by pageSize.subscribeAsState()
 
-        return exchangeRateRepository.selectAllPaginated((page - 1).toLong(), pageSize.value.toLong())
+        return exchangeRateRepository.selectAllPaginated(((page - 1) * pageSize).toLong(), pageSize.toLong())
             .asFlow()
             .mapToList(Dispatchers.IO)
             .collectAsState(emptyList())

@@ -48,7 +48,7 @@ fun CreateAccountForm(
     }
 
     Column(
-        verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.fieldSpacing)
+        verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium)
     ) {
         FormTitle("Create an Account")
 

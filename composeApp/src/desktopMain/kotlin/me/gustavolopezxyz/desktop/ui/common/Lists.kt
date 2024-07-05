@@ -29,7 +29,7 @@ internal val ListItemSecondaryTextStyle @Composable get() = MaterialTheme.typogr
 @Composable
 fun AppList(
     modifier: Modifier = Modifier,
-    verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(AppDimensions.Default.listSpaceBetween),
+    verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(AppDimensions.Default.spacing.medium),
     content: @Composable ColumnScope.() -> Unit
 ) {
     Column(modifier, verticalArrangement = verticalArrangement) {
@@ -39,13 +39,13 @@ fun AppList(
 
 @Composable
 fun ListItemSpacer() {
-    Spacer(Modifier.height(AppDimensions.Default.listSpaceBetween))
+    Spacer(Modifier.height(AppDimensions.Default.spacing.medium))
 }
 
 @Composable
 fun AppLazyList(
     modifier: Modifier = Modifier,
-    spaceBetween: Dp = AppDimensions.Default.listSpaceBetween,
+    spaceBetween: Dp = AppDimensions.Default.spacing.medium,
     state: LazyListState = rememberLazyListState(),
     content: LazyListScope.() -> Unit
 ) {

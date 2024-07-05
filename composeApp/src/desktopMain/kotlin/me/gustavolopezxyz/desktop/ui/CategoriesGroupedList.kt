@@ -62,7 +62,7 @@ fun CategoriesList(
 ) {
     categories.chunked(5).forEach { categoriesChunk ->
         Row(
-            modifier = Modifier.fillMaxWidth().padding(bottom = AppDimensions.Default.listSpaceBetween),
+            modifier = Modifier.fillMaxWidth().padding(bottom = AppDimensions.Default.spacing.medium),
             horizontalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium)
         ) {
             categoriesChunk.forEach { category ->

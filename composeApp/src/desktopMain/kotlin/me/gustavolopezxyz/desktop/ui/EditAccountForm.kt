@@ -30,7 +30,7 @@ fun EditAccountForm(
     onCancel: () -> Unit = {}
 ) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.fieldSpacing)
+        verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium)
     ) {
         FormTitle("Edit Account ${value.name}")
 

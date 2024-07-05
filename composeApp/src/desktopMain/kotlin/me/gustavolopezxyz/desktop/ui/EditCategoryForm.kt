@@ -33,7 +33,7 @@ fun EditCategoryForm(
     var parent by remember { mutableStateOf(categories.find { it.categoryId == value.parentCategoryId }) }
 
     Column(
-        verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.fieldSpacing)
+        verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium)
     ) {
         FormTitle("Edit Account ${value.name}")
 

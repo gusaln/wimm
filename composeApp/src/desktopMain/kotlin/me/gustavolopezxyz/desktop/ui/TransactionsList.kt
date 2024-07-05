@@ -21,6 +21,7 @@ import me.gustavolopezxyz.common.data.MoneyTransaction
 import me.gustavolopezxyz.common.ext.datetime.formatDateTime
 import me.gustavolopezxyz.common.ext.toCurrency
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
+import me.gustavolopezxyz.desktop.ui.common.AppCard
 import me.gustavolopezxyz.desktop.ui.common.AppCardTitle
 import me.gustavolopezxyz.desktop.ui.common.AppDivider
 import me.gustavolopezxyz.desktop.ui.common.MoneyText
@@ -58,9 +59,9 @@ fun TransactionEntriesList(
     entries: List<EntryForTransaction>,
     onSelect: (MoneyTransaction) -> Unit,
 ) {
-    Card {
+    AppCard {
         Column(
-            modifier = Modifier.padding(AppDimensions.Default.cardPadding),
+//            modifier = Modifier.padding(AppDimensions.Default.cardPadding),
             verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium)
         ) {
             AppCardTitle(

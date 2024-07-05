@@ -38,7 +38,7 @@ fun AppCard(
     modifier: Modifier = Modifier, content: @Composable BoxScope.() -> Unit
 ) {
     Card(modifier) {
-        Box(Modifier.padding(AppDimensions.Default.cardPadding)) {
+        Box(Modifier.padding(AppDimensions.Default.spacing.medium)) {
             content()
         }
     }

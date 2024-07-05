@@ -16,10 +16,7 @@ import me.gustavolopezxyz.common.data.getCurrency
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import me.gustavolopezxyz.desktop.navigation.AccountSummaryComponent
 import me.gustavolopezxyz.desktop.ui.AccountEntriesList
-import me.gustavolopezxyz.desktop.ui.common.AppListTitle
-import me.gustavolopezxyz.desktop.ui.common.ContainerLayout
-import me.gustavolopezxyz.desktop.ui.common.MoneyText
-import me.gustavolopezxyz.desktop.ui.common.ScreenTitle
+import me.gustavolopezxyz.desktop.ui.common.*
 
 const val ACCOUNT_SUMMARY_PAGE_SIZE = 10
 
@@ -27,7 +24,7 @@ const val ACCOUNT_SUMMARY_PAGE_SIZE = 10
 fun AccountSummaryScreen(component: AccountSummaryComponent) {
     if (component.account == null) {
         ContainerLayout {
-            Card(modifier = Modifier.padding(AppDimensions.Default.cardPadding).widthIn(100.dp, 200.dp)) {
+            AppCard(modifier = Modifier.widthIn(100.dp, 200.dp)) {
                 Text("Account not found")
             }
         }
@@ -66,7 +63,7 @@ fun AccountSummaryScreen(component: AccountSummaryComponent) {
 
             Row {
                 Card {
-                    Column(Modifier.fillMaxWidth(0.75f).padding(AppDimensions.Default.cardPadding)) {
+                    Column(Modifier.fillMaxWidth(0.75f).padding(AppDimensions.Default.spacing.medium)) {
                         AppListTitle {
                             Text("Balance")
                         }

@@ -45,7 +45,7 @@ fun CreateCategoryForm(
     }
 
     Column(
-        verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.fieldSpacing)
+        verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium)
     ) {
         FormTitle("Create a Category")
 

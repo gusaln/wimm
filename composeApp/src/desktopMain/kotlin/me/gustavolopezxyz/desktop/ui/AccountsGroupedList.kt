@@ -62,7 +62,7 @@ fun AccountsList(
 ) {
     accounts.chunked(5).forEach { accountsChunk ->
         Row(
-            modifier = Modifier.fillMaxWidth().padding(bottom = AppDimensions.Default.listSpaceBetween),
+            modifier = Modifier.fillMaxWidth().padding(bottom = AppDimensions.Default.spacing.medium),
             horizontalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium)
         ) {
             accountsChunk.forEach { account ->

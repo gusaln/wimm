@@ -52,14 +52,13 @@ fun CategoryTransactionsList(
     val onNextPageAction = rememberUpdatedState(onNextPage)
     val onPrevPageAction = rememberUpdatedState(onPrevPage)
 
-    Card(modifier = Modifier) {
+    AppCard(modifier = Modifier) {
         Column(
-            modifier = Modifier.padding(AppDimensions.Default.cardPadding),
             verticalArrangement = Arrangement.spacedBy(AppDimensions.Default.spacing.medium)
         ) {
             AppList(modifier = Modifier.verticalScroll(scroll), verticalArrangement = Arrangement.Top) {
                 AppListTitle("Entries")
-                Spacer(Modifier.height(AppDimensions.Default.listSpaceBetween))
+                Spacer(Modifier.height(AppDimensions.Default.spacing.medium))
 
                 transactions.forEach {
                     AppListItem(
@@ -92,7 +91,7 @@ fun CategoryTransactionsList(
                 }
 
                 if (transactions.isEmpty()) {
-                    Spacer(Modifier.height(AppDimensions.Default.listSpaceBetween))
+                    Spacer(Modifier.height(AppDimensions.Default.spacing.medium))
                     Text(
                         "There are no more entries",
                         modifier = Modifier.fillMaxWidth(),
@@ -107,7 +106,7 @@ fun CategoryTransactionsList(
                     }
                 }
 
-                Spacer(Modifier.height(AppDimensions.Default.listSpaceBetween))
+                Spacer(Modifier.height(AppDimensions.Default.spacing.medium))
 
                 SimplePaginationControl(
                     isPrevEnabled = !isFirstPage,

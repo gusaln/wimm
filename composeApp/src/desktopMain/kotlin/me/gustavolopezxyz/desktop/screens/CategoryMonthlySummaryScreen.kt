@@ -17,16 +17,13 @@ import me.gustavolopezxyz.common.money.MissingCurrency
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
 import me.gustavolopezxyz.desktop.navigation.CategoryMonthlySummaryComponent
 import me.gustavolopezxyz.desktop.ui.CategoryTransactionsList
-import me.gustavolopezxyz.desktop.ui.common.AppListTitle
-import me.gustavolopezxyz.desktop.ui.common.ContainerLayout
-import me.gustavolopezxyz.desktop.ui.common.MoneyText
-import me.gustavolopezxyz.desktop.ui.common.ScreenTitle
+import me.gustavolopezxyz.desktop.ui.common.*
 
 @Composable
 fun CategoryMonthlySummaryScreen(component: CategoryMonthlySummaryComponent) {
     if (component.category == null) {
         ContainerLayout {
-            Card(modifier = Modifier.padding(AppDimensions.Default.cardPadding).widthIn(100.dp, 200.dp)) {
+            AppCard(modifier = Modifier.widthIn(100.dp, 200.dp)) {
                 Text("Category not found")
             }
         }
@@ -63,8 +60,8 @@ fun CategoryMonthlySummaryScreen(component: CategoryMonthlySummaryComponent) {
             }
 
             Row {
-                Card {
-                    Column(Modifier.fillMaxWidth(0.75f).padding(AppDimensions.Default.cardPadding)) {
+                AppCard {
+                    Column(Modifier.fillMaxWidth(0.75f)) {
                         AppListTitle {
                             Text("Balance")
                         }

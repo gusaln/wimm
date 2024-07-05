@@ -47,6 +47,7 @@ kotlin {
             implementation(libs.decompose.extensionsCompose)
             implementation(libs.sqldelight.sqliteDriver)
             implementation(libs.bundles.ktor.client)
+            implementation(libs.parsington)
         }
 
 

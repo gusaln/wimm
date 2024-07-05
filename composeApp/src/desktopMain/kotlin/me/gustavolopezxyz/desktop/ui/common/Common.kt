@@ -5,7 +5,6 @@
 package me.gustavolopezxyz.desktop.ui.common
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EditCalendar
 import androidx.compose.material3.*
@@ -13,7 +12,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.*
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
@@ -167,32 +165,3 @@ fun OutlinedDateTextField(
     )
 }
 
-@Composable
-fun OutlinedDoubleField(
-    value: Double,
-    onValueChange: (Double) -> Unit,
-    decimals: Int = 2,
-    modifier: Modifier = Modifier,
-    readOnly: Boolean = false,
-    label: @Composable (() -> Unit)? = null,
-    placeholder: @Composable (() -> Unit)? = null,
-) {
-    OutlinedTextField(
-        value = "%.2f".format(value),
-        onValueChange = { raw ->
-            val sign = if (raw.contains('-')) "-" else ""
-            val minorUnit = raw.filter { c -> c.isDigit() }.padStart(decimals + 2, '0')
-
-            val before = minorUnit.substring(0, minorUnit.length - decimals).padEnd(1, '0')
-            val after = minorUnit.substring(minorUnit.length - decimals).padEnd(decimals, '0')
-
-            onValueChange("$sign$before.$after".toDouble())
-        },
-        modifier = modifier,
-        label = label,
-        placeholder = placeholder,
-        singleLine = true,
-        readOnly = readOnly,
-        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Decimal)
-    )
-}

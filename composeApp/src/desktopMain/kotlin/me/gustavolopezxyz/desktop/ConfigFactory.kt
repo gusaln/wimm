@@ -15,29 +15,31 @@ object ConfigFactory {
     val logger by logger()
 
     fun new(): Config {
-        getAppXdgDir()?.also {
-            logger.debug("Using XDG_DATA_HOME env var to create Config")
+        val dataDir = getDataDir()
 
-            return Config(it, currency = getCurrency())
-        }
-
-        getHomeDir()?.also {
-            logger.debug("Using HOME env var to create Config")
-
-            return Config(it)
-        }
-
-        val currentDirectory = getCurrentDir()
-
-        logger.debug("Using current directory ($currentDirectory) to create Config")
-
-        return Config(currentDirectory, "wimm.db")
+        return Config(
+            dataDir = dataDir, dataFileName = getDataFileName(dataDir), currency = getCurrency()
+        );
     }
 
     private fun getCurrency(): Currency {
         return currencyOf(
             System.getenv("WIMM_CURRENCY") ?: "USD"
         )
+    }
+
+    private fun getDataDir(): String {
+        var dirPath: String? = System.getenv("WIMM_DATA_DIR")
+        if (dirPath != null) {
+            return File(dirPath).absoluteFile.absolutePath
+        }
+        dirPath = getAppXdgDir()
+        if (dirPath != null) return dirPath
+
+        dirPath = getHomeDir()
+        if (dirPath != null) return dirPath
+
+        return getCurrentDir()
     }
 
     private fun getAppXdgDir(): String? {
@@ -48,25 +50,26 @@ object ConfigFactory {
             return null
         }
 
-        val xdgWimmDir = File(xdgDir, "wimm")
-        if ((xdgWimmDir.isDirectory || xdgWimmDir.mkdir()) && xdgWimmDir.canRead() && xdgWimmDir.canWrite()) {
-            return xdgWimmDir.absolutePath
+        val wimmDir = File(xdgDir, "wimm")
+        if ((wimmDir.isDirectory || wimmDir.mkdir()) && wimmDir.canRead() && wimmDir.canWrite()) {
+            return wimmDir.absolutePath
         }
 
         return null
     }
 
     private fun getHomeDir(): String? {
-        val homePath = System.getenv("HOME") ?: return null
+        val homePath =
+            System.getProperty("user.home") ?: System.getenv("USERPROFILE") ?: System.getenv("HOME") ?: return null
 
         val homeDir = File(homePath).absoluteFile
         if (!(homeDir.isDirectory && homeDir.canRead() && homeDir.canWrite())) {
             return null
         }
 
-        val homeWimmDir = File(homeDir, ".wimm")
-        if ((homeWimmDir.isDirectory || homeDir.mkdir()) && homeWimmDir.canRead() && homeWimmDir.canWrite()) {
-            return homeWimmDir.absolutePath
+        val wimmDir = File(homeDir, ".wimm")
+        if ((wimmDir.isDirectory || wimmDir.mkdir()) && wimmDir.canRead() && wimmDir.canWrite()) {
+            return wimmDir.absolutePath
         }
 
         return null
@@ -74,6 +77,19 @@ object ConfigFactory {
 
     private fun getCurrentDir(): String {
         return Path(".").absolute().toString()
+    }
+
+    private fun getDataFileName(dataDir: String): String {
+        val name: String? = System.getenv("WIMM_DATA_FILENAME")
+        if (name != null) {
+            return name
+        }
+
+        if (dataDir == getCurrentDir()) {
+            return "wimm.db"
+        }
+
+        return "data.db"
     }
 }
 

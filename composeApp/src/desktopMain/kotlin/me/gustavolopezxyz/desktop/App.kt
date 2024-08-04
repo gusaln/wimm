@@ -19,10 +19,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import kotlinx.coroutines.launch
 import me.gustavolopezxyz.common.ui.theme.AppDimensions
-import me.gustavolopezxyz.desktop.navigation.ImportTransactionsComponent
+//import me.gustavolopezxyz.desktop.navigation.ImportTransactionsComponent
 import me.gustavolopezxyz.desktop.navigation.RootComponent
 import me.gustavolopezxyz.desktop.screens.CreateTransactionScreen
-import me.gustavolopezxyz.desktop.screens.ImportTransactionsScreen
+//import me.gustavolopezxyz.desktop.screens.ImportTransactionsScreen
 import me.gustavolopezxyz.desktop.services.SnackbarService
 import org.kodein.di.DI
 import org.kodein.di.compose.withDI
@@ -63,29 +63,29 @@ fun App(di: DI, component: RootComponent) = withDI(di) {
     }
 
     var isImportingOpen by remember { mutableStateOf(false) }
-    if (isImportingOpen) {
-        Window(
-            onCloseRequest = { isImportingOpen = false },
-            title = "Sync transactions",
-            alwaysOnTop = true,
-        ) {
-            Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) {
-                Card(Modifier.fillMaxSize(), shape = RoundedCornerShape(0)) {
-                    ImportTransactionsScreen(
-                        ImportTransactionsComponent(
-                            di = di,
-                            onImportTransaction = {
-                                isImportingOpen = false
-                                scope.launch { snackbarHostState.showSnackbar("Transactions imported") }
-                            },
-                            onSyncTransactions = {},
-                            onCancel = { isImportingOpen = false }
-                        )
-                    )
-                }
-            }
-        }
-    }
+//    if (isImportingOpen) {
+//        Window(
+//            onCloseRequest = { isImportingOpen = false },
+//            title = "Sync transactions",
+//            alwaysOnTop = true,
+//        ) {
+//            Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) {
+//                Card(Modifier.fillMaxSize(), shape = RoundedCornerShape(0)) {
+//                    ImportTransactionsScreen(
+//                        ImportTransactionsComponent(
+//                            di = di,
+//                            onImportTransaction = {
+//                                isImportingOpen = false
+//                                scope.launch { snackbarHostState.showSnackbar("Transactions imported") }
+//                            },
+//                            onSyncTransactions = {},
+//                            onCancel = { isImportingOpen = false }
+//                        )
+//                    )
+//                }
+//            }
+//        }
+//    }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },

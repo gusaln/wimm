@@ -11,3 +11,9 @@ CREATE TABLE exchangeRate (
     UNIQUE (baseCurrency, counterCurrency, effectiveSince)
 );
 
+CREATE TABLE IF NOT EXISTS migration (
+    migrationId INTEGER PRIMARY KEY,
+    datetime INTEGER NOT NULL
+);
+INSERT INTO migration (migrationId, datetime) VALUES (7, strftime('%s', 'now'));
+DELETE FROM migration WHERE migrationId < 7;

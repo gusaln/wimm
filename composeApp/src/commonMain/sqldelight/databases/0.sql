@@ -52,3 +52,10 @@ CREATE TABLE entry (
             ON DELETE CASCADE
             ON UPDATE NO ACTION
 );
+
+CREATE TABLE IF NOT EXISTS migration (
+    migrationId INTEGER PRIMARY KEY,
+    datetime INTEGER NOT NULL
+);
+
+INSERT INTO migration (migrationId, datetime) VALUES (0, strftime('%s', 'now'));

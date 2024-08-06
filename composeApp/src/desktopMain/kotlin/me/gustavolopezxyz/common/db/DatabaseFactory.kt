@@ -5,7 +5,9 @@
 package me.gustavolopezxyz.common.db
 
 import app.cash.sqldelight.EnumColumnAdapter
+import app.cash.sqldelight.driver.jdbc.JdbcPreparedStatement
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
+import kotlinx.datetime.Instant
 import me.gustavolopezxyz.common.data.Account
 import me.gustavolopezxyz.common.data.Entry
 import me.gustavolopezxyz.common.data.ExchangeRate
@@ -28,28 +30,16 @@ actual class DatabaseFactory(private val config: Config) {
             moneyTransactionAdapter = MoneyTransaction.Adapter(instantColumnAdapter),
         ).also {
             if (File(dbFile).exists()) {
-                Database.Schema.migrate(driver, getLastMigration(), Database.Schema.version)
+                var migration = 6L
+                try {
+                    migration = it.migrationQueries.select().executeAsOne().migrationId ?: 6
+                } catch (_: Error) {
+                }
+
+                Database.Schema.migrate(driver, migration, Database.Schema.version)
             } else {
                 Database.Schema.migrate(driver, 0, Database.Schema.version)
             }
-
-            updateLastMigration()
         }
     }
-
-    private fun getLastMigration(): Long {
-        val lastMigrationFile = getLastMigrationFile()
-
-        if (lastMigrationFile.isFile && lastMigrationFile.canRead()) return lastMigrationFile.readText().trim().toLong()
-
-        return Database.Schema.version
-    }
-
-    private fun updateLastMigration() {
-        val lastMigrationFile = getLastMigrationFile()
-
-        lastMigrationFile.writeText(Database.Schema.version.toString())
-    }
-
-    private fun getLastMigrationFile(): File = File("${config.dataFilePath}.schema-version")
 }

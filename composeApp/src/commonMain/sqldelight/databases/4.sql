@@ -27,3 +27,12 @@ GROUP BY m.transactionId;
 DROP TABLE moneyTransactionLegacy;
 
 PRAGMA foreign_keys = 1;
+
+CREATE TABLE IF NOT EXISTS migration (
+    migrationId INTEGER PRIMARY KEY,
+    datetime INTEGER NOT NULL
+);
+
+INSERT INTO migration (migrationId, datetime) VALUES (4, strftime('%s', 'now'));
+
+DELETE FROM migration WHERE migrationId < 4;

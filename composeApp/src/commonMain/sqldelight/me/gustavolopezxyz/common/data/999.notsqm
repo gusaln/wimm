@@ -1,0 +1,64 @@
+import kotlinx.datetime.Instant;
+import me.gustavolopezxyz.common.data.BucketType;
+
+CREATE TABLE bucketCategory (
+    bucketCategoryId INTEGER PRIMARY KEY,
+    name TEXT NOT NULL
+);
+
+CREATE TABLE bucket (
+    bucketId INTEGER PRIMARY KEY,
+    bucketCategoryId INTEGER,
+--     categoryId INTEGER,
+    name TEXT NOT NULL,
+    type TEXT AS BucketType NOT NULL,
+    targetAmount REAL NOT NULL,
+    balance REAL NOT NULL DEFAULT 0,
+    lastResetAt INTEGER AS Instant,
+
+    FOREIGN KEY (bucketCategoryId)
+            REFERENCES bucketCategory (bucketCategoryId)
+                ON DELETE CASCADE
+                ON UPDATE NO ACTION
+--                 ,
+--    FOREIGN KEY (categoryId)
+--             REFERENCES category (categoryId)
+--                 ON DELETE CASCADE
+--                 ON UPDATE NO ACTION
+);
+
+CREATE TABLE bucketAllocation (
+    bucketAllocationId INTEGER PRIMARY KEY,
+    bucketId INTEGER NOT NULL,
+    year INTEGER NOT NULL,
+    month INTEGER NOT NULL,
+    amount REAL NOT NULL DEFAULT 0,
+
+    UNIQUE (bucketId, year, month),
+
+    FOREIGN KEY (bucketId)
+            REFERENCES bucket (bucketId)
+                ON DELETE CASCADE
+                ON UPDATE NO ACTION
+);
+
+CREATE TABLE transactionSplit (
+    transactionSplitId INTEGER PRIMARY KEY,
+    transactionId INTEGER NOT NULL,
+    bucketId INTEGER NOT NULL,
+    amount REAL NOT NULL,
+
+    UNIQUE (transactionId, bucketId),
+
+    FOREIGN KEY (transactionId)
+        REFERENCES moneyTransaction (transactionId)
+            ON DELETE CASCADE
+            ON UPDATE NO ACTION,
+    FOREIGN KEY (bucketId)
+        REFERENCES bucket (bucketId)
+            ON DELETE CASCADE
+            ON UPDATE NO ACTION
+);
+
+-- should monetTransaction denormalized the uncategorized amount ?
+

@@ -1,0 +1,30 @@
+import kotlinx.datetime.Instant;
+
+CREATE TABLE realAccount (
+    realAccountId INTEGER PRIMARY KEY,
+    accountId INTEGER,
+--     type TEXT AS AccountType NOT NULL,
+    name TEXT NOT NULL,
+    currency TEXT NOT NULL,
+    balance REAL NOT NULL DEFAULT 0,
+
+   FOREIGN KEY (accountId)
+           REFERENCES account (accountId)
+               ON DELETE CASCADE
+               ON UPDATE NO ACTION
+);
+
+CREATE TABLE realTransaction (
+    realTransactionId INTEGER PRIMARY KEY,
+    realAccountId INTEGER NOT NULL,
+    transactionUid TEXT NOT NULL,
+    memo TEXT,
+    reference TEXT NOT NULL,
+    amount REAL NOT NULL,
+    date INTEGER AS Instant NOT NULL,
+
+    FOREIGN KEY (realAccountId)
+            REFERENCES realAccount (realAccountId)
+                ON DELETE CASCADE
+                ON UPDATE NO ACTION
+);

@@ -13,14 +13,14 @@ import kotlinx.datetime.LocalDate
 import me.gustavolopezxyz.common.ext.datetime.nowLocalDateTime
 import me.gustavolopezxyz.common.worldparsers.ExcelParser
 import me.gustavolopezxyz.common.worldparsers.ExternalTransaction
-import net.sandius.rembulan.Table
-import net.sandius.rembulan.Variable
-import net.sandius.rembulan.compiler.CompilerChunkLoader
-import net.sandius.rembulan.env.RuntimeEnvironments
-import net.sandius.rembulan.exec.DirectCallExecutor
-import net.sandius.rembulan.impl.StateContexts
-import net.sandius.rembulan.lib.StandardLibrary
-import net.sandius.rembulan.load.ChunkLoader
+//import net.sandius.rembulan.Table
+//import net.sandius.rembulan.Variable
+//import net.sandius.rembulan.compiler.CompilerChunkLoader
+//import net.sandius.rembulan.env.RuntimeEnvironments
+//import net.sandius.rembulan.exec.DirectCallExecutor
+//import net.sandius.rembulan.impl.StateContexts
+//import net.sandius.rembulan.lib.StandardLibrary
+//import net.sandius.rembulan.load.ChunkLoader
 import org.dhatim.fastexcel.reader.ReadableWorkbook
 import org.dhatim.fastexcel.reader.Sheet
 import org.kodein.di.DI
@@ -122,15 +122,15 @@ class Transform {
         val err = Files.createTempFile("wimm-err", null)
 
 // initialise state
-        val state = StateContexts.newDefaultInstance()
-        val env: Table = StandardLibrary.`in`(RuntimeEnvironments.system(input, output.toFile().outputStream(), err.toFile().outputStream())).installInto(state)
+//        val state = StateContexts.newDefaultInstance()
+//        val env: Table = StandardLibrary.`in`(RuntimeEnvironments.system(input, output.toFile().outputStream(), err.toFile().outputStream())).installInto(state)
 
 // compile
-        val loader: ChunkLoader = CompilerChunkLoader.of("hello_world")
-        val main = loader.loadTextChunk(Variable(env), "hello", program)
+//        val loader: ChunkLoader = CompilerChunkLoader.of("hello_world")
+//        val main = loader.loadTextChunk(Variable(env), "hello", program)
 
 
 // execute
-        DirectCallExecutor.newExecutor().call(state, main)
+//        DirectCallExecutor.newExecutor().call(state, main)
     }
 }

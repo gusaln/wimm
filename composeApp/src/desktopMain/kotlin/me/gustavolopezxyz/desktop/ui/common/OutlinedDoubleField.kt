@@ -4,22 +4,18 @@
 
 package me.gustavolopezxyz.desktop.ui.common
 
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.Cancel
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import org.scijava.parsington.eval.DefaultEvaluator
 
@@ -36,7 +32,7 @@ fun OutlinedDoubleField(
     var useCalculator by remember { mutableStateOf(false) }
 
     if (useCalculator) {
-        var formula by remember { mutableStateOf("") }
+        var formula by remember { mutableStateOf(NumberFormatter.format(value.toString())) }
 
         OutlinedTextField(
             value = formula,

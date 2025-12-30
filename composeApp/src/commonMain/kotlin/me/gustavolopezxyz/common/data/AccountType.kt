@@ -8,13 +8,18 @@ package me.gustavolopezxyz.common.data
 // Cash + Envelope + Asset = (Income - Expense)
 enum class AccountType {
     Cash,
-    Envelope,
     Asset,
     Receivable,
 
     Payable,
     Expense,
-    Income;
+    Income,
+
+    // new model
+    Normal,
+    Debt,
+    Envelope,
+    ;
 
     val isAsset: Boolean
         get() = when (this) {

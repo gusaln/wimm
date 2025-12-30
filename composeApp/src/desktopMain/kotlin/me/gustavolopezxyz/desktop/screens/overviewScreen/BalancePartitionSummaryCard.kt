@@ -40,7 +40,7 @@ fun BalancePartitionSummaryCard(
     actions: @Composable RowScope.() -> Unit
 ) {
     var includeDebt by remember { mutableStateOf(true) }
-    var includeEnvelopes by remember { mutableStateOf(true) }
+    var includeEnvelopes by remember { mutableStateOf(false) }
     var includeNotLiquid by remember { mutableStateOf(true) }
     val assetAccounts by derivedStateOf {
         accountRepository.getAll()

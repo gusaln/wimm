@@ -48,6 +48,9 @@ kotlin {
             implementation(libs.sqldelight.sqliteDriver)
             implementation(libs.bundles.ktor.client)
             implementation(libs.parsington)
+
+            implementation(libs.fastexcel.core)
+            implementation(libs.fastexcel.reader)
         }
 
 
